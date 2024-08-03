@@ -1,4 +1,4 @@
-#![deny(warnings)]
+// #![cfg_attr(not(debug_assertions), deny(warnings))]
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;

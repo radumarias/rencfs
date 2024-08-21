@@ -43,6 +43,7 @@ async fn main() -> Result<()> {
     fs.release(fh).await?;
     assert_eq!(data, String::from_utf8(buf)?);
     fs::remove_dir_all(data_dir)?;
+    println!("All good, bye!");
 
     Ok(())
 }

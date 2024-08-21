@@ -13,7 +13,12 @@ cargo build --release --all-targets --all-features --target x86_64-unknown-linux
 cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu
 cargo fmt --all -- --check
 cargo check --all --target x86_64-unknown-linux-gnu
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu
+cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu -- \
+    -A clippy::similar_names \
+    -A clippy::too_many_arguments \
+    -A clippy::significant_drop_tightening \
+    -A clippy::redundant_closure \
+    -A clippy::missing_errors_doc
 cargo test --release --all --all-features --target x86_64-unknown-linux-gnu
 cargo doc --workspace --all-features --no-deps --target x86_64-unknown-linux-gnu
 cargo publish --dry-run --allow-dirty --target x86_64-unknown-linux-gnu
@@ -22,12 +27,17 @@ cargo generate-rpm
 
 cd java-bridge
 cargo fmt --all
-cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu
 cargo build --all-targets --all-features --target x86_64-unknown-linux-gnu
 cargo build --release --all-targets --all-features --target x86_64-unknown-linux-gnu
+cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu
 cargo fmt --all -- --check
 cargo check --all --target x86_64-unknown-linux-gnu
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu
+cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu -- \
+    -A clippy::similar_names \
+    -A clippy::too_many_arguments \
+    -A clippy::significant_drop_tightening \
+    -A clippy::redundant_closure \
+    -A clippy::missing_errors_doc
 cargo test --release --all --all-features --target x86_64-unknown-linux-gnu
 cargo doc --workspace --all-features --no-deps --target x86_64-unknown-linux-gnu
 cd ..

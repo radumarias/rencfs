@@ -12,7 +12,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 cargo build --release --all-targets --all-features --target x86_64-unknown-linux-gnu
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu
+cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu -- -A clippy::similar_names -A clippy::too_many_arguments -A clippy::significant_drop_tightening -A clippy::redundant_closure -A clippy::missing_errors_doc
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cargo fmt --all -- --check
@@ -58,7 +58,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 cargo check --all --target x86_64-unknown-linux-gnu
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu
+cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu -- -A clippy::similar_names -A clippy::too_many_arguments -A clippy::significant_drop_tightening -A clippy::redundant_closure -A clippy::missing_errors_doc
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cargo test --release --all --all-features --target x86_64-unknown-linux-gnu

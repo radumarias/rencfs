@@ -47,6 +47,7 @@ jobs:
         run: cargo publish --dry-run --allow-dirty
 
       - name: test package
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cargo aur
           cargo generate-rpm

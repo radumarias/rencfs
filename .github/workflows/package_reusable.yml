@@ -55,17 +55,17 @@ jobs:
 
   docker:
     name: docker
-    permissions:
-      id-token: write
-      packages: write
-      contents: read
-      attestations: write
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
       fail-fast: true 
     if: matrix.os == 'ubuntu-latest'
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
     env:
       # Hostname of your registry
       REGISTRY: docker.io

@@ -1,6 +1,11 @@
 name: release
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Select branch for release'
+        required: true
+        default: 'release'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true  

@@ -3,7 +3,7 @@ use std::io::{Cursor, Write};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::{Arc, LazyLock};
-use std::{fs, io};
+use std::{env, fs, io};
 
 use secrecy::SecretString;
 use tempfile::NamedTempFile;
@@ -15,7 +15,14 @@ use crate::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, PasswordProvider
 
 #[allow(dead_code)]
 pub static TESTS_DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
-    let tmp = NamedTempFile::new().unwrap().into_temp_path();
+    let tmp = if env::var("RENCFS_RUN_ON_GH")
+        .unwrap_or_else(|_| String::new())
+        .eq("1")
+    {
+        NamedTempFile::new_in(".").unwrap().into_temp_path()
+    } else {
+        NamedTempFile::new().unwrap().into_temp_path()
+    };
     fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
     tmp.parent()
         .expect("oops, we don't have a parent")

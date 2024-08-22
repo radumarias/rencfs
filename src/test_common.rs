@@ -19,12 +19,16 @@ pub static TESTS_DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
         .unwrap_or_else(|_| String::new())
         .eq("1")
     {
-        NamedTempFile::new_in(".").unwrap().into_temp_path()
+        NamedTempFile::new_in(".")
+            .unwrap()
+            .into_temp_path()
+            .to_path_buf()
     } else {
-        NamedTempFile::new().unwrap().into_temp_path()
+        let tmp = NamedTempFile::new().unwrap().into_temp_path();
+        fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
+        tmp.to_path_buf()
     };
     println!("tmp {}", tmp.to_path_buf().to_string_lossy());
-    fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
     tmp.parent()
         .expect("oops, we don't have a parent")
         .join("rencfs-test-data")

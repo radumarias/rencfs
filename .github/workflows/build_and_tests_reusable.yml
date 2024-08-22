@@ -2,6 +2,11 @@ name: '#reusable build and tests reusable'
 on:
   workflow_call:
 
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0 # TODO: remove this when we cache the builds
+  RENCFS_RUN_ON_GH: 1
+  
 jobs:
   tests:
     name: build and tests

@@ -23,6 +23,7 @@ pub static TESTS_DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     } else {
         NamedTempFile::new().unwrap().into_temp_path()
     };
+    println!("tmp {}", tmp.to_path_buf().to_string_lossy());
     fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
     tmp.parent()
         .expect("oops, we don't have a parent")

@@ -344,8 +344,6 @@ async fn run_mount(cipher: Cipher, matches: &ArgMatches) -> Result<()> {
         cipher,
         matches.get_flag("allow-root"),
         matches.get_flag("allow-other"),
-        matches.get_flag("direct-io"),
-        matches.get_flag("suid"),
         matches.get_flag("read-only"),
     );
     let mount_handle = mount_point.mount().await.map_err(|err| {

@@ -20,8 +20,6 @@ pub struct MountPointImpl {
     cipher: Cipher,
     allow_root: bool,
     allow_other: bool,
-    direct_io: bool,
-    suid_support: bool,
     read_only: bool,
 }
 
@@ -34,8 +32,6 @@ impl MountPoint for MountPointImpl {
         cipher: Cipher,
         allow_root: bool,
         allow_other: bool,
-        direct_io: bool,
-        suid_support: bool,
         read_only: bool,
     ) -> Self {
         Self {
@@ -45,8 +41,6 @@ impl MountPoint for MountPointImpl {
             cipher,
             allow_root,
             allow_other,
-            direct_io,
-            suid_support,
             read_only,
         }
     }

@@ -59,8 +59,6 @@
 //!         false,
 //!         false,
 //!         false,
-//!         false,
-//!         false,
 //!     );
 //!     let handle = mount_point.mount().await?;
 //!     let mut buffer = String::new();

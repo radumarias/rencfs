@@ -34,8 +34,6 @@ pub trait MountPoint {
         cipher: Cipher,
         allow_root: bool,
         allow_other: bool,
-        direct_io: bool,
-        suid_support: bool,
         read_only: bool,
     ) -> Self
     where
@@ -73,8 +71,6 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 /// Currently, it supports these ciphers [`Cipher`]  
 /// **`allow_root`** allow root to access the file system  
 /// **`allow_other`** allow other users to access the file system  
-/// **`direct_io`** use direct I/O (bypass page cache for open files)
-/// **`suid_support`** if it should allow setting `SUID` and `SGID` when files are created. On `false` it will unset those flags when creating files
 /// **`read_only`** Set fuse filesystem read-only mount option, default is disabled.
 ///
 #[must_use]
@@ -86,8 +82,6 @@ pub fn create_mount_point(
     cipher: Cipher,
     allow_root: bool,
     allow_other: bool,
-    direct_io: bool,
-    suid_support: bool,
     read_only: bool,
 ) -> impl MountPoint {
     MountPointImpl::new(
@@ -97,8 +91,6 @@ pub fn create_mount_point(
         cipher,
         allow_root,
         allow_other,
-        direct_io,
-        suid_support,
         read_only,
     )
 }

@@ -128,7 +128,7 @@ impl Iterator for DirectoryEntryPlusIterator {
     }
 }
 
-pub struct EncryptedFsFuse3 {
+struct EncryptedFsFuse3 {
     fs: Arc<EncryptedFs>,
 }
 

@@ -404,14 +404,14 @@ async fn run_mount(cipher: Cipher, matches: &ArgMatches) -> Result<()> {
 fn remove_pass() {
     unsafe {
         if PASS.is_none() {
-            info!("Delete key from keyring");
+            info!("Delete password from keyring");
             keyring::remove("password")
                 .map_err(|err| {
                     error!(err = %err);
                 })
                 .ok();
         } else {
-            info!("Remove key from memory");
+            info!("Remove password from memory");
             PASS = None;
         }
     }

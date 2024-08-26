@@ -5,6 +5,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true  
 
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0 # TODO: remove this when we cache the builds
+
 jobs:
   version:
     uses: radumarias/rencfs/.github/workflows/version_reusable.yml@main

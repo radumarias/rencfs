@@ -3,7 +3,7 @@ use std::io::{Cursor, Write};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::{Arc, LazyLock};
-use std::{fs, io};
+use std::{env, fs, io};
 
 use secrecy::SecretString;
 use tempfile::NamedTempFile;
@@ -15,8 +15,20 @@ use crate::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, PasswordProvider
 
 #[allow(dead_code)]
 pub static TESTS_DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
-    let tmp = NamedTempFile::new().unwrap().into_temp_path();
-    fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
+    let tmp = if env::var("RENCFS_RUN_ON_GH")
+        .unwrap_or_else(|_| String::new())
+        .eq("1")
+    {
+        NamedTempFile::new_in(".")
+            .unwrap()
+            .into_temp_path()
+            .to_path_buf()
+    } else {
+        let tmp = NamedTempFile::new().unwrap().into_temp_path();
+        fs::remove_file(tmp.to_str().unwrap()).expect("cannot remove tmp file");
+        tmp.to_path_buf()
+    };
+    println!("tmp {}", tmp.to_path_buf().to_string_lossy());
     tmp.parent()
         .expect("oops, we don't have a parent")
         .join("rencfs-test-data")
@@ -68,6 +80,7 @@ async fn setup(setup: TestSetup) -> SetupResult {
         Path::new(data_dir_str).to_path_buf(),
         Box::new(PasswordProviderImpl {}),
         Cipher::ChaCha20Poly1305,
+        false,
     )
     .await
     .unwrap();

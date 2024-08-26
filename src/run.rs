@@ -344,8 +344,6 @@ async fn run_mount(cipher: Cipher, matches: &ArgMatches) -> Result<()> {
         cipher,
         matches.get_flag("allow-root"),
         matches.get_flag("allow-other"),
-        matches.get_flag("direct-io"),
-        matches.get_flag("suid"),
         matches.get_flag("read-only"),
     );
     let mount_handle = mount_point.mount().await.map_err(|err| {
@@ -406,14 +404,14 @@ async fn run_mount(cipher: Cipher, matches: &ArgMatches) -> Result<()> {
 fn remove_pass() {
     unsafe {
         if PASS.is_none() {
-            info!("Delete key from keyring");
+            info!("Delete password from keyring");
             keyring::remove("password")
                 .map_err(|err| {
                     error!(err = %err);
                 })
                 .ok();
         } else {
-            info!("Remove key from memory");
+            info!("Remove password from memory");
             PASS = None;
         }
     }

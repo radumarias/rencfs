@@ -5,14 +5,14 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0 # TODO: remove this when we cache the builds
-
+  
 jobs:
   tests:
     name: build and tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, macos-latest ]
       fail-fast: true    
     steps:
       - uses: actions/checkout@v4

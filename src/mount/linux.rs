@@ -128,7 +128,7 @@ impl Iterator for DirectoryEntryPlusIterator {
     }
 }
 
-pub struct EncryptedFsFuse3 {
+struct EncryptedFsFuse3 {
     fs: Arc<EncryptedFs>,
 }
 
@@ -139,7 +139,7 @@ impl EncryptedFsFuse3 {
         cipher: Cipher,
     ) -> FsResult<Self> {
         Ok(Self {
-            fs: EncryptedFs::new(data_dir, password_provider, cipher).await?,
+            fs: EncryptedFs::new(data_dir, password_provider, cipher, false).await?,
         })
     }
 
@@ -1355,8 +1355,6 @@ pub struct MountPointImpl {
     cipher: Cipher,
     allow_root: bool,
     allow_other: bool,
-    direct_io: bool,
-    suid_support: bool,
     read_only: bool,
 }
 
@@ -1369,8 +1367,6 @@ impl MountPoint for MountPointImpl {
         cipher: Cipher,
         allow_root: bool,
         allow_other: bool,
-        direct_io: bool,
-        suid_support: bool,
         read_only: bool,
     ) -> Self {
         Self {
@@ -1380,8 +1376,6 @@ impl MountPoint for MountPointImpl {
             cipher,
             allow_root,
             allow_other,
-            direct_io,
-            suid_support,
             read_only,
         }
     }
@@ -1394,8 +1388,6 @@ impl MountPoint for MountPointImpl {
             self.cipher,
             self.allow_root,
             self.allow_other,
-            self.direct_io,
-            self.suid_support,
             self.read_only,
         )
         .await?;
@@ -1432,8 +1424,6 @@ async fn mount_fuse(
     cipher: Cipher,
     allow_root: bool,
     allow_other: bool,
-    direct_io: bool,
-    suid_support: bool,
     read_only: bool,
 ) -> FsResult<MountHandle> {
     // create mount point if it doesn't exist

@@ -27,7 +27,13 @@ async fn main() -> Result<()> {
     let data_dir = Path::new("/tmp/rencfs_data_test").to_path_buf();
     let _ = fs::remove_dir_all(data_dir.to_str().unwrap());
     let cipher = Cipher::ChaCha20Poly1305;
-    let fs = EncryptedFs::new(data_dir.clone(), Box::new(PasswordProviderImpl {}), cipher, false).await?;
+    let fs = EncryptedFs::new(
+        data_dir.clone(),
+        Box::new(PasswordProviderImpl {}),
+        cipher,
+        false,
+    )
+    .await?;
 
     let file1 = SecretString::from_str("file1").unwrap();
     let (fh, attr) = fs

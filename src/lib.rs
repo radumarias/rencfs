@@ -304,7 +304,7 @@ pub(crate) mod test_common;
 pub static UID: LazyLock<u32> = LazyLock::new(|| {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     unsafe {
-        return libc::getuid();
+        libc::getuid()
     }
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
@@ -314,7 +314,7 @@ pub static UID: LazyLock<u32> = LazyLock::new(|| {
 pub static GID: LazyLock<u32> = LazyLock::new(|| {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     unsafe {
-        return libc::getgid();
+        libc::getgid()
     }
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {

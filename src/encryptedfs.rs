@@ -1761,7 +1761,9 @@ impl EncryptedFs {
     /// Open a file. We can open multiple times for read but only one to write at a time.
     #[allow(clippy::missing_panics_doc)]
     pub async fn open(&self, ino: u64, read: bool, write: bool) -> FsResult<u64> {
-        let write = write || !self.is_read_only().await;
+        if write && self.is_read_only().await {
+            return Err(FsError::ReadOnly);
+        }
         if !read && !write {
             return Err(FsError::InvalidInput(
                 "read and write cannot be false at the same time",

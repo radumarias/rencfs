@@ -137,9 +137,10 @@ impl EncryptedFsFuse3 {
         data_dir: PathBuf,
         password_provider: Box<dyn PasswordProvider>,
         cipher: Cipher,
+        read_only: bool,
     ) -> FsResult<Self> {
         Ok(Self {
-            fs: EncryptedFs::new(data_dir, password_provider, cipher, false).await?,
+            fs: EncryptedFs::new(data_dir, password_provider, cipher, read_only).await?,
         })
     }
 
@@ -1446,7 +1447,7 @@ async fn mount_fuse(
     info!("Checking password and mounting FUSE filesystem");
     Ok(Session::new(mount_options)
         .mount_with_unprivileged(
-            EncryptedFsFuse3::new(data_dir, password_provider, cipher).await?,
+            EncryptedFsFuse3::new(data_dir, password_provider, cipher, read_only).await?,
             mount_path,
         )
         .await?)

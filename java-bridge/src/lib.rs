@@ -215,6 +215,7 @@ pub extern "system" fn Java_RustLibrary_mount(
 }
 
 /// Unmounts the filesystem at `mount handle` returned by [mount].
+#[allow(rustdoc::broken_intra_doc_links)]
 #[allow(non_snake_case)]
 #[no_mangle]
 pub extern "system" fn Java_RustLibrary_umount(

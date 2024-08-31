@@ -16,7 +16,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
    and [VSCode](https://code.visualstudio.com/docs/languages/rust#_formatting)
 11. `cargo clippy --all --release` and fix any erorrs
 12. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
-13. **MAKE SURE YOU RUN THIS BEFORE PUSHING TO THE REPO `./check-before-push.sh` or `cmd /c check-before-push.bat` and fix any errors**
+13. **MAKE SURE YOU RUN THIS BEFORE PUSHING TO THE REPO `./check-before-push-OS.sh` or `cmd /c check-before-push-OS.bat` (for your OS) and fix any errors**
 14. Create a **PR** back to the **parent** repo targeting the `main` branch and reques review from owners of the repository
 15. Monitor the checks (GitHub actions run) and fix the code if they are failing
 16. Respond to any comments

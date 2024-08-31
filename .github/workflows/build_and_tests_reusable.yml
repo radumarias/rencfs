@@ -36,7 +36,7 @@ jobs:
 
       - name: clippy
         run: |
-          cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu -- \
+          cargo clippy --all-targets --release -- \
             -A clippy::similar_names \
             -A clippy::too_many_arguments \
             -A clippy::significant_drop_tightening \
@@ -77,7 +77,7 @@ jobs:
 
       - name: java-bridge clippy
         run: |
-          cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu -- \
+          cargo clippy --all-targets --release -- \
             -A clippy::similar_names \
             -A clippy::too_many_arguments \
             -A clippy::significant_drop_tightening \

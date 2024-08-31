@@ -77,10 +77,9 @@ A --> C(Round Rect)
 B --> D{Rhombus}
 C --> D
 ```
-
 - it's fully async built upon [tokio](https://crates.io/crates/tokio) and [fuse3](https://crates.io/crates/fuse3)
 - [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation
-  function (creating key used to encrypt master encryption key from password)
+  function (creating key used to encrypt the master encryption key from password)
 - [rand_chacha](https://crates.io/crates/rand_chacha) for random generators
 - [secrecy](https://crates.io/crates/secrecy) for keeping pass and encryption keys safe in memory and zeroing them when
   not used. It keeps encryption keys in memory only while being used, and when not active it will release and zeroing
@@ -131,7 +130,7 @@ Get the container ID
 docker ps
 ```
 
-In another terminal attach to running container with the above ID
+In another terminal, attach to running container with the above ID
 
 ```bash
 docker exec -it <ID> /bin/sh
@@ -192,7 +191,7 @@ A basic example of how to use the encrypted file system is shown below
 rencfs mount --mount-point MOUNT_POINT --data-dir DATA_DIR
 ```
 
-- `MOUNT_POINT` act as a client, and mount FUSE at given path
+- `MOUNT_POINT` act as a client, and mount FUSE at the given path
 - `DATA_DIR` where to store the encrypted data
   with the sync provider. But it needs to be on the same filesystem as the data-dir
 
@@ -266,7 +265,9 @@ cat test.txt
 
 ## Locally
 
-For now the `FUSE` (`fuse3` crate)  only works on `Linux`, so in order to start the project you will need to be on Linux. Alternativelly you can [Develop inside a Container](#developing-inside-a-container), which will start a local Linux container, the IDE will connect to it, you can build and start the app in there and also use terminal to test it.
+For now the `FUSE` (`fuse3` crate) only works on `Linux`, so to start the project you will need to be on Linux. 
+Instead, you can [Develop inside a Container](#developing-inside-a-container), which will start a local Linux container, the IDE will connect to it, 
+you can build and start the app in there and also use terminal to test it.
 
 ### Getting the sources
 
@@ -343,7 +344,7 @@ cargo run --release -- mount --mount-point MOUNT_POINT --data-dir DATA_DIR
 
 #### Dev settings
 
-If you don't want to be prompted for password you can set this env var and run like this:
+If you don't want to be prompted for password, you can set this env var and run like this:
 
 ```bash
 RENCFS_PASSWORD=PASS cargo run --release -- mount --mount-point MOUNT_POINT --data-dir DATA_DIR
@@ -432,7 +433,7 @@ Both are good options. `AES-GCM` can be faster with **hardware support**, but **
 # Security
 
 - **Phantom reads**: reading older content from a file, this is not possible. Data is written with WAL and periodically
-  flushed to file. This ensures data integrity and maintain changes order.
+  flushed to file. This ensures data integrity and maintains change order.
   One problem that may occur is if we do a truncate we change the content of the file, but the process is killed before
   we write the metadata with the new filesize. In this case, next time we mount the system, we are still seeing the old
   filesize. However, the content of the file could be bigger, and we read until the old size offset, so we would not
@@ -457,7 +458,7 @@ Both are good options. `AES-GCM` can be faster with **hardware support**, but **
   OS level. Please see [here](https://www.cyberciti.biz/faq/disable-core-dumps-in-linux-with-systemd-sysctl/) how to do
   it on Linux
 - **Cold boot attacks**: to reduce the risk of this, we keep the encryption key in memory just as long as we really
-  need it to encrypt/decrypt data and we are zeroing it after that. We also remove it from memory after a period of
+  need it to encrypt/decrypt data, and we are zeroing it after that. We also remove it from memory after a period of
   inactivity
 - Please note this project was not audited by any security expert. It's built with security in mind and tries to
   follow all the best practices, but it's not guaranteed to be secure
@@ -479,7 +480,8 @@ Both are good options. `AES-GCM` can be faster with **hardware support**, but **
 
 # Contribute
 
-Feel free to fork it, change and use it in any way that you want. If you build something interesting and feel like sharing pull requests are always appreciated.
+Feel free to fork it, change and use it in any way that you want. If you build something interesting and feel like sharing 
+pull requests are always appreciated.
 
 ## How to contribute
 

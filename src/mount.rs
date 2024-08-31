@@ -75,10 +75,7 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 /// **`read_only`** Set fuse filesystem read-only mount option, default is disabled.
 ///
 #[must_use]
-#[allow(
-    clippy::fn_params_excessive_bools,
-    clippy::too_long_first_doc_paragraph
-)]
+#[allow(clippy::fn_params_excessive_bools)]
 pub fn create_mount_point(
     mountpoint: &Path,
     data_dir: &Path,

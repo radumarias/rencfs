@@ -18,7 +18,6 @@ cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu ^
     -A clippy::significant_drop_tightening ^
     -A clippy::redundant_closure ^
     -A clippy::missing_errors_doc ^
-    -A clippy::too_long_first_doc_paragraph ^
     -A clippy::type_complexity
 if %errorlevel% neq 0 exit /b %errorlevel%
 
@@ -71,7 +70,6 @@ cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu ^
     -A clippy::significant_drop_tightening ^
     -A clippy::redundant_closure ^
     -A clippy::missing_errors_doc ^
-    -A clippy::too_long_first_doc_paragraph ^
     -A clippy::type_complexity
 if %errorlevel% neq 0 exit /b %errorlevel%
 

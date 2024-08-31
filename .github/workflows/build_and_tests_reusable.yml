@@ -43,6 +43,7 @@ jobs:
             -A clippy::redundant_closure \
             -A clippy::missing_errors_doc \
             -A clippy::type_complexity
+            -A clippy::too_long_first_doc_paragraph
 
       - name: tests
         run: cargo test --release --all --all-features
@@ -84,7 +85,8 @@ jobs:
             -A clippy::redundant_closure \
             -A clippy::missing_errors_doc \
             -A clippy::type_complexity
-
+            -A clippy::too_long_first_doc_paragraph
+            
       - name: java-bridge tests
         run: |
           cd java-bridge

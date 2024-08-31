@@ -6,13 +6,13 @@ set RUSTDOCFLAGS=-Dwarnings
 cargo fmt --all
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo build --all-targets --all-features --target x86_64-unknown-linux-gnu
+cargo build --all-targets --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo build --release --all-targets --all-features --target x86_64-unknown-linux-gnu
+cargo build --release --all-targets --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu ^
+cargo clippy --all-targets --release ^
     -A clippy::similar_names ^
     -A clippy::too_many_arguments ^
     -A clippy::significant_drop_tightening ^
@@ -24,19 +24,19 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 cargo fmt --all -- --check
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo check --all --target x86_64-unknown-linux-gnu
+cargo check --all
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu
+cargo clippy --all-targets --release
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo test --release --all --all-features --target x86_64-unknown-linux-gnu
+cargo test --release --all --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo doc --workspace --all-features --no-deps --target x86_64-unknown-linux-gnu
+cargo doc --workspace --all-features --no-deps
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo publish --dry-run --allow-dirty --target x86_64-unknown-linux-gnu
+cargo publish --dry-run --allow-dirty
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cargo aur
@@ -49,22 +49,22 @@ cd java-bridge
 cargo fmt --all
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo build --all-targets --all-features --target x86_64-unknown-linux-gnu
+cargo build --all-targets --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo build --release --all-targets --all-features --target x86_64-unknown-linux-gnu
+cargo build --release --all-targets --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --release --all-targets --fix --allow-dirty --target x86_64-unknown-linux-gnu
+cargo clippy --release --all-targets --fix --allow-dirty
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cargo fmt --all -- --check
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo check --all --target x86_64-unknown-linux-gnu
+cargo check --all
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu ^
+cargo clippy --all-targets --release ^
     -A clippy::similar_names ^
     -A clippy::too_many_arguments ^
     -A clippy::significant_drop_tightening ^
@@ -73,10 +73,10 @@ cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu ^
     -A clippy::type_complexity
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo test --release --all --all-features --target x86_64-unknown-linux-gnu
+cargo test --release --all --all-features
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cargo doc --workspace --all-features --no-deps --target x86_64-unknown-linux-gnu
+cargo doc --workspace --all-features --no-deps
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd ..

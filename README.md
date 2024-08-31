@@ -16,7 +16,7 @@
 > [!WARNING]  
 > **This crate hasn't been audited, it's using `ring` crate which is a well-known audited library, so in principle at
 least the primitives should offer similar level of security.  
-> This is still under development. Please do not use it with sensitive data just yet, please wait for a
+> This is still under development. Please do not use it with sensitive data for now, please wait for a
 stable release.  
 > It's mostly ideal for experimental and learning projects.**
 
@@ -29,7 +29,7 @@ You can use it as CLI or build your custom FUSE implementation with it.
 
 # Key features
 
-- Security using well known audited AEAD cryptography primitives
+- Security using well-known audited AEAD cryptography primitives
 - Data integrity, data is written with WAL to ensure integrity even on crash or power loss
 - All metadata and content are encrypted
 - Safe manage of credentials in memory with mlock(2) and zeroize
@@ -48,15 +48,15 @@ You can use it as CLI or build your custom FUSE implementation with it.
   info), files for binary content and directories with files/directories entries. All data, metadata and also filenames
   are encrypted. For new files it generates inode number randomly in `u64` space, so it reduces the chance of conflicts
   when used offline and synced later.
-- Password is collected from CLI and it's saved in OS keyring while app is running. This is because of safety reasons we
-  clear the password from memory on inactivity and we reload it again from keyring just when needed.
+- The password is collected from CLI, and it's saved in OS keyring while app is running. This is because of safety reasons we
+  clear the password from memory on inactivity, and we reload it again from keyring just when needed.
 - Master encryption key is also encrypted with another key derived from the password. This gives the ability to change
   the
   password without re-encrypting all data, we just re-encrypt the master key.
-- Files are encrypted in chunks of 256KB, so when making a change we just re-encrypt those chunks.
-- Fast seek on read and write, so if you're watching a movie you you can seek to any position, and that would be rapid.
+- Files are encrypted in chunks of 256KB, so when making a change, we just re-encrypt those chunks.
+- Fast seek on read and write, so if you're watching a movie, you can seek to any position, and that would be rapid.
   This is because we can seek to particular chunk.
-- Encryption key is `zeroize`d in mem on idle. Also it's `mlock`ed while used to prevent being moved to swap. It's
+- Encryption key is `zeroize`d in mem on idle. Also, it's `mlock`ed while used to prevent being moved to swap. It's
   also `mprotect`ed while not read.
 
 In progress:
@@ -68,6 +68,15 @@ In progress:
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 
 # Stack
+
+testing if mermaid is supported on crates.io
+```mermaid
+graph LR
+A[Square Rect] -- Link text --> B((Circle))
+A --> C(Round Rect)
+B --> D{Rhombus}
+C --> D
+```
 
 - it's fully async built upon [tokio](https://crates.io/crates/tokio) and [fuse3](https://crates.io/crates/fuse3)
 - [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation

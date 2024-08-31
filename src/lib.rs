@@ -37,6 +37,7 @@
 //!
 //! /// This will mount and expose the mount point until you press `Enter`, then it will umount and close the program.
 //! #[tokio::main]
+//! #[allow(clippy::type_complexity)]
 //! async fn main() -> Result<()> {
 //!     tracing_subscriber::fmt().init();
 //!

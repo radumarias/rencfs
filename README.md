@@ -31,7 +31,7 @@ You can use it as CLI or build your custom FUSE implementation with it.
 - Security using well-known audited AEAD cryptography primitives
 - Data integrity, data is written with WAL to ensure integrity even on crash or power loss
 - All metadata and content are encrypted
-- Safe manage of credentials in memory with mlock(2) and zeroize
+- Safe manage of credentials in memory with mlock(2), mprotect and zeroize
 - Encryption key generated based on password
 - Password saved in OS's keyring
 - Change password without re-encrypting all data

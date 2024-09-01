@@ -3,7 +3,6 @@
 [![rencfs-bin](https://img.shields.io/aur/version/rencfs-bin?color=1793d1&label=rencfs-bin&logo=arch-linux)](https://aur.archlinux.org/packages/rencfs-bin/)
 [![crates.io](https://img.shields.io/crates/v/rencfs.svg)](https://crates.io/crates/rencfs)
 [![docs.rs](https://img.shields.io/docsrs/rencfs?label=docs.rs)](https://docs.rs/rencfs/)
-[![clippy](https://github.com/radumarias/rencfs/actions/workflows/clippy.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/check.yml)
 [![tests](https://github.com/radumarias/rencfs/actions/workflows/tests.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/tests.yml)
 [![release](https://github.com/radumarias/rencfs/actions/workflows/release.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/radumarias/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/radumarias/rencfs)

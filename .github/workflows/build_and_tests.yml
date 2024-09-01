@@ -1,4 +1,4 @@
-name: build and tests
+name: build-and-tests
 on:
   push:
     branches: [ main, release ]

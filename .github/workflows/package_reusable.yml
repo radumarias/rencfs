@@ -1,4 +1,4 @@
-name: '#reusable package'
+name: '_reusable-package'
 on:
   workflow_call:
     inputs:

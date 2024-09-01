@@ -1,4 +1,4 @@
-name: '#reusable build and tests reusable'
+name: '_reusable-build-and-tests-reusable'
 on:
   workflow_call:
 

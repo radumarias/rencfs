@@ -44,6 +44,7 @@ jobs:
             -A clippy::missing_errors_doc \
             -A clippy::type_complexity \
             -A clippy::too_long_first_doc_paragraph
+        shell: bash
 
       - name: tests
         run: cargo test --release --all --all-features
@@ -86,6 +87,7 @@ jobs:
             -A clippy::missing_errors_doc \
             -A clippy::type_complexity \
             -A clippy::too_long_first_doc_paragraph
+        shell: bash
             
       - name: java-bridge tests
         run: |

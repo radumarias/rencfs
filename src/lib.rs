@@ -302,31 +302,30 @@ pub mod mount;
 pub mod stream_util;
 pub(crate) mod test_common;
 
+#[allow(unreachable_code)]
 pub static UID: LazyLock<u32> = LazyLock::new(|| {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    unsafe {
-        libc::getuid()
-    }
-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
-        return 0;
+        return unsafe { libc::getuid() };
     }
+    0
 });
+
+#[allow(unreachable_code)]
 pub static GID: LazyLock<u32> = LazyLock::new(|| {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    unsafe {
-        libc::getgid()
-    }
-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
-        return 0;
+        return unsafe { libc::getgid() };
     }
+    0
 });
 
 #[allow(unreachable_code)]
 #[must_use]
 pub const fn is_debug() -> bool {
     #[cfg(debug_assertions)]
-    return true;
+    {
+        return true;
+    }
     false
 }

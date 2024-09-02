@@ -28,7 +28,7 @@ You can use it as CLI or as a library to build your custom FUSE implementation o
 
 # A short story
 
-[The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](The_Hitchhiker_s_Guide_to_Building_a_Distributed_Filesystem_in_Rust__The_beginning.pdf)
+[The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust-1.pdf)
 
 # Blog
 

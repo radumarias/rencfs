@@ -26,6 +26,14 @@ You can also store it in any cloud storage like Google Drive, Dropbox, etc. and 
 
 You can use it as CLI or as a library to build your custom FUSE implementation or other apps that works with encrypted data.
 
+# A short story
+
+[The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](The_Hitchhiker_s_Guide_to_Building_a_Distributed_Filesystem_in_Rust__The_beginning.pdf)
+
+# Blog
+
+There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this project trying to keep it like a tutorial. This is the [first one](https://systemweakness.com/the-hitchhikers-guide-to-building-an-encrypted-filesystem-in-rust-4d678c57d65c).
+
 # Key features
 
 - `Security` using well-known audited `AEAD` cryptography primitives

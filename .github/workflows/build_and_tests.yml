@@ -19,7 +19,6 @@ jobs:
       
   build_and_test:
     name: build and test
-    needs: [version]
     uses: radumarias/rencfs/.github/workflows/build_and_tests_reusable.yml@main
     secrets: inherit
 

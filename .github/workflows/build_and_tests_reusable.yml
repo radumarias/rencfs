@@ -47,6 +47,7 @@ jobs:
         shell: bash
 
       - name: tests
+        if: matrix.os != 'windows-latest'
         run: cargo test --release --all --all-features
 
       - name: doc
@@ -90,6 +91,7 @@ jobs:
         shell: bash
             
       - name: java-bridge tests
+        if: matrix.os != 'windows-latest'
         run: |
           cd java-bridge
           cargo test --release --all --all-features

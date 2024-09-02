@@ -76,6 +76,14 @@ A --> C(Round Rect)
 B --> D{Rhombus}
 C --> D
 ```
+testing if plantuml is supported on crates.io
+```plantuml
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+@enduml
+```
+
 - it's fully async built upon [tokio](https://crates.io/crates/tokio) and [fuse3](https://crates.io/crates/fuse3)
 - [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation
   function (creating key used to encrypt the master encryption key from password)

@@ -6,7 +6,7 @@
 [![build-and-tests](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yml)
 [![release](https://github.com/radumarias/rencfs/actions/workflows/release.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/radumarias/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/radumarias/rencfs)
-<a href="https://join.slack.com/t/rencfs/shared_invite/zt-2o4l1tdkk-VJeWIbO2p6zgeafDISPHbQ"><img src="website/resources/slack3.png" style = "width: 87px; height: 20px;"/></a>
+<a href="https://join.slack.com/t/slack-rag8921/shared_invite/zt-2o4l1tdkk-VJeWIbO2p6zgeafDISPHbQ"><img src="website/resources/slack3.png" style = "width: 87px; height: 20px;"/></a>
 [![Matrix](https://img.shields.io/matrix/rencfs%3Amatrix.org?label=Matrix)](https://matrix.to/#/#rencfs:matrix.org)
 [![Discord](https://img.shields.io/discord/1236855443486277653?label=Discord)](https://discord.com/channels/1236855443486277653/1236855448515252306)
 [![Zulip](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg?label=Zulip)](https://rencfs.zulipchat.com)
@@ -24,21 +24,21 @@ An encrypted file system written in Rust that is mounted with FUSE on Linux. It 
 You can then safely backup the encrypted directory to an untrusted server without worrying about the data being exposed.
 You can also store it in any cloud storage like Google Drive, Dropbox, etc. and have it synced across multiple devices.
 
-You can use it as CLI or as a library to build your custom FUSE implementation or other apps that works with encrypted data.
+You can use it as CLI or build your custom FUSE implementation with it.
 
 # Key features
 
-- `Security` using well-known audited `AEAD` cryptography primitives
-- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
+- Security using well-known audited AEAD cryptography primitives
+- Data integrity, data is written with WAL to ensure integrity even on crash or power loss
 - All metadata and content are encrypted
-- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
+- Safe manage of credentials in memory with mlock(2) and zeroize
 - Encryption key generated based on password
-- Password saved in OS's `keyring`
-- `Change password` without re-encrypting all data
-- `Fast seek` on both reads and writes
-- `Writes in parallel`
-- Exposed with `FUSE`
-- Fully `concurrent` for all operations
+- Password saved in OS's keyring
+- Change password without re-encrypting all data
+- Fast seek on both reads and writes
+- Writes in parallel
+- Exposed with FUSE
+- Fully concurrent for all operations
 
 # Functionality
 

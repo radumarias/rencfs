@@ -64,7 +64,6 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
     async fn unmount(mut self) -> io::Result<()>;
 }
 
-#[allow(clippy::too_long_first_doc_paragraph)]
 /// **`mountpoint`** where it wil mount the filesystem
 /// **`data_dir`** the directory where the encrypted files will be stored  
 /// **`password_provider`** the password provider  

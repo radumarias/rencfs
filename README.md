@@ -34,6 +34,8 @@ You can use it as CLI or as a library to build your custom FUSE implementation o
 
 There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this project trying to keep it like a tutorial. This is the [first one](https://systemweakness.com/the-hitchhikers-guide-to-building-an-encrypted-filesystem-in-rust-4d678c57d65c).
 
+# Crate of the week in [This Week in Rust](https://this-week-in-rust.org/)
+
 It was the [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-week-in-rust-560/#crate-of-the-week) in Aug 2024.
 
 # Key features

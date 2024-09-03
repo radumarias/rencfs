@@ -18,7 +18,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 12. `cargo clippy --all --release` and fix any erorrs
 13. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
 14. **MAKE SURE YOU RUN THIS BEFORE PUSHING TO THE REPO `./check-before-push-linux.sh`, `./check-before-push-macos.sh` or `cmd /c check-before-push-windows.bat` and fix any errors**
-15. Create a **PR** back to the **parent** repo targeting the `main` branch and reques review from owners of the repository
+15. Create a **PR** back to the **parent** repo targeting the `main` branch and request review from owners of the repository
 16. Monitor the checks (GitHub actions run) and fix the code if they are failing
 17. Respond to any comments
 18. In the end, ideally, it will be merged to `main`

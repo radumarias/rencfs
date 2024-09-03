@@ -6,7 +6,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 2. [Setup](https://github.com/radumarias/rencfs?tab=readme-ov-file#locally) dev env localy, replace URL repo with your fork URL if you forked it
 3. Read the [docs](https://github.com/radumarias/rencfs) and [lib docs](https://docs.rs/rencfs/latest/rencfs)
 4. Run and become familiar with examples to familiarize with the code, then with tests and benchmarks. You can write some examples yourself and maybe some tests to help you understand the flow better. If you do, please add these to the repo for helping the community
-5. **Ask the owner of the repository to add your GitHub username to the project** 
+5. **Ask the owner of the repository to add your GitHub username to the repository** 
 6. Pick an open issue or a task in the corresponding [project](https://github.com/users/radumarias/projects/1) for the repo that you'll be working on. You can see [good for first issues](https://github.com/radumarias/rencfs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) that you can pick from
 7. **Assign the issues you are working on to you and move them to the corresponding status column as you are working on them. If the taks is not an issue yet, convert it to issue first**
 8. Make the changes in your branch

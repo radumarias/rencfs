@@ -1294,6 +1294,9 @@ impl EncryptedFs {
 
     /// Set metadata
     pub async fn set_attr(&self, ino: u64, set_attr: SetFileAttr) -> FsResult<()> {
+        if self.read_only {
+            return Err(FsError::ReadOnly);
+        }
         self.set_attr2(ino, set_attr, false).await
     }
 
@@ -1581,6 +1584,9 @@ impl EncryptedFs {
     /// it will return an error of type [FsError::InvalidFileHandle].
     #[instrument(skip(self, buf), fields(len = %buf.len()), ret(level = Level::DEBUG))]
     pub async fn write(&self, ino: u64, offset: u64, buf: &[u8], handle: u64) -> FsResult<usize> {
+        if self.read_only {
+            return Err(FsError::ReadOnly);
+        }
         if !self.exists(ino) {
             return Err(FsError::InodeNotFound);
         }
@@ -1591,9 +1597,6 @@ impl EncryptedFs {
             if !self.write_handles.read().await.contains_key(&handle) {
                 return Err(FsError::InvalidFileHandle);
             }
-        }
-        if self.read_only {
-            return Err(FsError::ReadOnly);
         }
         {
             let guard = self.write_handles.read().await;

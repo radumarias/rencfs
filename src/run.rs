@@ -177,7 +177,7 @@ fn get_cli_args() -> ArgMatches {
                         .action(ArgAction::SetTrue)
                         .requires("mount-point")
                         .requires("data-dir")
-                        .help("Set fuse filesystem read-only mount option, default is disabled.")
+                        .help("Set FUSE filesystem read-only mount option, default is disabled.")
                 )
         ).subcommand(
         Command::new("passwd")

@@ -681,7 +681,7 @@ impl EncryptedFs {
             return Err(FsError::ReadOnly);
         }
 
-        // spawn on a dedicated runtime to not interfere with other more priority tasks
+        // spawn on a dedicated runtime to not interfere with other higher priority tasks
         let self_clone = self
             .self_weak
             .lock()
@@ -710,7 +710,7 @@ impl EncryptedFs {
                             // create in contents directory
                             let file = File::create(self_clone.contents_path(attr.ino))?;
                             // sync_all file and parent
-                            // these operations are a bit slow, but are needed to make sure the file is correctly created
+                            // these operations are a bit slow, but are necessary to make sure the file is correctly created
                             // i.e. creating 100 files takes 0.965 sec with sync_all and 0.130 sec without
                             file.sync_all()?;
                             File::open(
@@ -804,11 +804,11 @@ impl EncryptedFs {
                     if read || write {
                         self_clone.open(attr.ino, read, write).await?
                     } else {
-                        // we don't create handle for files that are not opened
+                        // we don't create a handle for files that are not opened
                         0
                     }
                 } else {
-                    // we don't use handle for directories
+                    // we don't use a handle for directories
                     0
                 };
 

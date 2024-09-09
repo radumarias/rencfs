@@ -97,8 +97,8 @@ In progress:
 
 # Alternatives
 
-- [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://www.libhunt.com/r/rencfs)
-- [Alternatives](https://alternativeto.net/software/encfs/) to `EncFS`
+- [Alternatives](https://alternativeto.net/software/encfs/)
+- [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
 - [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
 - [Cryptomator](https://cryptomator.org/)
 - [TrueCrypt](https://truecrypt.sourceforge.net/)

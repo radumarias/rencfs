@@ -81,7 +81,7 @@ In progress:
 # Stack
 
 - it's fully async built upon [tokio](https://crates.io/crates/tokio) and [fuse3](https://crates.io/crates/fuse3)
-- [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation
+- [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for() key derivation
   function (creating key used to encrypt the master encryption key from password)
 - [rand_chacha](https://crates.io/crates/rand_chacha) for random generators
 - [secrecy](https://crates.io/crates/secrecy) for keeping pass and encryption keys safe in memory and zeroing them when
@@ -90,6 +90,21 @@ In progress:
 - [blake3](https://crates.io/crates/blake3) for hashing
 - password saved in OS keyring using [keyring](https://crates.io/crates/keyring)
 - [tracing](https://crates.io/crates/tracing) for logs
+
+# Alternatives
+
+- [Alternatives](https://www.libhunt.com/r/rencfs) to `rencfs`
+- [Alternatives](https://alternativeto.net/software/encfs/) to `EncFS`
+- [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
+- [Cryptomator](https://cryptomator.org/)
+- [TrueCrypt](https://truecrypt.sourceforge.net/)
+- [DroidFS, F-Droid](https://f-droid.org/en/packages/sushi.hardcore.droidfs/)
+- [LUKS, dm-crypt](https://guardianproject.info/archive/luks/)
+- [AES Crypt](https://www.aescrypt.com/)
+- [Windows BitLocker](https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/)
+- [File Lock PEA](https://eck.cologne/peafactory/en/html/file_pea.html)
+- [ZenCrypt](https://play.google.com/store/apps/details?id=com.zestas.cryptmyfiles&hl=en)
+- [Hat.sh](https://hat.sh/)
 
 # Usage
 

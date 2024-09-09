@@ -26,6 +26,10 @@ You can also store it in any cloud storage like Google Drive, Dropbox, etc. and 
 
 You can use it as CLI or as a library to build your custom FUSE implementation or other apps that works with encrypted data.
 
+# Motivation
+
+Create a `simple`, `performant` yet `very secure` `encrypted filesystem` to protect your `privacy` which is also `open souce` and uses `well known audited` crates for `cryptograhic primitives`.
+
 # A short story
 
 [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust-1.pdf)
@@ -36,14 +40,16 @@ There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of artic
 
 # Crate of the week in [This Week in Rust](https://this-week-in-rust.org/)
 
-It was the [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-week-in-rust-560/#crate-of-the-week) in Aug 2024.
+It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-week-in-rust-560/#crate-of-the-week) in Aug 2024.
 
 # Key features
 
 - `Security` using well-known audited `AEAD` cryptography primitives
 - `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- All metadata and content are encrypted
+- Hide all data for enhanced `privacy`, all metadata and content are encrypted
 - Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
+- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
+- Simplicity
 - Encryption key generated based on password
 - Password saved in OS's `keyring`
 - `Change password` without re-encrypting all data
@@ -108,11 +114,12 @@ In progress:
 
 ## What separates us
 
-- Advanced `security` using `audited` well knows crates
+- Advanced `security` using well-known audited `AEAD` cryptography primitives
+- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
 - `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
-- Data `integrity` using `WAL`
 - Simplicity
-- Hide all data for enhanced `privacy`
+- Hide all data for enhanced `privacy`, all metadata and content are encrypted
+- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
 - `Multi-platform`, on all platforms
 - `Fast seek` on both reads and writes
 - `Writes in parallel`

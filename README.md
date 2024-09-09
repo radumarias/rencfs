@@ -60,27 +60,25 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 # Functionality
 
-- It keeps all encrypted data and master encryption key in a dedicated directory with files structured on inodes (with
-  meta
-  info), files for binary content and directories with files/directories entries. All data, metadata and also filenames
-  are encrypted. For new files it generates inode number randomly in `u64` space, so it reduces the chance of conflicts
-  when used offline and synced later.
-- The password is collected from CLI, and it's saved in OS keyring while app is running. This is because of safety reasons we
-  clear the password from memory on inactivity, and we reload it again from keyring just when needed.
+- It keeps all `encrypted` data and `master encryption key` in a dedicated directory with files structured on `inodes` (with
+  metadata info), files for binary content and directories with files/directories entries. All data, metadata and also filenames
+  are encrypted. For new files it generates unique inodes in multi instance run and offline mode.
+- The password is collected from CLI, and it's saved in OS `keyring` while app is running. This is because for safety reasons we
+  clear the password from memory on inactivity, and we derive it again from password just when needed.
 - Master encryption key is also encrypted with another key derived from the password. This gives the ability to change
   the
-  password without re-encrypting all data, we just re-encrypt the master key.
-- Files are encrypted in chunks of 256KB, so when making a change, we just re-encrypt those chunks.
-- Fast seek on read and write, so if you're watching a movie, you can seek to any position, and that would be rapid.
+  password without re-encrypting all data, we just `re-encrypt` the `master key`.
+- Files are `encrypted` in `chunks` of `256KB`, so when making a change, we just re-encrypt that chunks.
+- `Fast seek` on read and write, so if you're watching a movie, you can seek to any position, and that would be instant.
   This is because we can seek to particular chunk.
-- Encryption key is `zeroize`d in mem on idle. Also, it's `mlock`ed while used to prevent being moved to swap. It's
-  also `mprotect`ed while not read.
+- Encryption key is `zeroize`d in mem on dispose and idle. Also, it's `mlock`ed while used to prevent being moved to swap. It's
+  also `mprotect`ed while not in use.
 
 In progress:
 
-- ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
+- Ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
   changes. This makes the write operations atomic.
-- multiple writes in parallel to the same file, ideal for torrent like applications
+- Multiple writes in parallel to the same file, ideal for torrent like applications.
 
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 

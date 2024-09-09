@@ -85,8 +85,8 @@ In progress:
 # Stack
 
 - it's fully async built upon [tokio](https://crates.io/crates/tokio) and [fuse3](https://crates.io/crates/fuse3)
-- [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for() key derivation
-  function (creating key used to encrypt the master encryption key from password)
+- [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation
+  function (generating key from password used to encrypt the master encryption key)
 - [rand_chacha](https://crates.io/crates/rand_chacha) for random generators
 - [secrecy](https://crates.io/crates/secrecy) for keeping pass and encryption keys safe in memory and zeroing them when
   not used. It keeps encryption keys in memory only while being used, and when not active it will release and zeroing

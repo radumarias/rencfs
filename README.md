@@ -106,6 +106,20 @@ In progress:
 - [ZenCrypt](https://play.google.com/store/apps/details?id=com.zestas.cryptmyfiles&hl=en)
 - [Hat.sh](https://hat.sh/)
 
+## What separates us
+
+- Advanced `security` using `audited` well knows crates
+- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
+- Data `integrity` using `WAL`
+- Simplicity
+- Hide all data for enhanced `privacy`
+- `Multi-platform`, on all platforms
+- `Fast seek` on both reads and writes
+- `Writes in parallel`
+- Exposed with `FUSE`
+- Fully open source
+- Use it as a libraty to build your own apps
+  
 # Usage
 
 <!---

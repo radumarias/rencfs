@@ -278,6 +278,7 @@ You can see more [here](https://crates.io/crates/rencfs)
 
 ## Browser
 
+If you want to give it a quick try and not setup anything locally you can  
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/radumarias/rencfs)
 
 [![Open Rustlings On Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/?repo=radumarias%2Frencfs&ref=main)
@@ -304,7 +305,8 @@ cat test.txt
 
 For now the `FUSE` (`fuse3` crate) only works on `Linux`, so to start the project you will need to be on Linux. 
 Instead, you can [Develop inside a Container](#developing-inside-a-container), which will start a local Linux container, the IDE will connect to it, 
-you can build and start the app in there and also use terminal to test it.
+you can build and start the app in there and also use terminal to test it.  
+On windows you can start it in [WSL](https://harsimranmaan.medium.com/install-and-setup-rust-development-environment-on-wsl2-dccb4bf63700).
 
 ### Getting the sources
 

@@ -9,6 +9,7 @@ use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::fs::{DirEntry, File, OpenOptions, ReadDir};
+use std::future::Future;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::num::{NonZeroUsize, ParseIntError};
 use std::path::{Path, PathBuf};
@@ -574,6 +575,74 @@ pub struct EncryptedFs {
     sizes_read: Mutex<HashMap<u64, AtomicU64>>,
     requested_read: Mutex<HashMap<u64, AtomicU64>>,
     read_only: bool,
+}
+
+pub trait EncryptedFilesystem: Future<Output = io::Result<()>> {
+    async fn new(
+        data_dir: PathBuf,
+        password_provider: Box<dyn PasswordProvider>,
+        cipher: Cipher,
+        read_only: bool,
+    ) -> FsResult<Arc<Self>>;
+    fn exists(&self, ino: u64) -> bool;
+    fn is_dir(&self, ino: u64) -> bool;
+    fn is_file(&self, ino: u64) -> bool;
+    async fn create(
+        &self,
+        parent: u64,
+        name: &SecretString,
+        create_attr: CreateFileAttr,
+        read: bool,
+        write: bool,
+    ) -> FsResult<(u64, FileAttr)>;
+    async fn find_by_name(&self, parent: u64, name: &SecretString) -> FsResult<Option<FileAttr>>;
+    fn len(&self, ino: u64) -> FsResult<usize>;
+    async fn remove_dir(&self, parent: u64, name: &SecretString) -> FsResult<()>;
+    async fn remove_file(&self, parent: u64, name: &SecretString) -> FsResult<()>;
+    fn exists_by_name(&self, parent: u64, name: &SecretString) -> FsResult<bool>;
+    async fn read_dir(&self, ino: u64) -> FsResult<DirectoryEntryIterator>;
+    async fn read_dir_plus(&self, ino: u64) -> FsResult<DirectoryEntryPlusIterator>;
+    async fn get_attr(&self, ino: u64) -> FsResult<FileAttr>;
+    async fn set_attr(&self, ino: u64, set_attr: SetFileAttr) -> FsResult<()>;
+    async fn read(&self, ino: u64, offset: u64, buf: &mut [u8], handle: u64) -> FsResult<usize>;
+    async fn release(&self, handle: u64) -> FsResult<()>;
+    async fn is_read_handle(&self, fh: u64) -> bool;
+    async fn is_write_handle(&self, fh: u64) -> bool;
+    async fn write(&self, ino: u64, offset: u64, buf: &[u8], handle: u64) -> FsResult<usize>;
+    async fn flush(&self, handle: u64) -> FsResult<()>;
+    async fn copy_file_range(
+        &self,
+        file_range_req: &CopyFileRangeReq,
+        size: usize,
+    ) -> FsResult<usize>;
+    async fn open(&self, ino: u64, read: bool, write: bool) -> FsResult<u64>;
+    async fn set_len(&self, ino: u64, size: u64) -> FsResult<()>;
+    async fn rename(
+        &self,
+        parent: u64,
+        name: &SecretString,
+        new_parent: u64,
+        new_name: &SecretString,
+    ) -> FsResult<()>;
+    async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
+        &self,
+        file: W,
+    ) -> FsResult<impl CryptoWrite<W>>;
+    async fn create_write_seek<W: Write + Seek + Read + Send + Sync + 'static>(
+        &self,
+        file: W,
+    ) -> FsResult<impl CryptoWriteSeek<W>>;
+    async fn create_read<R: Read + Send + Sync>(&self, reader: R) -> FsResult<impl CryptoRead<R>>;
+    async fn create_read_seek<R: Read + Seek + Send + Sync>(
+        &self,
+        reader: R,
+    ) -> FsResult<impl CryptoReadSeek<R>>;
+    async fn passwd(
+        data_dir: &Path,
+        old_password: SecretString,
+        new_password: SecretString,
+        cipher: Cipher,
+    ) -> FsResult<()>;
 }
 
 impl EncryptedFs {

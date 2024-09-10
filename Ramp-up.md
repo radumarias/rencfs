@@ -1,6 +1,6 @@
 # Ramp up
 
-1. Read an [article](https://medium.com/system-weakness/hitchhikers-guide-to-building-a-distributed-filesystem-in-rust-the-very-beginning-2c02eb7313e7) and [one pager](The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust-1.pdf) more about the project
+1. Read an [article](https://medium.com/system-weakness/hitchhikers-guide-to-building-a-distributed-filesystem-in-rust-the-very-beginning-2c02eb7313e7) and [one pager](The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust-1.pdf) to get more details about the project
 2. Become familiar with the [concepts and features](https://github.com/radumarias/rencfs) and [lib docs](https://docs.rs/rencfs/latest/rencfs)
 3. Understand the [layers](https://github.com/radumarias/rencfs/blob/main/website/resources/layers.png)
 4. Give it a [quick try](https://github.com/radumarias/rencfs#give-it-a-quick-try-with-docker) with Docker, this is optional

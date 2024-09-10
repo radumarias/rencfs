@@ -46,12 +46,12 @@ jobs:
             -A clippy::too_long_first_doc_paragraph
         shell: bash
 
+      - name: doc
+        run: cargo doc --workspace --all-features --no-deps
+
       - name: tests
         if: matrix.os != 'windows-latest'
         run: cargo test --release --all --all-features
-
-      - name: doc
-        run: cargo doc --workspace --all-features --no-deps
 
       - name: test publish
         run: cargo publish --dry-run --allow-dirty
@@ -89,12 +89,12 @@ jobs:
             -A clippy::type_complexity \
             -A clippy::too_long_first_doc_paragraph
         shell: bash
-            
+
+      - name: java-bridge doc
+        run: cargo doc --workspace --all-features --no-deps
+
       - name: java-bridge tests
         if: matrix.os != 'windows-latest'
         run: |
           cd java-bridge
           cargo test --release --all --all-features
-
-      - name: java-bridge doc
-        run: cargo doc --workspace --all-features --no-deps

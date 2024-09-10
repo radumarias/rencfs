@@ -31,8 +31,8 @@ use tracing::{info, Level};
 
 use crate::crypto::Cipher;
 use crate::encryptedfs::{
-    CreateFileAttr, EncryptedFs, FileAttr, FileType, FsError, FsResult, PasswordProvider,
-    SetFileAttr,
+    CopyFileRangeReq, CreateFileAttr, EncryptedFs, FileAttr, FileType, FsError, FsResult,
+    PasswordProvider, SetFileAttr,
 };
 use crate::mount;
 use crate::mount::{MountHandleInner, MountPoint};
@@ -1218,19 +1218,18 @@ impl Filesystem for EncryptedFsFuse3 {
         flags: u64,
     ) -> Result<ReplyCopyFileRange> {
         trace!("");
-
+        let file_range_req = CopyFileRangeReq::builder()
+            .src_ino(inode)
+            .src_offset(off_in)
+            .dest_ino(inode_out)
+            .dest_offset(off_out)
+            .src_fh(fh_in)
+            .dest_fh(fh_out)
+            .build();
         #[allow(clippy::cast_possible_truncation)]
         match self
             .get_fs()
-            .copy_file_range(
-                inode,
-                off_in,
-                inode_out,
-                off_out,
-                length as usize,
-                fh_in,
-                fh_out,
-            )
+            .copy_file_range(&file_range_req, length as usize)
             .await
         {
             Err(err) => {

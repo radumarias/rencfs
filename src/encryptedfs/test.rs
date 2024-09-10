@@ -7,11 +7,11 @@ use tracing_test::traced_test;
 
 use crate::crypto::Cipher;
 use crate::encryptedfs::write_all_bytes_to_fs;
-use crate::encryptedfs::HASH_DIR;
 use crate::encryptedfs::INODES_DIR;
 use crate::encryptedfs::KEY_ENC_FILENAME;
 use crate::encryptedfs::KEY_SALT_FILENAME;
 use crate::encryptedfs::SECURITY_DIR;
+use crate::encryptedfs::{CopyFileRangeReq, HASH_DIR};
 use crate::encryptedfs::{
     DirectoryEntry, DirectoryEntryPlus, EncryptedFs, FileType, FsError, FsResult, SetFileAttr,
     CONTENTS_DIR, ROOT_INODE,
@@ -499,15 +499,30 @@ async fn test_copy_file_range() {
             // out of bounds
             let fh = fs.open(attr_1.ino, true, false).await.unwrap();
             let fh_2 = fs.open(attr_2.ino, false, true).await.unwrap();
-            let len = fs
-                .copy_file_range(attr_1.ino, 42, attr_2.ino, 0, 2, fh, fh_2)
-                .await
-                .unwrap();
+            let file_range_req = CopyFileRangeReq::builder()
+                .src_ino(attr_1.ino)
+                .src_offset(42)
+                .dest_ino(attr_2.ino)
+                .dest_offset(0)
+                .src_fh(fh)
+                .dest_fh(fh_2)
+                .build();
+            let size = 2;
+            let len = fs.copy_file_range(&file_range_req, size).await.unwrap();
             assert_eq!(len, 0);
 
+            let size = 0;
+            let file_range_req = CopyFileRangeReq::builder()
+                .src_ino(0)
+                .src_offset(0)
+                .dest_ino(0)
+                .dest_offset(0)
+                .src_fh(fh)
+                .dest_fh(fh_2)
+                .build();
             // invalid inodes
             assert!(matches!(
-                fs.copy_file_range(0, 0, 0, 0, 0, fh, fh_2).await,
+                fs.copy_file_range(&file_range_req, size).await,
                 Err(FsError::InodeNotFound)
             ));
         },
@@ -2436,9 +2451,15 @@ async fn test_read_only_write() {
             let remove_file_result = fs_ro.remove_file(ROOT_INODE, &file1).await;
             assert!(matches!(remove_file_result, Err(FsError::ReadOnly)));
             // Test copy file range
-            let copy_file_range_result = fs_ro
-                .copy_file_range(attr.ino, 0, attr_dest.ino, 0, data.len(), fh, fh_dest)
-                .await;
+            let file_range_req = CopyFileRangeReq::builder()
+                .src_ino(attr.ino)
+                .src_offset(0)
+                .dest_ino(attr_dest.ino)
+                .dest_offset(0)
+                .src_fh(fh)
+                .dest_fh(fh_dest)
+                .build();
+            let copy_file_range_result = fs_ro.copy_file_range(&file_range_req, data.len()).await;
             assert!(matches!(copy_file_range_result, Err(FsError::ReadOnly)));
             // Test removing a dir
             let remove_dir_result = fs_ro.remove_dir(ROOT_INODE, &dir1).await;

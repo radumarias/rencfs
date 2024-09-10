@@ -30,6 +30,7 @@ use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek};
 use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
 use crate::{crypto, fs_util, stream_util};
+use bon::bon;
 
 mod bench;
 #[cfg(test)]
@@ -1728,15 +1729,10 @@ impl EncryptedFs {
     /// Helpful when we want to copy just some portions of the file.
     pub async fn copy_file_range(
         &self,
-        src_ino: u64,
-        src_offset: u64,
-        dest_ino: u64,
-        dest_offset: u64,
+        file_range_req: &CopyFileRangeReq,
         size: usize,
-        src_fh: u64,
-        dest_fh: u64,
     ) -> FsResult<usize> {
-        if self.is_dir(src_ino) || self.is_dir(dest_ino) {
+        if self.is_dir(file_range_req.src_ino) || self.is_dir(file_range_req.dest_ino) {
             return Err(FsError::InvalidInodeType);
         }
         if self.read_only {
@@ -1744,14 +1740,26 @@ impl EncryptedFs {
         }
 
         let mut buf = vec![0; size];
-        let len = self.read(src_ino, src_offset, &mut buf, src_fh).await?;
+        let len = self
+            .read(
+                file_range_req.src_ino,
+                file_range_req.src_offset,
+                &mut buf,
+                file_range_req.src_fh,
+            )
+            .await?;
         if len == 0 {
             return Ok(0);
         }
         let mut copied = 0;
         while copied < size {
             let len = self
-                .write(dest_ino, dest_offset, &buf[copied..len], dest_fh)
+                .write(
+                    file_range_req.dest_ino,
+                    file_range_req.dest_offset,
+                    &buf[copied..len],
+                    file_range_req.dest_fh,
+                )
                 .await?;
             if len == 0 && copied < size {
                 error!(len, "Failed to copy all read bytes");
@@ -2438,6 +2446,36 @@ impl EncryptedFs {
             }
 
             return ino;
+        }
+    }
+}
+pub struct CopyFileRangeReq {
+    src_ino: u64,
+    src_offset: u64,
+    dest_ino: u64,
+    dest_offset: u64,
+    src_fh: u64,
+    dest_fh: u64,
+}
+
+#[bon]
+impl CopyFileRangeReq {
+    #[builder]
+    pub fn new(
+        src_ino: u64,
+        src_offset: u64,
+        dest_ino: u64,
+        dest_offset: u64,
+        src_fh: u64,
+        dest_fh: u64,
+    ) -> Self {
+        Self {
+            src_ino,
+            src_offset,
+            dest_ino,
+            dest_offset,
+            src_fh,
+            dest_fh,
         }
     }
 }

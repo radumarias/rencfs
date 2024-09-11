@@ -577,7 +577,8 @@ pub struct EncryptedFs {
     read_only: bool,
 }
 
-pub trait EncryptedFilesystem: Future<Output = io::Result<()>> {
+#[async_trait]
+pub trait EncryptedFilesystem {
     async fn new(
         data_dir: PathBuf,
         password_provider: Box<dyn PasswordProvider>,

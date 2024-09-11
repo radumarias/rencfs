@@ -646,6 +646,7 @@ pub trait EncryptedFilesystem {
     ) -> FsResult<()>;
 }
 
+#[async_trait]
 impl EncryptedFilesystem for EncryptedFs {
     #[allow(clippy::missing_panics_doc)]
     #[allow(clippy::missing_errors_doc)]

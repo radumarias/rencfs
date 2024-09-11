@@ -25,8 +25,8 @@ use tokio_stream::wrappers::ReadDirStream;
 use tracing::{debug, error, info, instrument, warn, Level};
 
 use crate::arc_hashmap::ArcHashMap;
-use crate::crypto::read::{CryptoRead, CryptoReadSeek};
-use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek};
+use crate::crypto::read::{CryptoRead, CryptoReadSeek, CryptoReadSeekSendSync, CryptoReadSendSync};
+use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek, CryptoWriteSeekSendSync, CryptoWriteSendSync};
 use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
 use crate::{crypto, fs_util, stream_util};
@@ -463,7 +463,7 @@ impl Iterator for DirectoryEntryPlusIterator {
 struct ReadHandleContext {
     ino: u64,
     attr: TimesFileAttr,
-    reader: Option<Box<dyn CryptoReadSeek<File>>>,
+    reader: Option<Box<dyn CryptoReadSeekSendSync<File>>>,
 }
 
 enum ReadHandleContextOperation {
@@ -493,7 +493,7 @@ impl WriteHandleContextOperation {
 struct WriteHandleContext {
     ino: u64,
     attr: TimesAndSizeFileAttr,
-    writer: Option<Box<dyn CryptoWriteSeek<File>>>,
+    writer: Option<Box<dyn CryptoWriteSeekSendSync<File>>>,
 }
 
 struct KeyProvider {
@@ -720,7 +720,7 @@ impl EncryptedFs {
                                     .parent()
                                     .expect("oops, we don't have a parent"),
                             )?
-                            .sync_all()?;
+                                .sync_all()?;
                             Ok::<(), FsError>(())
                         });
                     }
@@ -1348,7 +1348,7 @@ impl EncryptedFs {
     ///
     /// If we try to read outside of file size, we return zero bytes.
     /// If the file is not opened for read, it will return an error of type [FsError::InvalidFileHandle].
-    #[instrument(skip(self, buf), fields(len = %buf.len()), ret(level = Level::DEBUG))]
+    #[instrument(skip(self, buf), fields(len = % buf.len()), ret(level = Level::DEBUG))]
     #[allow(clippy::missing_errors_doc)]
     #[allow(clippy::cast_possible_truncation)]
     pub async fn read(
@@ -1583,7 +1583,7 @@ impl EncryptedFs {
     /// If we write outside file size, we fill up with zeros until the `offset`.
     /// If the file is not opened for writing,
     /// it will return an error of type [FsError::InvalidFileHandle].
-    #[instrument(skip(self, buf), fields(len = %buf.len()), ret(level = Level::DEBUG))]
+    #[instrument(skip(self, buf), fields(len = % buf.len()), ret(level = Level::DEBUG))]
     pub async fn write(&self, ino: u64, offset: u64, buf: &[u8], handle: u64) -> FsResult<usize> {
         if self.read_only {
             return Err(FsError::ReadOnly);
@@ -1792,7 +1792,7 @@ impl EncryptedFs {
                 *handle.as_ref().unwrap(),
                 ReadHandleContextOperation::Create { ino },
             )
-            .await?;
+                .await?;
         }
         if write {
             if self.opened_files_for_write.read().await.contains_key(&ino) {
@@ -1957,7 +1957,7 @@ impl EncryptedFs {
                 let write_handles_guard = self.write_handles.write().await;
                 let mut ctx = write_handles_guard.get(&handle).unwrap().lock().await;
                 let writer = self
-                    .create_write_seek(
+                    .create_write_seek_send_sync(
                         OpenOptions::new()
                             .read(true)
                             .write(true)
@@ -2030,7 +2030,7 @@ impl EncryptedFs {
                 kind: attr.kind,
             },
         )
-        .await?;
+            .await?;
 
         if attr.kind == FileType::Directory {
             // add the parent link to the new directory
@@ -2042,7 +2042,7 @@ impl EncryptedFs {
                     kind: FileType::Directory,
                 },
             )
-            .await?;
+                .await?;
         }
 
         let now = SystemTime::now();
@@ -2065,6 +2065,8 @@ impl EncryptedFs {
     }
 
     /// Create a crypto writer using internal encryption info.
+    ///
+    /// This is not thread-safe, use [`Self::create_write_send_sync`] if you need thread-safe access.
     pub async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
         &self,
         file: W,
@@ -2088,7 +2090,33 @@ impl EncryptedFs {
         ))
     }
 
+    /// Create a [`Send`] + [`Seek`] + `'static` crypto writer using internal encryption info.
+    pub async fn create_write_send_sync<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
+        &self,
+        file: W,
+    ) -> FsResult<impl CryptoWriteSendSync<W>> {
+        Ok(crypto::create_write_send_sync(
+            file,
+            self.cipher,
+            &*self.key.get().await?,
+        ))
+    }
+
+    /// Create a [`Send`] + [`Seek`] + `'static` crypto writer with seek using internal encryption info.
+    pub async fn create_write_seek_send_sync<W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static>(
+        &self,
+        file: W,
+    ) -> FsResult<impl CryptoWriteSeekSendSync<W>> {
+        Ok(crypto::create_write_seek_send_sync(
+            file,
+            self.cipher,
+            &*self.key.get().await?,
+        ))
+    }
+
     /// Create a crypto reader using internal encryption info.
+    ///
+    /// This is not thread-safe, use [`Self::create_read_send_sync`] if you need thread-safe access.
     pub async fn create_read<R: Read + Send + Sync>(
         &self,
         reader: R,
@@ -2101,11 +2129,37 @@ impl EncryptedFs {
     }
 
     /// Create a crypto reader with seek using internal encryption info.
+    ///
+    /// This is not thread-safe, use [`Self::create_read_seek_send_sync`] if you need thread-safe access.
     pub async fn create_read_seek<R: Read + Seek + Send + Sync>(
         &self,
         reader: R,
     ) -> FsResult<impl CryptoReadSeek<R>> {
         Ok(crypto::create_read_seek(
+            reader,
+            self.cipher,
+            &*self.key.get().await?,
+        ))
+    }
+
+    /// Create a [`Send`] + [`Seek`] + `'static` crypto reader using internal encryption info.
+    pub async fn create_read_send_sync<R: Read + Seek + Send + Sync + 'static>(
+        &self,
+        reader: R,
+    ) -> FsResult<impl CryptoReadSendSync<R>> {
+        Ok(crypto::create_read_send_sync(
+            reader,
+            self.cipher,
+            &*self.key.get().await?,
+        ))
+    }
+
+    /// Create a [`Send`] + [`Seek`] + `'static` crypto reader with seek using internal encryption info.
+    pub async fn create_read_seek_send_sync<R: Read + Seek + Send + Sync + 'static>(
+        &self,
+        reader: R,
+    ) -> FsResult<impl CryptoReadSeekSendSync<R>> {
+        Ok(crypto::create_read_seek_send_sync(
             reader,
             self.cipher,
             &*self.key.get().await?,
@@ -2176,7 +2230,7 @@ impl EncryptedFs {
                 self.set_attr(ino, set_attr).await?;
                 let attr = self.get_inode_from_storage(ino).await?;
                 let mut ctx = guard.get(handle).unwrap().lock().await;
-                let reader = self.create_read_seek(File::open(&path)?).await?;
+                let reader = self.create_read_seek_send_sync(File::open(&path)?).await?;
                 ctx.reader = Some(Box::new(reader));
                 ctx.attr = attr.into();
             }
@@ -2207,7 +2261,7 @@ impl EncryptedFs {
                     self.set_attr(ino, set_attr).await?;
                 }
                 let writer = self
-                    .create_write_seek(OpenOptions::new().read(true).write(true).open(&path)?)
+                    .create_write_seek_send_sync(OpenOptions::new().read(true).write(true).open(&path)?)
                     .await?;
                 let mut ctx = lock.lock().await;
                 ctx.writer = Some(Box::new(writer));
@@ -2230,7 +2284,7 @@ impl EncryptedFs {
         match op {
             ReadHandleContextOperation::Create { ino } => {
                 let attr: TimesFileAttr = attr.into();
-                let reader = self.create_read_seek(File::open(&path)?).await?;
+                let reader = self.create_read_seek_send_sync(File::open(&path)?).await?;
                 let ctx = ReadHandleContext {
                     ino,
                     attr,
@@ -2262,7 +2316,7 @@ impl EncryptedFs {
             WriteHandleContextOperation::Create { ino } => {
                 let attr = self.get_attr(ino).await?.into();
                 let writer = self
-                    .create_write_seek(OpenOptions::new().read(true).write(true).open(&path)?)
+                    .create_write_seek_send_sync(OpenOptions::new().read(true).write(true).open(&path)?)
                     .await?;
                 let ctx = WriteHandleContext {
                     ino,
@@ -2293,7 +2347,7 @@ impl EncryptedFs {
                 rdev: 0,
                 flags: 0,
             }
-            .into();
+                .into();
             attr.ino = ROOT_INODE;
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             unsafe {
@@ -2317,7 +2371,7 @@ impl EncryptedFs {
                     kind: FileType::Directory,
                 },
             )
-            .await?;
+                .await?;
         }
 
         Ok(())
@@ -2394,7 +2448,7 @@ impl EncryptedFs {
             )?;
             Ok::<(), FsError>(())
         })
-        .await??;
+            .await??;
         h.await??;
         Ok(())
     }
@@ -2577,9 +2631,9 @@ async fn check_structure(data_dir: &Path, ignore_empty: bool) -> FsResult<()> {
     if vec != vec2
         || !data_dir.join(SECURITY_DIR).join(KEY_ENC_FILENAME).is_file()
         || !data_dir
-            .join(SECURITY_DIR)
-            .join(KEY_SALT_FILENAME)
-            .is_file()
+        .join(SECURITY_DIR)
+        .join(KEY_SALT_FILENAME)
+        .is_file()
     {
         return Err(FsError::InvalidDataDirStructure);
     }

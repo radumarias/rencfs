@@ -1,5 +1,6 @@
 use core::str::FromStr;
 use rencfs::crypto::Cipher;
+use rencfs::encryptedfs::EncryptedFilesystem;
 use rencfs::encryptedfs::{EncryptedFs, FsError};
 use secrecy::SecretString;
 use std::env::args;

@@ -6,6 +6,7 @@ use rpassword::read_password;
 use secrecy::{ExposeSecret, SecretString};
 use tracing::{error, info};
 
+use rencfs::encryptedfs::EncryptedFilesystem;
 use rencfs::encryptedfs::{EncryptedFs, FsError};
 
 #[tokio::main]

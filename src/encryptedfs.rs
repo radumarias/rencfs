@@ -628,16 +628,19 @@ pub trait EncryptedFilesystem {
     async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
         &self,
         file: W,
-    ) -> FsResult<impl CryptoWrite<W>>;
+    ) -> FsResult<Box<dyn CryptoWrite<W>>>;
     async fn create_write_seek<W: Write + Seek + Read + Send + Sync + 'static>(
         &self,
         file: W,
-    ) -> FsResult<impl CryptoWriteSeek<W>>;
-    async fn create_read<R: Read + Send + Sync>(&self, reader: R) -> FsResult<impl CryptoRead<R>>;
+    ) -> FsResult<Box<dyn CryptoWriteSeek<W>>>;
+    async fn create_read<R: Read + Send + Sync>(
+        &self,
+        reader: R,
+    ) -> FsResult<Box<dyn CryptoRead<R>>>;
     async fn create_read_seek<R: Read + Seek + Send + Sync>(
         &self,
         reader: R,
-    ) -> FsResult<impl CryptoReadSeek<R>>;
+    ) -> FsResult<Box<dyn CryptoReadSeek<R>>>;
     async fn passwd(
         data_dir: &Path,
         old_password: SecretString,
@@ -1840,45 +1843,48 @@ impl EncryptedFilesystem for EncryptedFs {
     async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
         &self,
         file: W,
-    ) -> FsResult<impl CryptoWrite<W>> {
-        Ok(crypto::create_write(
+    ) -> FsResult<Box<dyn CryptoWrite<W>>> {
+        Ok(Box::new(crypto::create_write(
             file,
             self.cipher,
             &*self.key.get().await?,
-        ))
+        )))
     }
 
     /// Create a crypto writer with seek using internal encryption info.
     async fn create_write_seek<W: Write + Seek + Read + Send + Sync + 'static>(
         &self,
         file: W,
-    ) -> FsResult<impl CryptoWriteSeek<W>> {
-        Ok(crypto::create_write_seek(
+    ) -> FsResult<Box<dyn CryptoWriteSeek<W>>> {
+        Ok(Box::new(crypto::create_write_seek(
             file,
             self.cipher,
             &*self.key.get().await?,
-        ))
+        )))
     }
 
     /// Create a crypto reader using internal encryption info.
-    async fn create_read<R: Read + Send + Sync>(&self, reader: R) -> FsResult<impl CryptoRead<R>> {
-        Ok(crypto::create_read(
+    async fn create_read<R: Read + Send + Sync>(
+        &self,
+        reader: R,
+    ) -> FsResult<Box<dyn CryptoRead<R>>> {
+        Ok(Box::new(crypto::create_read(
             reader,
             self.cipher,
             &*self.key.get().await?,
-        ))
+        )))
     }
 
     /// Create a crypto reader with seek using internal encryption info.
     async fn create_read_seek<R: Read + Seek + Send + Sync>(
         &self,
         reader: R,
-    ) -> FsResult<impl CryptoReadSeek<R>> {
-        Ok(crypto::create_read_seek(
+    ) -> FsResult<Box<dyn CryptoReadSeek<R>>> {
+        Ok(Box::new(crypto::create_read_seek(
             reader,
             self.cipher,
             &*self.key.get().await?,
-        ))
+        )))
     }
 
     /// Change the password of the filesystem used to access the encryption key.
@@ -2193,7 +2199,7 @@ impl EncryptedFs {
                             .open(self.contents_path(ino))?,
                     )
                     .await?;
-                ctx.writer = Some(Box::new(writer));
+                ctx.writer = Some(writer);
                 let attr = self.get_inode_from_storage(ino).await?;
                 ctx.attr = attr.into();
             }
@@ -2237,7 +2243,7 @@ impl EncryptedFs {
                 let attr = self.get_inode_from_storage(ino).await?;
                 let mut ctx = guard.get(handle).unwrap().lock().await;
                 let reader = self.create_read_seek(File::open(&path)?).await?;
-                ctx.reader = Some(Box::new(reader));
+                ctx.reader = Some(reader);
                 ctx.attr = attr.into();
             }
         }
@@ -2270,7 +2276,7 @@ impl EncryptedFs {
                     .create_write_seek(OpenOptions::new().read(true).write(true).open(&path)?)
                     .await?;
                 let mut ctx = lock.lock().await;
-                ctx.writer = Some(Box::new(writer));
+                ctx.writer = Some(writer);
                 let attr = self.get_inode_from_storage(ino).await?;
                 ctx.attr = attr.into();
             }
@@ -2294,7 +2300,7 @@ impl EncryptedFs {
                 let ctx = ReadHandleContext {
                     ino,
                     attr,
-                    reader: Some(Box::new(reader)),
+                    reader: Some(reader),
                 };
                 self.read_handles
                     .write()
@@ -2327,7 +2333,7 @@ impl EncryptedFs {
                 let ctx = WriteHandleContext {
                     ino,
                     attr,
-                    writer: Some(Box::new(writer)),
+                    writer: Some(writer),
                 };
                 self.write_handles
                     .write()

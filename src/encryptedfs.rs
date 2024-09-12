@@ -633,11 +633,11 @@ pub trait EncryptedFilesystem {
         &self,
         file: W,
     ) -> FsResult<Box<dyn CryptoWriteSeek<W>>>;
-    async fn create_read<R: Read + Send + Sync>(
+    async fn create_read<R: Read + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoRead<R>>>;
-    async fn create_read_seek<R: Read + Seek + Send + Sync>(
+    async fn create_read_seek<R: Read + Seek + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoReadSeek<R>>>;
@@ -1864,7 +1864,7 @@ impl EncryptedFilesystem for EncryptedFs {
     }
 
     /// Create a crypto reader using internal encryption info.
-    async fn create_read<R: Read + Send + Sync>(
+    async fn create_read<R: Read + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoRead<R>>> {
@@ -1876,7 +1876,7 @@ impl EncryptedFilesystem for EncryptedFs {
     }
 
     /// Create a crypto reader with seek using internal encryption info.
-    async fn create_read_seek<R: Read + Seek + Send + Sync>(
+    async fn create_read_seek<R: Read + Seek + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoReadSeek<R>>> {

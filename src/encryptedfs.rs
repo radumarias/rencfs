@@ -9,7 +9,6 @@ use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::fs::{DirEntry, File, OpenOptions, ReadDir};
-use std::future::Future;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::num::{NonZeroUsize, ParseIntError};
 use std::path::{Path, PathBuf};

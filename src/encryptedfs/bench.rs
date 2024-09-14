@@ -6,7 +6,7 @@ use test::{black_box, Bencher};
 #[allow(unused_imports)]
 use rand::Rng;
 #[allow(unused_imports)]
-use secrecy::SecretString;
+use shush_rs::SecretString;
 
 #[allow(unused_imports)]
 use crate::encryptedfs::{DirectoryEntry, DirectoryEntryPlus, FileType, ROOT_INODE};

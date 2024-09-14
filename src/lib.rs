@@ -28,7 +28,7 @@
 //! use tracing::info;
 //!
 //! use anyhow::Result;
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //!
 //! use rencfs::crypto::Cipher;
 //! use rencfs::encryptedfs::PasswordProvider;

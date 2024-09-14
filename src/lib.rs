@@ -86,7 +86,7 @@
 //! ```
 //! use std::fs;
 //! use std::str::FromStr;
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //! use rencfs::encryptedfs::{EncryptedFs, FileType, PasswordProvider, CreateFileAttr};
 //! use rencfs::crypto::Cipher;
 //! use anyhow::Result;
@@ -145,7 +145,7 @@
 //! ```no_run
 //! use rencfs::crypto::Cipher;
 //! use rencfs::encryptedfs::{EncryptedFs, FsError};
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //! use std::env::args;
 //! use std::path::Path;
 //! use std::str::FromStr;
@@ -184,7 +184,7 @@
 //! use std::str::FromStr;
 //!
 //! use rpassword::read_password;
-//! use secrecy::{ExposeSecret, SecretString};
+//! use shush_rs::{ExposeSecret, SecretString};
 //! use tracing::{error, info};
 //!
 //! use rencfs::encryptedfs::{EncryptedFs, FsError};
@@ -246,7 +246,7 @@
 //! use std::path::Path;
 //! use std::sync::Arc;
 //!
-//! use secrecy::SecretVec;
+//! use shush_rs::SecretVec;
 //! use tracing::info;
 //!
 //! use rencfs::crypto;

@@ -24,7 +24,7 @@ An encrypted file system written in Rust that is mounted with FUSE on Linux. It 
 You can then safely backup the encrypted directory to an untrusted server without worrying about the data being exposed.
 You can also store it in any cloud storage like Google Drive, Dropbox, etc. and have it synced across multiple devices.
 
-You can use it as CLI or as a library to build your custom FUSE implementation or other apps that works with encrypted data.
+You can use it as CLI or as a library to build your custom FUSE implementation or other apps that work with encrypted data.
 
 # Motivation
 

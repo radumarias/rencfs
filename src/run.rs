@@ -227,13 +227,13 @@ async fn run_change_password(cipher: Cipher, matches: &ArgMatches) -> Result<()>
     // read password from stdin
     print!("Enter old password: ");
     io::stdout().flush().unwrap();
-    let password = SecretString::from_str(read_password().unwrap().as_str()).unwrap();
+    let password = SecretString::from_str(&read_password().unwrap()).unwrap();
     print!("Enter new password: ");
     io::stdout().flush().unwrap();
-    let new_password = SecretString::from_str(read_password().unwrap().as_str()).unwrap();
+    let new_password = SecretString::from_str(&read_password().unwrap()).unwrap();
     print!("Confirm new password: ");
     io::stdout().flush().unwrap();
-    let new_password2 = SecretString::from_str(read_password().unwrap().as_str()).unwrap();
+    let new_password2 = SecretString::from_str(&read_password().unwrap()).unwrap();
     if new_password.expose_secret() != new_password2.expose_secret() {
         println!("Passwords do not match");
         return Err(ExitStatusError::Failure(1).into());

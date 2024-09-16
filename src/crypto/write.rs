@@ -89,7 +89,7 @@ impl<W: CryptoInnerWriter + Send + Sync> RingCryptoWrite<W> {
         algorithm: &'static Algorithm,
         key: &SecretVec<u8>,
     ) -> Self {
-        let unbound_key = UnboundKey::new(algorithm, key.expose_secret().as_slice()).expect("unbound key");
+        let unbound_key = UnboundKey::new(algorithm, &key.expose_secret()).expect("unbound key");
         let nonce_sequence = Arc::new(Mutex::new(RandomNonceSequence::default()));
         let wrapping_nonce_sequence = RandomNonceSequenceWrapper::new(nonce_sequence.clone());
         let sealing_key = SealingKey::new(unbound_key, wrapping_nonce_sequence);
@@ -97,7 +97,7 @@ impl<W: CryptoInnerWriter + Send + Sync> RingCryptoWrite<W> {
 
         let (last_nonce, opening_key, decrypt_buf) = if writer.as_write_seek_read().is_some() {
             let last_nonce = Arc::new(Mutex::new(None));
-            let unbound_key = UnboundKey::new(algorithm, key.expose_secret().as_slice()).unwrap();
+            let unbound_key = UnboundKey::new(algorithm, &key.expose_secret()).unwrap();
             let nonce_sequence2 = ExistingNonceSequence::new(last_nonce.clone());
             let opening_key = OpeningKey::new(unbound_key, nonce_sequence2);
             let ciphertext_block_size = NONCE_LEN + BLOCK_SIZE + algorithm.tag_len();

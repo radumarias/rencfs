@@ -245,7 +245,7 @@ pub fn encrypt_file_name(
         "$." | "$.." => Ok(secret_string.clone()),
         "." | ".." => Ok(format!("${secret_string}")),
         _ => {
-            let secret = SecretString::from_str(&*secret_string.as_str())
+            let secret = SecretString::from_str(&secret_string)
                 .map_err(|err| Error::GenericString(err.to_string()))?;
             let mut encrypted = encrypt(&secret, cipher, key)?;
             encrypted = encrypted.replace('/', "|");
@@ -289,7 +289,7 @@ pub fn hash_secret_string(data: &SecretString) -> [u8; 32] {
 
 #[must_use]
 pub fn hash_secret_vec(data: &SecretVec<u8>) -> [u8; 32] {
-    hash(data.expose_secret().as_slice())
+    hash(&data.expose_secret())
 }
 
 /// Copy from `pos` position in file `len` bytes
@@ -539,7 +539,7 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt_empty_string() {
-        let key = SecretVec::from_vec(vec![0; 32]);
+        let key = SecretVec::from(vec![0; 32]);
         let secret = SecretString::new(Box::new("".to_string()));
 
         let encrypted = encrypt(&secret, Cipher::ChaCha20Poly1305, &key).unwrap();
@@ -613,7 +613,7 @@ mod tests {
 
     #[test]
     fn test_copy_from_file_exact_zero_length() {
-        let key = SecretVec::from_vec(vec![0; 32]);
+        let key = SecretVec::from(vec![0; 32]);
         let (_temp_dir, file_path) =
             create_encrypted_file("Hello, world!", Cipher::ChaCha20Poly1305, &key);
 

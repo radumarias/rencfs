@@ -16,7 +16,7 @@ fn create_secret_key(key_len: usize) -> SecretVec<u8> {
     use shush_rs::SecretVec;
     let mut key = vec![0; key_len];
     rand::thread_rng().fill_bytes(&mut key);
-    SecretVec::from_vec(key)
+    SecretVec::from(key)
 }
 
 #[allow(dead_code)]
@@ -1345,7 +1345,7 @@ fn writer_only_write() {
     let cipher = Cipher::Aes256Gcm;
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let writer = WriteOnly {};
     let _writer = crypto::create_write(writer, cipher, &key);
@@ -1368,7 +1368,7 @@ fn writer_with_seeks() {
     let cipher = Cipher::Aes256Gcm;
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let len = BLOCK_SIZE * 3 + 42;
 

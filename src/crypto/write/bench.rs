@@ -19,7 +19,7 @@ fn bench_writer_1mb_cha_cha20poly1305_file(b: &mut Bencher) {
 
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let rnd_reader = RandomReader::new(len);
     b.iter(|| {
@@ -50,7 +50,7 @@ fn bench_writer_1mb_aes256gcm_file(b: &mut Bencher) {
 
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let rnd_reader = RandomReader::new(len);
     b.iter(|| {
@@ -81,7 +81,7 @@ fn bench_writer_1mb_cha_cha20poly1305_mem(b: &mut Bencher) {
 
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let rnd_reader = RandomReader::new(len);
     b.iter(|| {
@@ -113,7 +113,7 @@ fn bench_writer_1mb_aes256gcm_mem(b: &mut Bencher) {
 
     let mut key: Vec<u8> = vec![0; cipher.key_len()];
     rand::thread_rng().fill_bytes(&mut key);
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let rnd_reader = RandomReader::new(len);
     b.iter(|| {

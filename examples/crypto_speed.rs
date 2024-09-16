@@ -156,5 +156,5 @@ where
 fn get_key(cipher: Cipher) -> io::Result<SecretVec<u8>> {
     let mut key = vec![0; cipher.key_len()];
     crypto::create_rng().fill_bytes(key.as_mut_slice());
-    Ok(SecretVec::from_vec(key))
+    Ok(SecretVec::from(key))
 }

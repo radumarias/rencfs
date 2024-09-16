@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     let cipher = Cipher::ChaCha20Poly1305;
     let mut key = vec![0; cipher.key_len()];
     crypto::create_rng().fill_bytes(key.as_mut_slice());
-    let key = SecretVec::from_vec(key);
+    let key = SecretVec::from(key);
 
     let mut args = args();
     // skip the program name

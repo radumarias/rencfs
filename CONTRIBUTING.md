@@ -15,7 +15,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
    and [VSCode](https://code.visualstudio.com/docs/languages/rust#_formatting)
 10. `cargo clippy --all --release` and fix any erorrs
 11. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
-12. Create a `git` `commit hook` file in `.git/hooks/pre-commit` with [this](hooks/linux-macos/pre-commit) content on `Linux` and `MacOS`, or [this](hooks/windows/pre-commit) on `Windows`. This will run when you do `git commit` and will make the commit to be quite slow, but please give it time to complete as this helps to fix any issues locally and not relying just on running `ci` on GitHub when you create the PR
+12. Create a `git` `commit hook` file in `.git/hooks/pre-commit` with [this](hooks/linux-macos/pre-commit) content on `Linux` and `MacOS`, or [this](hooks/windows/pre-commit) on `Windows`. Make it executable in Linux and macO with `chmod +x .git/hooks/pre-commit` .This will run when you do `git commit` and will make the commit to be quite slow, but please give it time to complete as this helps to fix any issues locally and not relying just on running `ci` on GitHub when you create the PR
 13. Commit your changes and if there are any errors fix them before you push them
 14. Push your changes and create a `PR` back to the `parent` repo targeting the `main` branch and request review from owners of the repository
 15. Monitor the checks (GitHub actions runs) and fix the code if they are failing

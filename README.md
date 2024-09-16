@@ -112,18 +112,8 @@ In progress:
 
 ## What separates us
 
-- Advanced `security` using well-known audited `AEAD` cryptography primitives
-- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
-- Simplicity
-- Hide all data for enhanced `privacy`, all metadata and content are encrypted
-- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
-- `Multi-platform`, on all platforms
-- `Fast seek` on both reads and writes
-- `Writes in parallel`
-- Exposed with `FUSE`
-- Fully open source
-- Use it as a libraty to build your own apps
+[Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offers all the key funcionalities we do, seems there are not :) Seems we are realy building a unique solution.  
+You can see the [key features](README.md#key-features) that separates us.
   
 # Usage
 

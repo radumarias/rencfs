@@ -336,12 +336,26 @@ In that case please add it to the `PATH` manually.
 
 Project is setup to use `nightly` toolchain in `rust-toolchain.toml`, on first build you will see it fetch the nightly.
 
+Make sure to add this you your `$PATH` too
+
+```bash
+export PATH="$PATH::$HOME/.cargo/bin"
+```
+
 ```bash
 cargo install cargo-aur
 cargo install cargo-generate-rpm
 ```
 
 ### Other dependencies
+
+#### Act
+
+This helps running GitHub workflows locally.
+
+```bash
+cargo install act
+```
 
 Also, these deps are required (or based on your distribution):
 

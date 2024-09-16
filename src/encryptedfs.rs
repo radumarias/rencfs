@@ -26,7 +26,9 @@ use tracing::{debug, error, info, instrument, warn, Level};
 
 use crate::arc_hashmap::ArcHashMap;
 use crate::crypto::read::{CryptoRead, CryptoReadSeek, CryptoReadSeekSendSync, CryptoReadSendSync};
-use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek, CryptoWriteSeekSendSync, CryptoWriteSendSync};
+use crate::crypto::write::{
+    CryptoInnerWriter, CryptoWrite, CryptoWriteSeek, CryptoWriteSeekSendSync, CryptoWriteSendSync,
+};
 use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
 use crate::{crypto, fs_util, stream_util};
@@ -720,7 +722,7 @@ impl EncryptedFs {
                                     .parent()
                                     .expect("oops, we don't have a parent"),
                             )?
-                                .sync_all()?;
+                            .sync_all()?;
                             Ok::<(), FsError>(())
                         });
                     }
@@ -1792,7 +1794,7 @@ impl EncryptedFs {
                 *handle.as_ref().unwrap(),
                 ReadHandleContextOperation::Create { ino },
             )
-                .await?;
+            .await?;
         }
         if write {
             if self.opened_files_for_write.read().await.contains_key(&ino) {
@@ -2030,7 +2032,7 @@ impl EncryptedFs {
                 kind: attr.kind,
             },
         )
-            .await?;
+        .await?;
 
         if attr.kind == FileType::Directory {
             // add the parent link to the new directory
@@ -2042,7 +2044,7 @@ impl EncryptedFs {
                     kind: FileType::Directory,
                 },
             )
-                .await?;
+            .await?;
         }
 
         let now = SystemTime::now();
@@ -2103,7 +2105,9 @@ impl EncryptedFs {
     }
 
     /// Create a [`Send`] + [`Seek`] + `'static` crypto writer with seek using internal encryption info.
-    pub async fn create_write_seek_send_sync<W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static>(
+    pub async fn create_write_seek_send_sync<
+        W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static,
+    >(
         &self,
         file: W,
     ) -> FsResult<impl CryptoWriteSeekSendSync<W>> {
@@ -2261,7 +2265,9 @@ impl EncryptedFs {
                     self.set_attr(ino, set_attr).await?;
                 }
                 let writer = self
-                    .create_write_seek_send_sync(OpenOptions::new().read(true).write(true).open(&path)?)
+                    .create_write_seek_send_sync(
+                        OpenOptions::new().read(true).write(true).open(&path)?,
+                    )
                     .await?;
                 let mut ctx = lock.lock().await;
                 ctx.writer = Some(Box::new(writer));
@@ -2316,7 +2322,9 @@ impl EncryptedFs {
             WriteHandleContextOperation::Create { ino } => {
                 let attr = self.get_attr(ino).await?.into();
                 let writer = self
-                    .create_write_seek_send_sync(OpenOptions::new().read(true).write(true).open(&path)?)
+                    .create_write_seek_send_sync(
+                        OpenOptions::new().read(true).write(true).open(&path)?,
+                    )
                     .await?;
                 let ctx = WriteHandleContext {
                     ino,
@@ -2347,7 +2355,7 @@ impl EncryptedFs {
                 rdev: 0,
                 flags: 0,
             }
-                .into();
+            .into();
             attr.ino = ROOT_INODE;
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             unsafe {
@@ -2371,7 +2379,7 @@ impl EncryptedFs {
                     kind: FileType::Directory,
                 },
             )
-                .await?;
+            .await?;
         }
 
         Ok(())
@@ -2448,7 +2456,7 @@ impl EncryptedFs {
             )?;
             Ok::<(), FsError>(())
         })
-            .await??;
+        .await??;
         h.await??;
         Ok(())
     }
@@ -2631,9 +2639,9 @@ async fn check_structure(data_dir: &Path, ignore_empty: bool) -> FsResult<()> {
     if vec != vec2
         || !data_dir.join(SECURITY_DIR).join(KEY_ENC_FILENAME).is_file()
         || !data_dir
-        .join(SECURITY_DIR)
-        .join(KEY_SALT_FILENAME)
-        .is_file()
+            .join(SECURITY_DIR)
+            .join(KEY_SALT_FILENAME)
+            .is_file()
     {
         return Err(FsError::InvalidDataDirStructure);
     }

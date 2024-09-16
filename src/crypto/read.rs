@@ -1,4 +1,4 @@
-use std::{io, mem};
+use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::sync::{Arc, Mutex};
 
@@ -20,7 +20,7 @@ mod test;
 ///
 /// > ⚠️ **Warning**
 /// > This is not thread-safe.
-/// Use [`CryptoReadSendSync`] instead for thread-safe scenarios.
+/// > Use [`CryptoReadSendSync`] instead for thread-safe scenarios.
 #[allow(clippy::module_name_repetitions)]
 pub trait CryptoRead<R: Read>: Read {
     #[allow(clippy::wrong_self_convention)]
@@ -31,21 +31,23 @@ pub trait CryptoRead<R: Read>: Read {
 ///
 /// > ⚠️ **Warning**
 /// > This is not thread-safe.
-/// Use [`CryptoReadSeekSendSync`] instead for thread-safe scenarios.
-pub trait CryptoReadSeek<R: Read + Seek>:
-CryptoRead<R> + Seek
-{}
+/// > Use [`CryptoReadSeekSendSync`] instead for thread-safe scenarios.
+pub trait CryptoReadSeek<R: Read + Seek>: CryptoRead<R> + Seek {}
 
 /// Thread-safe versions which are [`Send`] + [`Seek`] + `'static`.
 
 /// [`Send`] + [`Seek`] version of [`CryptoReadSeek`].
 pub trait CryptoReadSeekSendSync<R: Read + Seek + Send + Sync + 'static>:
-CryptoRead<R> + Seek + Send + Sync + 'static
-{}
+    CryptoRead<R> + Seek + Send + Sync + 'static
+{
+}
 
 /// [`Send`] + [`Seek`] version of [`CryptoReadSeekSendSync`].
 #[allow(clippy::module_name_repetitions)]
-pub trait CryptoReadSendSync<R: Read + Send + Sync + 'static>: CryptoRead<R> + Send + Sync + 'static {}
+pub trait CryptoReadSendSync<R: Read + Send + Sync + 'static>:
+    CryptoRead<R> + Send + Sync + 'static
+{
+}
 
 /// ring
 
@@ -97,8 +99,8 @@ macro_rules! decrypt_block {
     }};
 }
 
-pub(crate) use decrypt_block;
 use crate::crypto::Cipher;
+pub(crate) use decrypt_block;
 
 #[allow(clippy::module_name_repetitions)]
 pub struct RingCryptoRead<R: Read> {
@@ -192,7 +194,7 @@ impl<R: Read + Seek> RingCryptoRead<R> {
         }
         let plaintext_len = ciphertext_len
             - ((ciphertext_len / self.ciphertext_block_size as u64) + 1)
-            * (self.ciphertext_block_size - self.plaintext_block_size) as u64;
+                * (self.ciphertext_block_size - self.plaintext_block_size) as u64;
         Ok(plaintext_len)
     }
 }
@@ -281,10 +283,7 @@ impl<R> CryptoReadSendSyncImpl<R>
 where
     R: Read + Send + Sync + 'static,
 {
-    pub fn new(reader: R,
-               cipher: Cipher,
-               key: &SecretVec<u8>,
-    ) -> Self {
+    pub fn new(reader: R, cipher: Cipher, key: &SecretVec<u8>) -> Self {
         Self {
             inner: Mutex::new(Some(Box::new(crypto::create_read(reader, cipher, key)))),
         }
@@ -307,26 +306,16 @@ where
 {
     fn into_inner(&mut self) -> R {
         let mut lock = self.inner.lock().unwrap();
-        let mut boxed = mem::replace(&mut *lock, None).take().unwrap();
+        let mut boxed = (*lock).take().take().unwrap();
         boxed.into_inner()
-
     }
 }
 
-unsafe impl<R> Send for CryptoReadSendSyncImpl<R>
-where
-    R: Read + Send + Sync + 'static,
-{}
+unsafe impl<R> Send for CryptoReadSendSyncImpl<R> where R: Read + Send + Sync + 'static {}
 
-unsafe impl<R> Sync for CryptoReadSendSyncImpl<R>
-where
-    R: Read + Send + Sync + 'static,
-{}
+unsafe impl<R> Sync for CryptoReadSendSyncImpl<R> where R: Read + Send + Sync + 'static {}
 
-impl<R> CryptoReadSendSync<R> for CryptoReadSendSyncImpl<R>
-where
-    R: Read + Send + Sync + 'static,
-{}
+impl<R> CryptoReadSendSync<R> for CryptoReadSendSyncImpl<R> where R: Read + Send + Sync + 'static {}
 
 pub struct CryptoReadSeekSendSyncImpl<R>
 where
@@ -335,26 +324,19 @@ where
     inner: Mutex<Option<Box<dyn CryptoReadSeek<R>>>>,
 }
 
-unsafe impl<R> Send for CryptoReadSeekSendSyncImpl<R>
-where
-    R: Read + Seek + Send + Sync + 'static,
-{}
+unsafe impl<R> Send for CryptoReadSeekSendSyncImpl<R> where R: Read + Seek + Send + Sync + 'static {}
 
-unsafe impl<R> Sync for CryptoReadSeekSendSyncImpl<R>
-where
-    R: Read + Seek + Send + Sync + 'static,
-{}
+unsafe impl<R> Sync for CryptoReadSeekSendSyncImpl<R> where R: Read + Seek + Send + Sync + 'static {}
 
 impl<R> CryptoReadSeekSendSyncImpl<R>
 where
     R: Read + Seek + Send + Sync + 'static,
 {
-    pub fn new(reader: R,
-               cipher: Cipher,
-               key: &SecretVec<u8>,
-    ) -> Self {
+    pub fn new(reader: R, cipher: Cipher, key: &SecretVec<u8>) -> Self {
         Self {
-            inner: Mutex::new(Some(Box::new(crypto::create_read_seek(reader, cipher, key)))),
+            inner: Mutex::new(Some(Box::new(crypto::create_read_seek(
+                reader, cipher, key,
+            )))),
         }
     }
 }
@@ -385,17 +367,17 @@ where
 {
     fn into_inner(&mut self) -> R {
         let mut lock = self.inner.lock().unwrap();
-        let mut boxed = mem::replace(&mut *lock, None).take().unwrap();
+        let mut boxed = (*lock).take().take().unwrap();
         boxed.into_inner()
     }
 }
 
-impl<R> CryptoReadSeek<R> for CryptoReadSeekSendSyncImpl<R>
-where
-    R: Read + Seek + Send + Sync + 'static,
-{}
+impl<R> CryptoReadSeek<R> for CryptoReadSeekSendSyncImpl<R> where
+    R: Read + Seek + Send + Sync + 'static
+{
+}
 
-impl<R> CryptoReadSeekSendSync<R> for CryptoReadSeekSendSyncImpl<R>
-where
-    R: Read + Seek + Send + Sync + 'static,
-{}
+impl<R> CryptoReadSeekSendSync<R> for CryptoReadSeekSendSyncImpl<R> where
+    R: Read + Seek + Send + Sync + 'static
+{
+}

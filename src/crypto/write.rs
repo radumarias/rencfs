@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::{io, mem};
+use std::io;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::sync::{Arc, Mutex};
 
@@ -13,9 +13,9 @@ use secrecy::{ExposeSecret, SecretVec};
 use tracing::error;
 
 use crate::crypto::buf_mut::BufMut;
-use crate::crypto::read::{ExistingNonceSequence};
-use crate::{crypto, decrypt_block, stream_util};
+use crate::crypto::read::ExistingNonceSequence;
 use crate::crypto::Cipher;
+use crate::{crypto, decrypt_block, stream_util};
 
 mod bench;
 mod test;
@@ -35,9 +35,8 @@ impl<T: Write + Seek + Read> WriteSeekRead for T {}
 /// If you have your custom implementation for [`Write`],
 /// you want to pass to [`CryptoWrite`] it needs to implement this trait.
 ///
-/// It has a blanket implementation for [`Write`] + [Seek]
-/// + [Read] + [`'static`], but in case your implementation is only [`Write`]
-/// it needs to implement this.
+/// It has a blanket implementation for [`Write`] + [Seek] + [Read] + [`'static`],
+/// but in case your implementation is only [`Write`] it needs to implement this.
 pub trait CryptoInnerWriter: Write + Any {
     fn into_any(self) -> Box<dyn Any>;
     fn as_write(&mut self) -> Option<&mut dyn Write>;
@@ -61,7 +60,7 @@ impl<T: Write + Seek + Read + 'static> CryptoInnerWriter for T {
 ///
 /// > ⚠️ **Warning**
 /// > This is not thread-safe.
-/// Use [`CryptoWriteSendSync`] instead for thread-safe scenarios.
+/// > Use [`CryptoWriteSendSync`] instead for thread-safe scenarios.
 #[allow(clippy::module_name_repetitions)]
 pub trait CryptoWrite<W: CryptoInnerWriter>: Write {
     /// You must call this after the last writing to make sure we write the last block.
@@ -74,7 +73,7 @@ pub trait CryptoWrite<W: CryptoInnerWriter>: Write {
 ///
 /// > ⚠️ **Warning**
 /// > This is not thread-safe.
-/// Use [`CryptoW`] instead for thread-safe scenarios.
+/// > Use [`CryptoW`] instead for thread-safe scenarios.
 pub trait CryptoWriteSeek<W: CryptoInnerWriter>: CryptoWrite<W> + Seek {}
 
 /// Thread-safe versions which are [`Send`] + [`Seek`] + `'static`.
@@ -84,7 +83,10 @@ pub trait CryptoWriteSeek<W: CryptoInnerWriter>: CryptoWrite<W> + Seek {}
 pub trait CryptoWriteSendSync<W: CryptoInnerWriter>: Write + Send + Sync + 'static {}
 
 /// [`Send`] + [`Seek`] version of [`CryptoWriteSeek`].
-pub trait CryptoWriteSeekSendSync<W: CryptoInnerWriter>: CryptoWrite<W> + Seek + Send + Sync + 'static {}
+pub trait CryptoWriteSeekSendSync<W: CryptoInnerWriter>:
+    CryptoWrite<W> + Seek + Send + Sync + 'static
+{
+}
 
 /// ring
 #[allow(clippy::module_name_repetitions)]
@@ -371,7 +373,7 @@ impl<W: CryptoInnerWriter> RingCryptoWrite<W> {
         } else {
             ciphertext_len
                 - ((ciphertext_len / self.ciphertext_block_size as u64) + 1)
-                * (self.ciphertext_block_size - self.plaintext_block_size) as u64
+                    * (self.ciphertext_block_size - self.plaintext_block_size) as u64
         };
         Ok(plaintext_len)
     }
@@ -488,24 +490,17 @@ where
     inner: Mutex<Option<Box<dyn CryptoWrite<W>>>>,
 }
 
-unsafe impl<W> Send for CryptoWriteSendSyncImpl<W>
-where
-    W: CryptoInnerWriter + Send + Sync + 'static,
+unsafe impl<W> Send for CryptoWriteSendSyncImpl<W> where W: CryptoInnerWriter + Send + Sync + 'static
 {}
 
-unsafe impl<R> Sync for CryptoWriteSendSyncImpl<R>
-where
-    R: CryptoInnerWriter + Send + Sync + 'static,
+unsafe impl<R> Sync for CryptoWriteSendSyncImpl<R> where R: CryptoInnerWriter + Send + Sync + 'static
 {}
 
 impl<W> CryptoWriteSendSyncImpl<W>
 where
     W: CryptoInnerWriter + Send + Sync + 'static,
 {
-    pub fn new(writer: W,
-               cipher: Cipher,
-               key: &SecretVec<u8>,
-    ) -> Self {
+    pub fn new(writer: W, cipher: Cipher, key: &SecretVec<u8>) -> Self {
         Self {
             inner: Mutex::new(Some(Box::new(crypto::create_write(writer, cipher, key)))),
         }
@@ -525,10 +520,10 @@ where
     }
 }
 
-impl<W> CryptoWriteSendSync<W> for CryptoWriteSendSyncImpl<W>
-where
-    W: CryptoInnerWriter + Send + Sync + 'static,
-{}
+impl<W> CryptoWriteSendSync<W> for CryptoWriteSendSyncImpl<W> where
+    W: CryptoInnerWriter + Send + Sync + 'static
+{
+}
 
 impl<W> CryptoWrite<W> for CryptoWriteSendSyncImpl<W>
 where
@@ -536,7 +531,7 @@ where
 {
     fn finish(&mut self) -> io::Result<W> {
         let mut lock = self.inner.lock().unwrap();
-        let mut boxed = mem::replace(&mut *lock, None).take().unwrap();
+        let mut boxed = (*lock).take().take().unwrap();
         boxed.finish()
     }
 }
@@ -548,26 +543,25 @@ where
     inner: Mutex<Option<Box<dyn CryptoWriteSeek<W>>>>,
 }
 
-unsafe impl<W> Send for CryptoWriteSeekSendSyncImpl<W>
-where
-    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static,
-{}
+unsafe impl<W> Send for CryptoWriteSeekSendSyncImpl<W> where
+    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static
+{
+}
 
-unsafe impl<W> Sync for CryptoWriteSeekSendSyncImpl<W>
-where
-    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static,
-{}
+unsafe impl<W> Sync for CryptoWriteSeekSendSyncImpl<W> where
+    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static
+{
+}
 
 impl<W> CryptoWriteSeekSendSyncImpl<W>
 where
     W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static,
 {
-    pub fn new(writer: W,
-               cipher: Cipher,
-               key: &SecretVec<u8>,
-    ) -> Self {
+    pub fn new(writer: W, cipher: Cipher, key: &SecretVec<u8>) -> Self {
         Self {
-            inner: Mutex::new(Some(Box::new(crypto::create_write_seek(writer, cipher, key)))),
+            inner: Mutex::new(Some(Box::new(crypto::create_write_seek(
+                writer, cipher, key,
+            )))),
         }
     }
 }
@@ -587,7 +581,7 @@ where
 {
     fn finish(&mut self) -> io::Result<W> {
         let mut lock = self.inner.lock().unwrap();
-        let mut boxed = mem::replace(&mut *lock, None).take().unwrap();
+        let mut boxed = (*lock).take().take().unwrap();
         boxed.finish()
     }
 }
@@ -605,7 +599,7 @@ where
     }
 }
 
-impl<W> CryptoWriteSeekSendSync<W> for CryptoWriteSeekSendSyncImpl<W>
-where
-    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static,
-{}
+impl<W> CryptoWriteSeekSendSync<W> for CryptoWriteSeekSendSyncImpl<W> where
+    W: CryptoInnerWriter + Seek + Read + Send + Sync + 'static
+{
+}

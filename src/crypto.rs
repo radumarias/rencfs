@@ -22,8 +22,14 @@ use thiserror::Error;
 use tracing::{debug, error, instrument};
 use write::CryptoInnerWriter;
 
-use crate::crypto::read::{CryptoRead, CryptoReadSeek, CryptoReadSeekSendSync, CryptoReadSendSyncImpl, CryptoReadSendSync, RingCryptoRead, CryptoReadSeekSendSyncImpl};
-use crate::crypto::write::{CryptoWrite, CryptoWriteSeek, CryptoWriteSeekSendSync, CryptoWriteSeekSendSyncImpl, CryptoWriteSendSync, CryptoWriteSendSyncImpl, RingCryptoWrite};
+use crate::crypto::read::{
+    CryptoRead, CryptoReadSeek, CryptoReadSeekSendSync, CryptoReadSeekSendSyncImpl,
+    CryptoReadSendSync, CryptoReadSendSyncImpl, RingCryptoRead,
+};
+use crate::crypto::write::{
+    CryptoWrite, CryptoWriteSeek, CryptoWriteSeekSendSync, CryptoWriteSeekSendSyncImpl,
+    CryptoWriteSendSync, CryptoWriteSendSyncImpl, RingCryptoWrite,
+};
 use crate::encryptedfs::FsResult;
 use crate::{fs_util, stream_util};
 
@@ -169,11 +175,7 @@ fn create_ring_write_seek<W: CryptoInnerWriter + Seek + Read + Send + Sync>(
     RingCryptoWrite::new(writer, true, algorithm, key)
 }
 
-fn create_ring_read<R: Read>(
-    reader: R,
-    cipher: Cipher,
-    key: &SecretVec<u8>,
-) -> RingCryptoRead<R> {
+fn create_ring_read<R: Read>(reader: R, cipher: Cipher, key: &SecretVec<u8>) -> RingCryptoRead<R> {
     let algorithm = match cipher {
         Cipher::ChaCha20Poly1305 => &CHACHA20_POLY1305,
         Cipher::Aes256Gcm => &AES_256_GCM,
@@ -196,11 +198,7 @@ fn create_ring_read_seek<R: Read + Seek>(
 /// Creates a crypto reader. This is not thread-safe.
 ///
 /// Use [`create_read_send_sync`] if you need thread-safe access.
-pub fn create_read<R: Read>(
-    reader: R,
-    cipher: Cipher,
-    key: &SecretVec<u8>,
-) -> impl CryptoRead<R> {
+pub fn create_read<R: Read>(reader: R, cipher: Cipher, key: &SecretVec<u8>) -> impl CryptoRead<R> {
     create_ring_read(reader, cipher, key)
 }
 
@@ -649,7 +647,7 @@ mod tests {
             &key,
             &mut output,
         )
-            .unwrap();
+        .unwrap();
         assert_eq!(&output, content.as_bytes());
     }
 

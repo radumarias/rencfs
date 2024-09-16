@@ -10,13 +10,14 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 6. Make the changes in your branch
 7. Add docs as they apply
 8. Add tests, benchmarks and examples for your changes, if applicable
-9. `cargo fmt --all` to format the code. You can configure your **IDE** to do this on
+9. `cargo fmt --all` to format the code. You can configure your `IDE` to do this on
    save, [RustRover](https://www.jetbrains.com/help/rust/rustfmt.html)
    and [VSCode](https://code.visualstudio.com/docs/languages/rust#_formatting)
 10. `cargo clippy --all --release` and fix any erorrs
 11. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
-12. **MAKE SURE YOU RUN THIS BEFORE PUSHING TO THE REPO `./check-before-push-linux.sh`, `./check-before-push-macos.sh` or `cmd /c check-before-push-windows.bat` and fix any errors**
-13. Create a **PR** back to the **parent** repo targeting the `main` branch and request review from owners of the repository
-14. Monitor the checks (GitHub actions runs) and fix the code if they are failing
-15. Respond to any comments
-16. In the end, ideally, it will be merged to `main`
+12. Create a `git` `commit hook` file in `.git/hooks/pre-commit` with [this](hooks/pre-commit-linux) content, or [this](hooks/pre-commit-windows) for Windows. This whil run when you do `git commit`
+13. Commit your changes and if there are any errors fix them before you push them
+14. Push your changes and create a `PR` back to the `parent` repo targeting the `main` branch and request review from owners of the repository
+15. Monitor the checks (GitHub actions runs) and fix the code if they are failing
+16. Respond to any comments
+17. In the end, ideally, it will be merged to `main`

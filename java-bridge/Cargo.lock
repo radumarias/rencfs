@@ -1152,7 +1152,7 @@ dependencies = [
  "ctrlc",
  "jni",
  "rencfs",
- "secrecy",
+ "shush-rs",
  "tokio",
  "tracing",
  "tracing-appender",
@@ -1212,9 +1212,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.155"
+version = "0.2.158"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
+checksum = "d8adc4bb1803a324070e64a98ae98f38934d91957a99cfb3a43dcbc01bc56439"
 
 [[package]]
 name = "linux-keyutils"
@@ -1741,8 +1741,8 @@ dependencies = [
  "retainer",
  "ring",
  "rpassword",
- "secrecy",
  "serde",
+ "shush-rs",
  "strum",
  "strum_macros",
  "subtle",
@@ -1869,15 +1869,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
-name = "secrecy"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bd1c54ea06cfd2f6b63219704de0b9b4f72dcc2b8fdef820be6cd799780e91e"
-dependencies = [
- "zeroize",
-]
-
-[[package]]
 name = "secret-service"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1985,6 +1976,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shush-rs"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9de8f82d4a4085f9ea4ab8d493e6e62ab871b2bf446d4d90633b58ca400aedff"
+dependencies = [
+ "errno",
+ "libc",
+ "windows-sys 0.59.0",
+ "zeroize",
 ]
 
 [[package]]

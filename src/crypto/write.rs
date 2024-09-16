@@ -165,7 +165,7 @@ impl<W: CryptoInnerWriter> RingCryptoWrite<W> {
             .writer
             .as_mut()
             .ok_or(io::Error::new(io::ErrorKind::NotConnected, "no writer"))?;
-        writer.write_all(nonce)?;
+        writer.write_all(&nonce.lock().unwrap())?;
         writer.write_all(data)?;
         self.buf.clear();
         writer.write_all(tag.as_ref())?;
@@ -314,14 +314,14 @@ impl<W: CryptoInnerWriter> CryptoWrite<W> for RingCryptoWrite<W> {
 
 struct RandomNonceSequence {
     rng: Mutex<Box<dyn RngCore>>,
-    last_nonce: Vec<u8>,
+    last_nonce: Mutex<Vec<u8>>,
 }
 
 impl Default for RandomNonceSequence {
     fn default() -> Self {
         Self {
             rng: Mutex::new(Box::new(crypto::create_rng())),
-            last_nonce: vec![0; NONCE_LEN],
+            last_nonce: Mutex::new(vec![0; NONCE_LEN]),
         }
     }
 }
@@ -329,10 +329,16 @@ impl Default for RandomNonceSequence {
 impl NonceSequence for RandomNonceSequence {
     // called once for each seal operation
     fn advance(&mut self) -> Result<Nonce, Unspecified> {
-        self.rng.lock().unwrap().fill_bytes(&mut self.last_nonce);
-        Nonce::try_assume_unique_for_key(&self.last_nonce)
+        self.rng
+            .lock()
+            .unwrap()
+            .fill_bytes(&mut self.last_nonce.lock().unwrap());
+        Nonce::try_assume_unique_for_key(&self.last_nonce.lock().unwrap())
     }
 }
+
+unsafe impl Send for RandomNonceSequence {}
+unsafe impl Sync for RandomNonceSequence {}
 
 struct RandomNonceSequenceWrapper {
     inner: Arc<Mutex<RandomNonceSequence>>,

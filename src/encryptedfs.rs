@@ -3,8 +3,8 @@ use async_trait::async_trait;
 use futures_util::TryStreamExt;
 use lru::LruCache;
 use num_format::{Locale, ToFormattedString};
-use secrecy::{ExposeSecret, SecretString, SecretVec};
 use serde::{Deserialize, Serialize};
+use shush_rs::{ExposeSecret, SecretBox, SecretString, SecretVec};
 use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::Debug;
@@ -407,7 +407,7 @@ impl From<TimesFileAttr> for SetFileAttr {
 #[derive(Debug, Clone)]
 pub struct DirectoryEntry {
     pub ino: u64,
-    pub name: SecretString,
+    pub name: SecretBox<String>,
     pub kind: FileType,
 }
 
@@ -423,7 +423,7 @@ impl PartialEq for DirectoryEntry {
 #[derive(Debug)]
 pub struct DirectoryEntryPlus {
     pub ino: u64,
-    pub name: SecretString,
+    pub name: SecretBox<String>,
     pub kind: FileType,
     pub attr: FileAttr,
 }
@@ -567,7 +567,7 @@ pub struct EncryptedFs {
     self_weak: std::sync::Mutex<Option<Weak<Self>>>,
     attr_cache: ExpireValue<RwLock<LruCache<u64, FileAttr>>, FsError, AttrCacheProvider>,
     dir_entries_name_cache:
-        ExpireValue<Mutex<LruCache<String, SecretString>>, FsError, DirEntryNameCacheProvider>,
+        ExpireValue<Mutex<LruCache<String, SecretBox<String>>>, FsError, DirEntryNameCacheProvider>,
     dir_entries_meta_cache:
         ExpireValue<Mutex<DirEntryMetaCache>, FsError, DirEntryMetaCacheProvider>,
     sizes_write: Mutex<HashMap<u64, AtomicU64>>,
@@ -737,7 +737,7 @@ impl EncryptedFilesystem for EncryptedFs {
         read: bool,
         write: bool,
     ) -> FsResult<(u64, FileAttr)> {
-        if name.expose_secret() == "." || name.expose_secret() == ".." {
+        if *name.expose_secret() == "." || *name.expose_secret() == ".." {
             return Err(FsError::InvalidInput("name cannot be '.' or '..'"));
         }
         if !self.exists(parent) {
@@ -811,7 +811,7 @@ impl EncryptedFilesystem for EncryptedFs {
                                     attr_clone.ino,
                                     &DirectoryEntry {
                                         ino: attr_clone.ino,
-                                        name: SecretString::from_str("$.").expect("cannot parse"),
+                                        name: SecretString::new(Box::new("$.".into())),
                                         kind: FileType::Directory,
                                     },
                                 )
@@ -821,7 +821,7 @@ impl EncryptedFilesystem for EncryptedFs {
                                     attr_clone.ino,
                                     &DirectoryEntry {
                                         ino: parent,
-                                        name: SecretString::from_str("$..").expect("cannot parse"),
+                                        name: SecretString::new(Box::new("$..".into())),
                                         kind: FileType::Directory,
                                     },
                                 )
@@ -1750,9 +1750,9 @@ impl EncryptedFilesystem for EncryptedFs {
     async fn rename(
         &self,
         parent: u64,
-        name: &SecretString,
+        name: &SecretBox<String>,
         new_parent: u64,
-        new_name: &SecretString,
+        new_name: &SecretBox<String>,
     ) -> FsResult<()> {
         if self.read_only {
             return Err(FsError::ReadOnly);
@@ -1812,7 +1812,7 @@ impl EncryptedFilesystem for EncryptedFs {
                 attr.ino,
                 &DirectoryEntry {
                     ino: new_parent,
-                    name: SecretString::from_str("$..").expect("cannot parse"),
+                    name: SecretBox::new(Box::new("$..".to_string())),
                     kind: FileType::Directory,
                 },
             )
@@ -1889,8 +1889,8 @@ impl EncryptedFilesystem for EncryptedFs {
     /// Change the password of the filesystem used to access the encryption key.
     async fn passwd(
         data_dir: &Path,
-        old_password: SecretString,
-        new_password: SecretString,
+        old_password: SecretBox<String>,
+        new_password: SecretBox<String>,
         cipher: Cipher,
     ) -> FsResult<()> {
         check_structure(data_dir, false).await?;
@@ -1903,12 +1903,12 @@ impl EncryptedFilesystem for EncryptedFs {
         let reader = crypto::create_read(File::open(enc_file)?, cipher, &initial_key);
         let key: Vec<u8> =
             bincode::deserialize_from(reader).map_err(|_| FsError::InvalidPassword)?;
-        let key = SecretVec::new(key);
+        let key = SecretBox::new(Box::new(key));
         // encrypt it with a new key derived from new password
         let new_key = crypto::derive_key(&new_password, cipher, &salt)?;
         crypto::atomic_serialize_encrypt_into(
             &data_dir.join(SECURITY_DIR).join(KEY_ENC_FILENAME),
-            &key.expose_secret(),
+            &*key.expose_secret(),
             cipher,
             &new_key,
         )?;
@@ -2576,7 +2576,7 @@ fn read_or_create_key(
         let reader = crypto::create_read(File::open(key_path)?, cipher, &derived_key);
         let key: Vec<u8> =
             bincode::deserialize_from(reader).map_err(|_| FsError::InvalidPassword)?;
-        Ok(SecretVec::new(key))
+        Ok(SecretBox::new(Box::new(key)))
     } else {
         // first time, create a random key and encrypt it with the derived key from password
         let mut key: Vec<u8> = vec![];
@@ -2597,7 +2597,7 @@ fn read_or_create_key(
         let file = writer.finish()?;
         file.sync_all()?;
         File::open(key_path.parent().unwrap())?.sync_all()?;
-        Ok(SecretVec::new(key))
+        Ok(SecretBox::new(Box::new(key)))
     }
 }
 

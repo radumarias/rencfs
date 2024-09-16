@@ -1,7 +1,6 @@
 #![feature(test)]
 #![feature(error_generic_member_access)]
 #![feature(seek_stream_len)]
-#![feature(const_refs_to_cell)]
 #![feature(box_into_inner)]
 //! # Encrypted File System
 //!
@@ -28,7 +27,7 @@
 //! use tracing::info;
 //!
 //! use anyhow::Result;
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //!
 //! use rencfs::crypto::Cipher;
 //! use rencfs::encryptedfs::PasswordProvider;
@@ -86,7 +85,7 @@
 //! ```
 //! use std::fs;
 //! use std::str::FromStr;
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //! use rencfs::encryptedfs::{EncryptedFs, FileType, PasswordProvider, CreateFileAttr};
 //! use rencfs::crypto::Cipher;
 //! use anyhow::Result;
@@ -145,7 +144,7 @@
 //! ```no_run
 //! use rencfs::crypto::Cipher;
 //! use rencfs::encryptedfs::{EncryptedFs, FsError};
-//! use secrecy::SecretString;
+//! use shush_rs::SecretString;
 //! use std::env::args;
 //! use std::path::Path;
 //! use std::str::FromStr;
@@ -184,7 +183,7 @@
 //! use std::str::FromStr;
 //!
 //! use rpassword::read_password;
-//! use secrecy::{ExposeSecret, SecretString};
+//! use shush_rs::{ExposeSecret, SecretString};
 //! use tracing::{error, info};
 //!
 //! use rencfs::encryptedfs::{EncryptedFs, FsError};
@@ -201,13 +200,13 @@
 //!     use rencfs::crypto::Cipher;
 //!     print!("Enter old password: ");
 //!     io::stdout().flush().unwrap();
-//!     let old_password = SecretString::new(read_password().unwrap());
+//!     let old_password = SecretString::from_str(&read_password().unwrap()).unwrap();
 //!     print!("Enter new password: ");
 //!     io::stdout().flush().unwrap();
-//!     let new_password = SecretString::new(read_password().unwrap());
+//!     let new_password = SecretString::from_str(&read_password().unwrap()).unwrap();
 //!     print!("Confirm new password: ");
 //!     io::stdout().flush().unwrap();
-//!     let new_password2 = SecretString::new(read_password().unwrap());
+//!     let new_password2 = SecretString::from_str(&read_password().unwrap()).unwrap();
 //!     if new_password.expose_secret() != new_password2.expose_secret() {
 //!         error!("Passwords do not match");
 //!         return;
@@ -246,7 +245,7 @@
 //! use std::path::Path;
 //! use std::sync::Arc;
 //!
-//! use secrecy::SecretVec;
+//! use shush_rs::SecretVec;
 //! use tracing::info;
 //!
 //! use rencfs::crypto;
@@ -259,7 +258,7 @@
 //!     let cipher = Cipher::ChaCha20Poly1305;
 //!     let mut key = vec![0; cipher.key_len()];
 //!     crypto::create_rng().fill_bytes(key.as_mut_slice());
-//!     let key = SecretVec::new(key);
+//!     let key = SecretVec::from(key);
 //!
 //!     let mut args = args();
 //!     // skip the program name

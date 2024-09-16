@@ -24,11 +24,11 @@ An encrypted file system written in Rust that is mounted with FUSE on Linux. It 
 You can then safely backup the encrypted directory to an untrusted server without worrying about the data being exposed.
 You can also store it in any cloud storage like Google Drive, Dropbox, etc. and have it synced across multiple devices.
 
-You can use it as CLI or as a library to build your custom FUSE implementation or other apps that works with encrypted data.
+You can use it as CLI or as a library to build your custom FUSE implementation or other apps that work with encrypted data.
 
 # Motivation
 
-Create a `simple`, `performant`, `modular` and `ergonomic` yet `very secure` `encrypted filesystem` to protect your `privacy` which is also `open souce` and uses `well known audited` crates as `cryptograhic primitives`.
+Create a `simple`, `performant`, `modular` and `ergonomic` yet `very secure` `encrypted filesystem` to protect your `privacy` which is also `open souce` and is correctly and safely using `well known audited` crates as `cryptograhic primitives`.
 
 # A short story
 
@@ -46,7 +46,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 - `Security` using well-known audited `AEAD` cryptography primitives
 - `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- Hide all data for enhanced `privacy`, all metadata and content are encrypted
+- Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count` are encrypted
 - Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
 - `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
 - Simplicity
@@ -88,9 +88,9 @@ In progress:
 - [ring](https://crates.io/crates/ring) for encryption and [argon2](https://crates.io/crates/argon2) for key derivation
   function (generating key from password used to encrypt the master encryption key)
 - [rand_chacha](https://crates.io/crates/rand_chacha) for random generators
-- [secrecy](https://crates.io/crates/secrecy) for keeping pass and encryption keys safe in memory and zeroing them when
+- [shush-rs](https://crates.io/crates/shush-rs) for keeping pass and encryption keys safe in memory and zeroing them when
   not used. It keeps encryption keys in memory only while being used, and when not active it will release and zeroing
-  them in memory
+  them in memory. It locks memory page as well, preventing it from being written to swap.
 - [blake3](https://crates.io/crates/blake3) for hashing
 - password saved in OS keyring using [keyring](https://crates.io/crates/keyring)
 - [tracing](https://crates.io/crates/tracing) for logs
@@ -99,6 +99,9 @@ In progress:
 
 - [Alternatives](https://alternativeto.net/software/encfs/)
 - [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
+- [CryFS](https://www.cryfs.org/)
+- [gocryptfs](https://nuetzlich.net/gocryptfs/)
+- [fscrypt](https://www.kernel.org/doc/html/v4.18/filesystems/fscrypt.html)
 - [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
 - [Cryptomator](https://cryptomator.org/)
 - [TrueCrypt](https://truecrypt.sourceforge.net/)
@@ -112,18 +115,8 @@ In progress:
 
 ## What separates us
 
-- Advanced `security` using well-known audited `AEAD` cryptography primitives
-- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
-- Simplicity
-- Hide all data for enhanced `privacy`, all metadata and content are encrypted
-- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
-- `Multi-platform`, on all platforms
-- `Fast seek` on both reads and writes
-- `Writes in parallel`
-- Exposed with `FUSE`
-- Fully open source
-- Use it as a libraty to build your own apps
+[Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offers all the key funcionalities we do, seems there are not :) Seems we are realy building a unique solution.  
+You can see the [key features](README.md#key-features) that separates us.
   
 # Usage
 
@@ -278,6 +271,7 @@ You can see more [here](https://crates.io/crates/rencfs)
 
 ## Browser
 
+If you want to give it a quick try and not setup anything locally you can  
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/radumarias/rencfs)
 
 [![Open Rustlings On Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/?repo=radumarias%2Frencfs&ref=main)
@@ -304,7 +298,8 @@ cat test.txt
 
 For now the `FUSE` (`fuse3` crate) only works on `Linux`, so to start the project you will need to be on Linux. 
 Instead, you can [Develop inside a Container](#developing-inside-a-container), which will start a local Linux container, the IDE will connect to it, 
-you can build and start the app in there and also use terminal to test it.
+you can build and start the app in there and also use terminal to test it.  
+On windows you can start it in [WSL](https://harsimranmaan.medium.com/install-and-setup-rust-development-environment-on-wsl2-dccb4bf63700).
 
 ### Getting the sources
 
@@ -334,6 +329,12 @@ In that case please add it to the `PATH` manually.
 
 Project is setup to use `nightly` toolchain in `rust-toolchain.toml`, on first build you will see it fetch the nightly.
 
+Make sure to add this you your `$PATH` too
+
+```bash
+export PATH="$PATH::$HOME/.cargo/bin"
+```
+
 ```bash
 cargo install cargo-aur
 cargo install cargo-generate-rpm
@@ -346,19 +347,19 @@ Also, these deps are required (or based on your distribution):
 #### Arch
 
 ```bash
-sudo pacman -Syu && sudo pacman -S fuse3 base-devel
+sudo pacman -Syu && sudo pacman -S fuse3 base-devel act
 ```
 
 #### Ubuntu
 
 ```bash
-sudo apt-get update && sudo apt-get install fuse3 build-essential
+sudo apt-get update && sudo apt-get install fuse3 build-essential act
 ```
 
 #### Fedora
 
 ```bash
-sudo dnf update && sudo dnf install fuse3 && dnf install @development-tools
+sudo dnf update && sudo dnf install fuse3 && dnf install @development-tools act
 ```
 
 ### Build for debug

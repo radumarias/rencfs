@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::string::ToString;
 use std::time::SystemTime;
 
-use secrecy::{ExposeSecret, SecretString};
+use shush_rs::{ExposeSecret, SecretString};
 use tracing_test::traced_test;
 
 use crate::crypto::Cipher;
@@ -574,7 +574,7 @@ async fn test_read_dir() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntry> = entries.into_iter().map(Result::unwrap).collect();
             assert_eq!(entries.len(), 2);
@@ -601,7 +601,7 @@ async fn test_read_dir() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntry> = entries.into_iter().map(Result::unwrap).collect();
             let mut sample = vec![
@@ -621,7 +621,7 @@ async fn test_read_dir() {
                     kind: FileType::Directory,
                 },
             ];
-            sample.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            sample.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(entries.len(), 3);
             assert_eq!(sample, entries);
 
@@ -669,7 +669,7 @@ async fn test_read_dir() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntry> = entries.into_iter().map(Result::unwrap).collect();
             assert_eq!(entries.len(), 2);
@@ -691,7 +691,7 @@ async fn test_read_dir() {
 
             let iter = fs.read_dir(parent).await.unwrap();
             let mut entries: Vec<DirectoryEntry> = iter.map(Result::unwrap).collect();
-            entries.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            entries.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             let mut sample = vec![
                 DirectoryEntry {
                     ino: parent,
@@ -719,7 +719,7 @@ async fn test_read_dir() {
                     kind: FileType::Directory,
                 },
             ];
-            sample.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            sample.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(entries.len(), 5);
             assert_eq!(sample, entries);
         },
@@ -770,7 +770,7 @@ async fn test_read_dir_plus() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntryPlus> =
                 entries.into_iter().map(Result::unwrap).collect();
@@ -803,7 +803,7 @@ async fn test_read_dir_plus() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntryPlus> =
                 entries.into_iter().map(Result::unwrap).collect();
@@ -829,7 +829,7 @@ async fn test_read_dir_plus() {
                     attr: dir_attr,
                 },
             ];
-            sample.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            sample.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(entries.len(), 3);
             assert_eq!(sample, entries);
 
@@ -867,7 +867,7 @@ async fn test_read_dir_plus() {
                     .unwrap()
                     .name
                     .expose_secret()
-                    .cmp(b.as_ref().unwrap().name.expose_secret())
+                    .cmp(&*b.as_ref().unwrap().name.expose_secret())
             });
             let entries: Vec<DirectoryEntryPlus> =
                 entries.into_iter().map(Result::unwrap).collect();
@@ -894,7 +894,7 @@ async fn test_read_dir_plus() {
 
             let iter = fs.read_dir_plus(parent).await.unwrap();
             let mut entries: Vec<DirectoryEntryPlus> = iter.map(Result::unwrap).collect();
-            entries.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            entries.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             // reload it as atime is changed on read_dir*()
             let attr_parent = fs.get_attr(attr_parent.ino).await.unwrap();
             let mut sample = vec![
@@ -923,7 +923,7 @@ async fn test_read_dir_plus() {
                     attr: dir_attr,
                 },
             ];
-            sample.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            sample.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(entries.len(), 4);
             assert_eq!(sample, entries);
         },
@@ -1240,7 +1240,7 @@ async fn test_create() {
                 .unwrap()
                 .map(Result::unwrap)
                 .collect();
-            entries.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            entries.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(attr, entries[1].attr);
             assert!(fs.exists_by_name(ROOT_INODE, &test_file).unwrap());
             assert_eq!(
@@ -1290,7 +1290,7 @@ async fn test_create() {
                 .unwrap()
                 .map(Result::unwrap)
                 .collect();
-            entries.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            entries.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(ROOT_INODE, entries[0].attr.ino);
             assert_eq!(attr, entries[1].attr);
             assert!(fs.exists_by_name(ROOT_INODE, &test_dir).unwrap());
@@ -1341,7 +1341,7 @@ async fn test_create() {
                 .unwrap()
                 .map(Result::unwrap)
                 .collect();
-            entries.sort_by(|a, b| a.name.expose_secret().cmp(b.name.expose_secret()));
+            entries.sort_by(|a, b| a.name.expose_secret().cmp(&*b.name.expose_secret()));
             assert_eq!(attr, entries[2].attr);
             assert_eq!(parent, entries[0].attr.ino);
             assert!(fs.exists_by_name(parent, &test_dir_2).unwrap());
@@ -1503,7 +1503,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -1511,7 +1511,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -1565,7 +1565,7 @@ async fn test_rename() {
                     .unwrap()
                     .filter(|entry| {
                         let file_new = "file-new";
-                        entry.as_ref().unwrap().name.expose_secret() == file_new
+                        *entry.as_ref().unwrap().name.expose_secret() == file_new
                     })
                     .count(),
                 0
@@ -1649,7 +1649,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -1657,7 +1657,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -1783,7 +1783,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -1791,7 +1791,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -1915,7 +1915,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -1923,7 +1923,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -2048,7 +2048,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -2056,7 +2056,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -2129,7 +2129,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -2137,7 +2137,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );
@@ -2223,7 +2223,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == "..")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == "..")
                     .count(),
                 1
             );
@@ -2231,7 +2231,7 @@ async fn test_rename() {
                 fs.read_dir(new_attr.ino)
                     .await
                     .unwrap()
-                    .filter(|entry| entry.as_ref().unwrap().name.expose_secret() == ".")
+                    .filter(|entry| *entry.as_ref().unwrap().name.expose_secret() == ".")
                     .count(),
                 1
             );

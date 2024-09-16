@@ -25,7 +25,7 @@ use fuse3::{Errno, Inode, MountOptions, Result, SetAttr, Timestamp};
 use futures_util::stream::Iter;
 use futures_util::{stream, FutureExt};
 use libc::{EACCES, EEXIST, EFBIG, EIO, EISDIR, ENAMETOOLONG, ENOENT, ENOTDIR, ENOTEMPTY, EPERM};
-use secrecy::{ExposeSecret, SecretString};
+use shush_rs::{ExposeSecret, SecretString};
 use tracing::{debug, error, instrument, trace, warn};
 use tracing::{info, Level};
 
@@ -72,7 +72,7 @@ impl Iterator for DirectoryEntryIterator {
                 Some(Ok(DirectoryEntry {
                     inode: entry.ino,
                     kind,
-                    name: OsString::from(entry.name.expose_secret()),
+                    name: OsString::from(&*entry.name.expose_secret()),
                     #[allow(clippy::cast_possible_wrap)]
                     offset: self.1 as i64,
                 }))
@@ -108,7 +108,7 @@ impl Iterator for DirectoryEntryPlusIterator {
                     inode: entry.ino,
                     generation: 0,
                     kind,
-                    name: OsString::from(entry.name.expose_secret()),
+                    name: OsString::from(&*entry.name.expose_secret()),
                     #[allow(clippy::cast_possible_wrap)]
                     offset: self.1 as i64,
                     attr: entry.attr.into(),

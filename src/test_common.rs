@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::sync::{Arc, LazyLock};
 use std::{env, fs, io};
 
-use secrecy::SecretString;
+use shush_rs::SecretString;
 use tempfile::NamedTempFile;
 use thread_local::ThreadLocal;
 use tokio::sync::Mutex;

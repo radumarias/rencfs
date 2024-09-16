@@ -342,32 +342,24 @@ cargo install cargo-generate-rpm
 
 ### Other dependencies
 
-#### Act
-
-This helps running GitHub workflows locally.
-
-```bash
-cargo install act
-```
-
 Also, these deps are required (or based on your distribution):
 
 #### Arch
 
 ```bash
-sudo pacman -Syu && sudo pacman -S fuse3 base-devel
+sudo pacman -Syu && sudo pacman -S fuse3 base-devel act
 ```
 
 #### Ubuntu
 
 ```bash
-sudo apt-get update && sudo apt-get install fuse3 build-essential
+sudo apt-get update && sudo apt-get install fuse3 build-essential act
 ```
 
 #### Fedora
 
 ```bash
-sudo dnf update && sudo dnf install fuse3 && dnf install @development-tools
+sudo dnf update && sudo dnf install fuse3 && dnf install @development-tools act
 ```
 
 ### Build for debug

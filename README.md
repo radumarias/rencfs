@@ -99,6 +99,9 @@ In progress:
 
 - [Alternatives](https://alternativeto.net/software/encfs/)
 - [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
+- [CryFS](https://www.cryfs.org/)
+- [gocryptfs](https://nuetzlich.net/gocryptfs/)
+- [fscrypt](https://www.kernel.org/doc/html/v4.18/filesystems/fscrypt.html)
 - [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
 - [Cryptomator](https://cryptomator.org/)
 - [TrueCrypt](https://truecrypt.sourceforge.net/)

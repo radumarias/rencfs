@@ -9,5 +9,5 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 cargo clippy --release --all-targets --fix --allow-dirty
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-act -W '.github/workflows/build_and_tests.yaml'
+act --action-offline-mode -W .github/workflows/build_and_tests_reusable.yaml
 if %errorlevel% neq 0 exit /b %errorlevel%

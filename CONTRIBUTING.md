@@ -4,7 +4,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 1. Join [slack](https://join.slack.com/t/rencfs/shared_invite/zt-2o4l1tdkk-VJeWIbO2p6zgeafDISPHbQ)
 2. Become familiar with docs and code by reading the [ramp-up](Ramp-up.md) guide
-3. **Ask the owner of the repository to add your GitHub username to the repository** os that you can work on issues
+3. **Ask the owner of the repository to add your GitHub username to the repository** os that you can work on issues and be able to create your own branches and not needing to fork the repo
 4. Pick an open issue or a task in the corresponding [project](https://github.com/users/radumarias/projects/1) for the repo that you'll be working on. You can see [good for first issues](https://github.com/radumarias/rencfs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) that you can pick from
 5. **Assign the issues you are working on to you and move them to the corresponding status column as you are progressing on them. If the taks is not an issue yet, convert it to issue first**
 6. Make the changes in your branch

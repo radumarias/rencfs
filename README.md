@@ -28,7 +28,7 @@ You can use it as CLI or as a library to build your custom FUSE implementation o
 
 # Motivation
 
-Create a `simple`, `performant`, `modular` and `ergonomic` yet `very secure` `encrypted filesystem` to protect your `privacy` which is also `open souce` and uses `well known audited` crates as `cryptograhic primitives`.
+Create a `simple`, `performant`, `modular` and `ergonomic` yet `very secure` `encrypted filesystem` to protect your `privacy` which is also `open souce` and is correctly and safely using `well known audited` crates as `cryptograhic primitives`.
 
 # A short story
 

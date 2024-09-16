@@ -46,7 +46,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 - `Security` using well-known audited `AEAD` cryptography primitives
 - `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- Hide all data for enhanced `privacy`, all metadata and content are encrypted
+- Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count` are encrypted
 - Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
 - `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
 - Simplicity

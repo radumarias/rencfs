@@ -73,7 +73,7 @@ pub trait CryptoWrite<W: CryptoInnerWriter>: Write {
 ///
 /// > ⚠️ **Warning**
 /// > This is not thread-safe.
-/// > Use [`CryptoW`] instead for thread-safe scenarios.
+/// > Use [CryptoWriteSeekSendSync] instead for thread-safe scenarios.
 pub trait CryptoWriteSeek<W: CryptoInnerWriter>: CryptoWrite<W> + Seek {}
 
 /// Thread-safe versions which are [`Send`] + [`Seek`] + `'static`.

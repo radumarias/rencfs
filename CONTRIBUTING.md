@@ -20,5 +20,5 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 14. Push your changes and create a `PR` back to the `parent` repo targeting the `main` branch and request review from owners of the repository
 15. Monitor the checks (GitHub actions runs) and fix the code if they are failing
 16. Respond to any comments
-17. **DON'T MERGE YOURSELF THE PR, LEAVE THAT TO REPOSITORY OWNERS**
+17. **`DON'T MERGE THE PR YOURSELF, LEAVE THAT TO REPOSITORY OWNERS`**
 18. In the end, ideally, it will be merged to `main`

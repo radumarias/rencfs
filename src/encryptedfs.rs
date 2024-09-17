@@ -581,6 +581,10 @@ pub trait EncryptedFilesystem: Send + Sync {
     fn exists(&self, ino: u64) -> bool;
     fn is_dir(&self, ino: u64) -> bool;
     fn is_file(&self, ino: u64) -> bool;
+    /// Create a new node in the filesystem
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::missing_errors_doc)]
+    #[allow(clippy::too_many_lines)]
     async fn create(
         &self,
         parent: u64,
@@ -590,26 +594,59 @@ pub trait EncryptedFilesystem: Send + Sync {
         write: bool,
     ) -> FsResult<(u64, FileAttr)>;
     async fn find_by_name(&self, parent: u64, name: &SecretString) -> FsResult<Option<FileAttr>>;
+    /// Count children of a directory. This **EXCLUDES** "." and "..".
+    #[allow(clippy::missing_errors_doc)]
     fn len(&self, ino: u64) -> FsResult<usize>;
+    /// Delete a directory
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::missing_errors_doc)]
     async fn remove_dir(&self, parent: u64, name: &SecretString) -> FsResult<()>;
+    /// Delete a file
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::missing_errors_doc)]
     async fn remove_file(&self, parent: u64, name: &SecretString) -> FsResult<()>;
     fn exists_by_name(&self, parent: u64, name: &SecretString) -> FsResult<bool>;
     async fn read_dir(&self, ino: u64) -> FsResult<DirectoryEntryIterator>;
+    /// Like [`EncryptedFs::read_dir`] but with [`FileAttr`] so we don't need to query again for those.    
     async fn read_dir_plus(&self, ino: u64) -> FsResult<DirectoryEntryPlusIterator>;
+    /// Get metadata
+    #[allow(clippy::missing_errors_doc)]
     async fn get_attr(&self, ino: u64) -> FsResult<FileAttr>;
+    /// Set metadata
     async fn set_attr(&self, ino: u64, set_attr: SetFileAttr) -> FsResult<()>;
+    /// Read the contents from an `offset`.
+    ///
+    /// If we try to read outside of file size, we return zero bytes.
+    /// If the file is not opened for read, it will return an error of type [FsError::InvalidFileHandle].
+    #[allow(clippy::missing_errors_doc)]
+    #[allow(clippy::cast_possible_truncation)]
     async fn read(&self, ino: u64, offset: u64, buf: &mut [u8], handle: u64) -> FsResult<usize>;
     async fn release(&self, handle: u64) -> FsResult<()>;
+    /// Check if a file is opened for reading with this handle.    
     async fn is_read_handle(&self, fh: u64) -> bool;
+    /// Check if a file is opened for writing with this handle.    
     async fn is_write_handle(&self, fh: u64) -> bool;
+    /// Writes the contents of `buf` to the file with `ino` starting at `offset`.
+    ///
+    /// If we write outside file size, we fill up with zeros until the `offset`.
+    /// If the file is not opened for writing,
+    /// it will return an error of type [FsError::InvalidFileHandle].    
     async fn write(&self, ino: u64, offset: u64, buf: &[u8], handle: u64) -> FsResult<usize>;
+    /// Flush the data to the underlying storage.
+    #[allow(clippy::missing_panics_doc)]
     async fn flush(&self, handle: u64) -> FsResult<()>;
+    /// Helpful when we want to copy just some portions of the file.    
     async fn copy_file_range(
         &self,
         file_range_req: &CopyFileRangeReq,
         size: usize,
     ) -> FsResult<usize>;
+    /// Open a file. We can open multiple times for read but only one to write at a time.
+    #[allow(clippy::missing_panics_doc)]
     async fn open(&self, ino: u64, read: bool, write: bool) -> FsResult<u64>;
+    /// Truncates or extends the underlying file, updating the size of this file to become size.
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::too_many_lines)]
     async fn set_len(&self, ino: u64, size: u64) -> FsResult<()>;
     async fn rename(
         &self,
@@ -618,22 +655,27 @@ pub trait EncryptedFilesystem: Send + Sync {
         new_parent: u64,
         new_name: &SecretString,
     ) -> FsResult<()>;
+    /// Create a crypto writer using internal encryption info.
     async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
         &self,
         file: W,
     ) -> FsResult<Box<dyn CryptoWrite<W>>>;
+    /// Create a crypto writer with seek using internal encryption info.
     async fn create_write_seek<W: Write + Seek + Read + Send + Sync + 'static>(
         &self,
         file: W,
     ) -> FsResult<Box<dyn CryptoWriteSeek<W>>>;
+    /// Create a crypto reader using internal encryption info.
     async fn create_read<R: Read + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoRead<R>>>;
+    /// Create a crypto reader with seek using internal encryption info.
     async fn create_read_seek<R: Read + Seek + Send + Sync + 'static>(
         &self,
         reader: R,
     ) -> FsResult<Box<dyn CryptoReadSeek<R>>>;
+    /// Change the password of the filesystem used to access the encryption key.
     async fn passwd(
         data_dir: &Path,
         old_password: SecretString,
@@ -656,10 +698,6 @@ impl EncryptedFilesystem for EncryptedFs {
         self.contents_path(ino).is_file()
     }
 
-    /// Create a new node in the filesystem
-    #[allow(clippy::missing_panics_doc)]
-    #[allow(clippy::missing_errors_doc)]
-    #[allow(clippy::too_many_lines)]
     async fn create(
         &self,
         parent: u64,
@@ -846,8 +884,6 @@ impl EncryptedFilesystem for EncryptedFs {
         self.get_inode_from_cache_or_storage(ino).await.map(Some)
     }
 
-    /// Count children of a directory. This **EXCLUDES** "." and "..".
-    #[allow(clippy::missing_errors_doc)]
     fn len(&self, ino: u64) -> FsResult<usize> {
         if !self.is_dir(ino) {
             return Err(FsError::InvalidInodeType);
@@ -863,9 +899,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(count)
     }
 
-    /// Delete a directory
-    #[allow(clippy::missing_panics_doc)]
-    #[allow(clippy::missing_errors_doc)]
     async fn remove_dir(&self, parent: u64, name: &SecretString) -> FsResult<()> {
         if !self.is_dir(parent) {
             return Err(FsError::InvalidInodeType);
@@ -940,9 +973,6 @@ impl EncryptedFilesystem for EncryptedFs {
             .await?
     }
 
-    /// Delete a file
-    #[allow(clippy::missing_panics_doc)]
-    #[allow(clippy::missing_errors_doc)]
     async fn remove_file(&self, parent: u64, name: &SecretString) -> FsResult<()> {
         if !self.is_dir(parent) {
             return Err(FsError::InvalidInodeType);
@@ -1042,7 +1072,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(self.create_directory_entry_iterator(iter).await)
     }
 
-    /// Like [`EncryptedFs::read_dir`] but with [`FileAttr`] so we don't need to query again for those.
     async fn read_dir_plus(&self, ino: u64) -> FsResult<DirectoryEntryPlusIterator> {
         if !self.is_dir(ino) {
             return Err(FsError::InvalidInodeType);
@@ -1058,8 +1087,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(self.create_directory_entry_plus_iterator(iter).await)
     }
 
-    /// Get metadata
-    #[allow(clippy::missing_errors_doc)]
     async fn get_attr(&self, ino: u64) -> FsResult<FileAttr> {
         let mut attr = self.get_inode_from_cache_or_storage(ino).await?;
 
@@ -1094,7 +1121,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(attr)
     }
 
-    /// Set metadata
     async fn set_attr(&self, ino: u64, set_attr: SetFileAttr) -> FsResult<()> {
         if self.read_only {
             return Err(FsError::ReadOnly);
@@ -1102,13 +1128,7 @@ impl EncryptedFilesystem for EncryptedFs {
         self.set_attr2(ino, set_attr, false).await
     }
 
-    /// Read the contents from an `offset`.
-    ///
-    /// If we try to read outside of file size, we return zero bytes.
-    /// If the file is not opened for read, it will return an error of type [FsError::InvalidFileHandle].
     #[instrument(skip(self, buf), fields(len = %buf.len()), ret(level = Level::DEBUG))]
-    #[allow(clippy::missing_errors_doc)]
-    #[allow(clippy::cast_possible_truncation)]
     async fn read(&self, ino: u64, offset: u64, buf: &mut [u8], handle: u64) -> FsResult<usize> {
         if !self.exists(ino) {
             return Err(FsError::InodeNotFound);
@@ -1320,21 +1340,14 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(())
     }
 
-    /// Check if a file is opened for reading with this handle.
     async fn is_read_handle(&self, fh: u64) -> bool {
         self.read_handles.read().await.contains_key(&fh)
     }
 
-    /// Check if a file is opened for writing with this handle.
     async fn is_write_handle(&self, fh: u64) -> bool {
         self.write_handles.read().await.contains_key(&fh)
     }
 
-    /// Writes the contents of `buf` to the file with `ino` starting at `offset`.
-    ///
-    /// If we write outside file size, we fill up with zeros until the `offset`.
-    /// If the file is not opened for writing,
-    /// it will return an error of type [FsError::InvalidFileHandle].
     #[instrument(skip(self, buf), fields(len = %buf.len()), ret(level = Level::DEBUG))]
     async fn write(&self, ino: u64, offset: u64, buf: &[u8], handle: u64) -> FsResult<usize> {
         if self.read_only {
@@ -1442,8 +1455,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(len)
     }
 
-    /// Flush the data to the underlying storage.
-    #[allow(clippy::missing_panics_doc)]
     async fn flush(&self, handle: u64) -> FsResult<()> {
         if handle == 0 {
             // in the case of directory or if the file was crated without being opened we don't use a handle
@@ -1478,7 +1489,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(())
     }
 
-    /// Helpful when we want to copy just some portions of the file.
     async fn copy_file_range(
         &self,
         file_range_req: &CopyFileRangeReq,
@@ -1522,8 +1532,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(len)
     }
 
-    /// Open a file. We can open multiple times for read but only one to write at a time.
-    #[allow(clippy::missing_panics_doc)]
     async fn open(&self, ino: u64, read: bool, write: bool) -> FsResult<u64> {
         if write && self.read_only {
             return Err(FsError::ReadOnly);
@@ -1588,9 +1596,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(fh)
     }
 
-    /// Truncates or extends the underlying file, updating the size of this file to become size.
-    #[allow(clippy::missing_panics_doc)]
-    #[allow(clippy::too_many_lines)]
     async fn set_len(&self, ino: u64, size: u64) -> FsResult<()> {
         if self.read_only {
             return Err(FsError::ReadOnly);
@@ -1769,7 +1774,6 @@ impl EncryptedFilesystem for EncryptedFs {
         Ok(())
     }
 
-    /// Create a crypto writer using internal encryption info.
     async fn create_write<W: CryptoInnerWriter + Seek + Send + Sync + 'static>(
         &self,
         file: W,
@@ -1781,7 +1785,6 @@ impl EncryptedFilesystem for EncryptedFs {
         )))
     }
 
-    /// Create a crypto writer with seek using internal encryption info.
     async fn create_write_seek<W: Write + Seek + Read + Send + Sync + 'static>(
         &self,
         file: W,
@@ -1793,7 +1796,6 @@ impl EncryptedFilesystem for EncryptedFs {
         )))
     }
 
-    /// Create a crypto reader using internal encryption info.
     async fn create_read<R: Read + Send + Sync + 'static>(
         &self,
         reader: R,
@@ -1805,7 +1807,6 @@ impl EncryptedFilesystem for EncryptedFs {
         )))
     }
 
-    /// Create a crypto reader with seek using internal encryption info.
     async fn create_read_seek<R: Read + Seek + Send + Sync + 'static>(
         &self,
         reader: R,
@@ -1817,7 +1818,6 @@ impl EncryptedFilesystem for EncryptedFs {
         )))
     }
 
-    /// Change the password of the filesystem used to access the encryption key.
     async fn passwd(
         data_dir: &Path,
         old_password: SecretBox<String>,

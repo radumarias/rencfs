@@ -577,13 +577,7 @@ pub struct EncryptedFs {
 }
 
 #[async_trait]
-pub trait EncryptedFilesystem {
-    async fn new(
-        data_dir: PathBuf,
-        password_provider: Box<dyn PasswordProvider>,
-        cipher: Cipher,
-        read_only: bool,
-    ) -> FsResult<Arc<Self>>;
+pub trait EncryptedFilesystem: Send + Sync {
     fn exists(&self, ino: u64) -> bool;
     fn is_dir(&self, ino: u64) -> bool;
     fn is_file(&self, ino: u64) -> bool;
@@ -650,69 +644,6 @@ pub trait EncryptedFilesystem {
 
 #[async_trait]
 impl EncryptedFilesystem for EncryptedFs {
-    #[allow(clippy::missing_panics_doc)]
-    #[allow(clippy::missing_errors_doc)]
-    async fn new(
-        data_dir: PathBuf,
-        password_provider: Box<dyn PasswordProvider>,
-        cipher: Cipher,
-        read_only: bool,
-    ) -> FsResult<Arc<Self>> {
-        let key_provider = KeyProvider {
-            key_path: data_dir.join(SECURITY_DIR).join(KEY_ENC_FILENAME),
-            salt_path: data_dir.join(SECURITY_DIR).join(KEY_SALT_FILENAME),
-            password_provider,
-            cipher,
-        };
-        let key = ExpireValue::new(key_provider, Duration::from_secs(10 * 60));
-
-        ensure_structure_created(&data_dir.clone()).await?;
-        key.get().await?; // this will check the password
-
-        let fs = Self {
-            data_dir,
-            write_handles: RwLock::new(HashMap::new()),
-            read_handles: RwLock::new(HashMap::new()),
-            current_handle: AtomicU64::new(1),
-            cipher,
-            opened_files_for_read: RwLock::new(HashMap::new()),
-            opened_files_for_write: RwLock::new(HashMap::new()),
-            serialize_inode_locks: Arc::new(ArcHashMap::default()),
-            serialize_update_inode_locks: ArcHashMap::default(),
-            serialize_dir_entries_ls_locks: Arc::new(ArcHashMap::default()),
-            serialize_dir_entries_hash_locks: Arc::new(ArcHashMap::default()),
-            key,
-            self_weak: std::sync::Mutex::new(None),
-            read_write_locks: ArcHashMap::default(),
-            // todo: take duration from param
-            attr_cache: ExpireValue::new(AttrCacheProvider {}, Duration::from_secs(10 * 60)),
-            // todo: take duration from param
-            dir_entries_name_cache: ExpireValue::new(
-                DirEntryNameCacheProvider {},
-                Duration::from_secs(10 * 60),
-            ),
-            // todo: take duration from param
-            dir_entries_meta_cache: ExpireValue::new(
-                DirEntryMetaCacheProvider {},
-                Duration::from_secs(10 * 60),
-            ),
-            sizes_write: Mutex::default(),
-            sizes_read: Mutex::default(),
-            requested_read: Mutex::default(),
-            read_only,
-        };
-
-        let arc = Arc::new(fs);
-        arc.self_weak
-            .lock()
-            .expect("cannot obtain lock")
-            .replace(Arc::downgrade(&arc));
-
-        arc.ensure_root_exists().await?;
-
-        Ok(arc)
-    }
-
     fn exists(&self, ino: u64) -> bool {
         self.ino_file(ino).is_file()
     }
@@ -1917,6 +1848,69 @@ impl EncryptedFilesystem for EncryptedFs {
 }
 
 impl EncryptedFs {
+    #[allow(clippy::missing_panics_doc)]
+    #[allow(clippy::missing_errors_doc)]
+    pub async fn new(
+        data_dir: PathBuf,
+        password_provider: Box<dyn PasswordProvider>,
+        cipher: Cipher,
+        read_only: bool,
+    ) -> FsResult<Arc<Self>> {
+        let key_provider = KeyProvider {
+            key_path: data_dir.join(SECURITY_DIR).join(KEY_ENC_FILENAME),
+            salt_path: data_dir.join(SECURITY_DIR).join(KEY_SALT_FILENAME),
+            password_provider,
+            cipher,
+        };
+        let key = ExpireValue::new(key_provider, Duration::from_secs(10 * 60));
+
+        ensure_structure_created(&data_dir.clone()).await?;
+        key.get().await?; // this will check the password
+
+        let fs = Self {
+            data_dir,
+            write_handles: RwLock::new(HashMap::new()),
+            read_handles: RwLock::new(HashMap::new()),
+            current_handle: AtomicU64::new(1),
+            cipher,
+            opened_files_for_read: RwLock::new(HashMap::new()),
+            opened_files_for_write: RwLock::new(HashMap::new()),
+            serialize_inode_locks: Arc::new(ArcHashMap::default()),
+            serialize_update_inode_locks: ArcHashMap::default(),
+            serialize_dir_entries_ls_locks: Arc::new(ArcHashMap::default()),
+            serialize_dir_entries_hash_locks: Arc::new(ArcHashMap::default()),
+            key,
+            self_weak: std::sync::Mutex::new(None),
+            read_write_locks: ArcHashMap::default(),
+            // todo: take duration from param
+            attr_cache: ExpireValue::new(AttrCacheProvider {}, Duration::from_secs(10 * 60)),
+            // todo: take duration from param
+            dir_entries_name_cache: ExpireValue::new(
+                DirEntryNameCacheProvider {},
+                Duration::from_secs(10 * 60),
+            ),
+            // todo: take duration from param
+            dir_entries_meta_cache: ExpireValue::new(
+                DirEntryMetaCacheProvider {},
+                Duration::from_secs(10 * 60),
+            ),
+            sizes_write: Mutex::default(),
+            sizes_read: Mutex::default(),
+            requested_read: Mutex::default(),
+            read_only,
+        };
+
+        let arc = Arc::new(fs);
+        arc.self_weak
+            .lock()
+            .expect("cannot obtain lock")
+            .replace(Arc::downgrade(&arc));
+
+        arc.ensure_root_exists().await?;
+
+        Ok(arc)
+    }
+
     #[allow(dead_code)]
     async fn is_read_only(&self) -> bool {
         self.read_only

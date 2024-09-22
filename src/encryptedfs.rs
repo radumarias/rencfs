@@ -555,11 +555,9 @@ pub struct EncryptedFs {
     opened_files_for_read: RwLock<HashMap<u64, HashSet<u64>>>,
     opened_files_for_write: RwLock<HashMap<u64, u64>>,
     // used for rw ops of actual serialization
-    // use std::sync::RwLock instead of tokio::sync::RwLock because we need to use it also in sync code in `DirectoryEntryIterator` and `DirectoryEntryPlusIterator`
     serialize_inode_locks: Arc<ArcHashMap<u64, RwLock<bool>>>,
     // used for the update op
     serialize_update_inode_locks: ArcHashMap<u64, Mutex<bool>>,
-    // use std::sync::RwLock instead of tokio::sync::RwLock because we need to use it also in sync code in `DirectoryEntryIterator` and `DirectoryEntryPlusIterator`
     serialize_dir_entries_ls_locks: Arc<ArcHashMap<String, RwLock<bool>>>,
     serialize_dir_entries_hash_locks: Arc<ArcHashMap<String, RwLock<bool>>>,
     read_write_locks: ArcHashMap<u64, RwLock<bool>>,
@@ -2142,8 +2140,7 @@ impl EncryptedFs {
     }
 
     fn next_handle(&self) -> u64 {
-        self.current_handle
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+        self.current_handle.fetch_add(1, Ordering::SeqCst)
     }
 
     /// Reset all handles for a file.

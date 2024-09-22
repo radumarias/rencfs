@@ -44,26 +44,32 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 # Key features
 
+Some of these are still being worked on, marked with `*`.
+
 - `Security` using well-known audited `AEAD` cryptography primitives
-- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count` are encrypted
-- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
-- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
+- * `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
+- * Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count`, directory structure are encrypted
+- `Safely` manage `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry` to mutohate cold boot attacks
+- `Mmemory safety`, `Performance` and `optimized` for `concurrency` with Rust
 - Simplicity
-- Encryption key generated based on password
+- Encryption key generated from password
 - Password saved in OS's `keyring`
 - `Change password` without re-encrypting all data
 - `Fast seek` on both reads and writes
 - `Writes in parallel`
 - Exposed with `FUSE`
 - Fully `concurrent` for all operations
+- * Abatraction layer for `Rust File` and `fs` API to use it as lib to `switch to using encrypted files` by just `changing the use statements`
+- * Abstraction layer to `access fhe storage` with implementation for desktop, wasm, Android, iOS and ability to write your own implementation
 
 # Functionality
+
+Some of these are still being worked on, marked with `*`.
 
 - It keeps all `encrypted` data and `master encryption key` in a dedicated directory with files structured on `inodes` (with
   metadata info), files for binary content and directories with files/directories entries. All data, metadata and also filenames
   are encrypted. For new files it generates unique inodes in multi instance run and offline mode.
-- The password is collected from CLI, and it's saved in OS `keyring` while app is running. This is because for safety reasons we
+- The password is collected from CLI, and it's saved in OS `keyring` while app is running. This is because for security concerns we
   clear the password from memory on inactivity, and we derive it again from password just when needed.
 - Master encryption key is also encrypted with another key derived from the password. This gives the ability to change
   the
@@ -73,10 +79,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
   This is because we can seek to particular chunk.
 - Encryption key is `zeroize`d in mem on dispose and idle. Also, it's `mlock`ed while used to prevent being moved to swap. It's
   also `mprotect`ed while not in use.
-
-In progress:
-
-- Ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
+- * Ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
   changes. This makes the write operations atomic.
 - Multiple writes in parallel to the same file, ideal for torrent like applications.
 

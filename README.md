@@ -48,7 +48,7 @@ Some of these are still being worked on, marked with `[WIP]`.
 
 - `Security` using well-known audited `AEAD` cryptography primitives
 - `[WIP]` `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- `[WIP]` Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count`, directory structure are encrypted
+- `[WIP]` Hide all info for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count`, directory structure are encrypted
 - `Safely` manage `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry` to mutohate cold boot attacks
 - `Memory safety`, `Performance` and `optimized` for `concurrency` with Rust
 - Simplicity

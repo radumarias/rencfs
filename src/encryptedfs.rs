@@ -14,7 +14,7 @@ use std::num::{NonZeroUsize, ParseIntError};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, LazyLock, Weak};
+use std::sync::{Arc, LazyLock, OnceLock, Weak};
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 use thiserror::Error;
@@ -29,7 +29,7 @@ use crate::crypto::read::{CryptoRead, CryptoReadSeek};
 use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek};
 use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
-use crate::{crypto, fs_util, stream_util};
+use crate::{async_util, crypto, fs_util, stream_util};
 use bon::bon;
 
 mod bench;
@@ -57,6 +57,9 @@ fn spawn_runtime() -> Runtime {
 
 static DIR_ENTRIES_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
 static NOD_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
+
+static INITIALIZED: OnceLock<FsResult<bool>> = OnceLock::new();
+static INSTANCE: OnceLock<Arc<EncryptedFs>> = OnceLock::new();
 
 /// File attributes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -575,9 +578,43 @@ pub struct EncryptedFs {
 }
 
 impl EncryptedFs {
+    pub async fn initialize(
+        data_dir: PathBuf,
+        password_provider: Box<dyn PasswordProvider>,
+        cipher: Cipher,
+        read_only: bool,
+    ) -> FsResult<()> {
+        let init = INITIALIZED.get_or_init(|| {
+            let res = async_util::call_async(async {
+                Self::new(data_dir, password_provider, cipher, read_only).await
+            });
+            match res {
+                Ok(fs) => match INSTANCE.set(fs) {
+                    Ok(_) => Ok(true),
+                    Err(_) => Err(FsError::Other("cannot initialize")),
+                },
+                Err(err) => Err(err),
+            }
+        });
+        match init {
+            Ok(v) => {
+                if *v {
+                    Ok(())
+                } else {
+                    Err(FsError::Other("cannot initialize"))
+                }
+            }
+            Err(_) => Err(FsError::Other("cannot initialize")),
+        }
+    }
+
+    pub fn instance() -> Option<Arc<EncryptedFs>> {
+        INSTANCE.get().cloned()
+    }
+
     #[allow(clippy::missing_panics_doc)]
     #[allow(clippy::missing_errors_doc)]
-    pub async fn new(
+    pub(crate) async fn new(
         data_dir: PathBuf,
         password_provider: Box<dyn PasswordProvider>,
         cipher: Cipher,

@@ -6,7 +6,7 @@ use anyhow::Result;
 use shush_rs::SecretString;
 
 use rencfs::crypto::Cipher;
-use rencfs::encryptedfs::write_all_string_to_fs;
+use rencfs::encryptedfs::{write_all_string_to_fs, FsError};
 use rencfs::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, PasswordProvider};
 
 const ROOT_INODE: u64 = 1;
@@ -27,13 +27,14 @@ async fn main() -> Result<()> {
     let data_dir = Path::new("/tmp/rencfs_data_test").to_path_buf();
     let _ = fs::remove_dir_all(data_dir.to_str().unwrap());
     let cipher = Cipher::ChaCha20Poly1305;
-    let fs = EncryptedFs::new(
+    EncryptedFs::initialize(
         data_dir.clone(),
         Box::new(PasswordProviderImpl {}),
         cipher,
         false,
     )
     .await?;
+    let fs = EncryptedFs::instance().ok_or(FsError::Other("not initialized"))?;
 
     let file1 = SecretString::from_str("file1").unwrap();
     let (fh, attr) = fs

@@ -44,7 +44,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 # Talk
 
-[Slides]https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323() from a talk, video to follow.
+[Slides](https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323() from a talk, video to follow.
 
 # Key features
 

@@ -55,10 +55,12 @@ Some of these are still being worked on, marked with `[WIP]`.
 - Encryption key generated from password;
 - Password saved in OS's `keyring`;
 - `Change password` without re-encrypting all data;
+- `[WIP]` Generate `unique nonce` in `offline mode`;
 - `Fast seek` on both reads and writes;
 - `Writes in parallel`;
 - Exposed with `FUSE`;
 - Fully `concurrent` for all operations;
+- `[WIP]` Handle `long file names`;
 - `[WIP]` Abatraction layer for `Rust File` and `fs` API to use it as lib to `switch to using encrypted files` by just `changing the use statements`;
 - `[WIP]` Abstraction layer to `access fhe storage` with implementation for desktop, wasm, Android, iOS and ability to write your own implementation.
 

@@ -10,21 +10,21 @@ fn main() {
     // wrap only Read
     let mut reader = MyRead { inner: OnlyRead {} };
     println!("we can read");
-    reader.read(&mut [0; 10]).unwrap();
+    let _ = reader.read(&mut [0; 10]).unwrap();
     // but we cannot seek
     // reader.seek(SeekFrom::Start(0)).unwrap(); // compile error
 
     // wrap Read + Seek
     let mut reader_seek = MyRead { inner: ReadSeek {} };
     println!("we can read");
-    reader_seek.read(&mut [0; 10]).unwrap();
+    let _ = reader_seek.read(&mut [0; 10]).unwrap();
     println!("we can seek too");
     reader_seek.seek(SeekFrom::Start(0)).unwrap();
 }
 
 struct OnlyRead {}
 impl Read for OnlyRead {
-    fn read(&mut self, _buf: &mut [u8]) -> std::io::Result<usize> {
+    fn read(&mut self, _buf: &mut [u8]) -> io::Result<usize> {
         Ok(0)
     }
 }

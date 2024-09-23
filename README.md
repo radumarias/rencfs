@@ -1,10 +1,10 @@
-# rencfs
+# [![](favicon.png)](https://github.com/radumarias/rencfs) rencfs
 
 [![rencfs-bin](https://img.shields.io/aur/version/rencfs-bin?color=1793d1&label=rencfs-bin&logo=arch-linux)](https://aur.archlinux.org/packages/rencfs-bin/)
 [![crates.io](https://img.shields.io/crates/v/rencfs.svg)](https://crates.io/crates/rencfs)
 [![docs.rs](https://img.shields.io/docsrs/rencfs?label=docs.rs)](https://docs.rs/rencfs/)
-[![build-and-tests](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yml)
-[![release](https://github.com/radumarias/rencfs/actions/workflows/release.yml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yml)
+[![build-and-tests](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml)
+[![release](https://github.com/radumarias/rencfs/actions/workflows/release.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yaml)
 [![codecov](https://codecov.io/gh/radumarias/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/radumarias/rencfs)
 <a href="https://join.slack.com/t/rencfs/shared_invite/zt-2o4l1tdkk-VJeWIbO2p6zgeafDISPHbQ"><img src="website/resources/slack3.png" style = "width: 87px; height: 20px;"/></a>
 [![Matrix](https://img.shields.io/matrix/rencfs%3Amatrix.org?label=Matrix)](https://matrix.to/#/#rencfs:matrix.org)
@@ -42,28 +42,40 @@ There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of artic
 
 It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-week-in-rust-560/#crate-of-the-week) in Aug 2024.
 
+# Talk
+
+[Slides](https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323) from a talk, video to follow.
+
 # Key features
 
-- `Security` using well-known audited `AEAD` cryptography primitives
-- `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss
-- Hide all data for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count` are encrypted
-- Safe manage of `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry`
-- `Performance`, `memory safety` and `optimized` for `concurrency` with Rust
-- Simplicity
-- Encryption key generated based on password
-- Password saved in OS's `keyring`
-- `Change password` without re-encrypting all data
-- `Fast seek` on both reads and writes
-- `Writes in parallel`
-- Exposed with `FUSE`
-- Fully `concurrent` for all operations
+Some of these are still being worked on, marked with `[WIP]`.
+
+- `Security` using well-known audited `AEAD` cryptography primitives;
+- `[WIP]` `Data integrity`, data is written with `WAL` to ensure integrity even on crash or power loss;
+- `[WIP]` Hide all info for enhanced `privacy`, all `metadata`, `content`, `file name`, `file size`, `*time` fields, `files count`, directory structure are encrypted;
+- `Safely` manage `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize` and `expiry` to mitigate cold boot attacks;
+- `Memory safety`, `performance` and `optimized` for `concurrency` with Rust;
+- Simplicity;
+- Encryption key generated from password;
+- Password saved in OS's `keyring`;
+- `Change password` without re-encrypting all data;
+- `[WIP]` Generate `unique nonce` in `offline mode`;
+- `Fast seek` on both reads and writes;
+- `Writes in parallel`;
+- Exposed with `FUSE`;
+- Fully `concurrent` for all operations;
+- `[WIP]` Handle `long file names`;
+- `[WIP]` Abatraction layer for `Rust File` and `fs` API to use it as lib to `switch to using encrypted files` by just `changing the use statements`;
+- `[WIP]` Abstraction layer to `access fhe storage` with implementation for desktop, wasm, Android, iOS and ability to write your own implementation.
 
 # Functionality
+
+Some of these are still being worked on, marked with `[WIP]`.
 
 - It keeps all `encrypted` data and `master encryption key` in a dedicated directory with files structured on `inodes` (with
   metadata info), files for binary content and directories with files/directories entries. All data, metadata and also filenames
   are encrypted. For new files it generates unique inodes in multi instance run and offline mode.
-- The password is collected from CLI, and it's saved in OS `keyring` while app is running. This is because for safety reasons we
+- The password is collected from CLI, and it's saved in OS `keyring` while app is running. This is because for security concerns we
   clear the password from memory on inactivity, and we derive it again from password just when needed.
 - Master encryption key is also encrypted with another key derived from the password. This gives the ability to change
   the
@@ -73,10 +85,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
   This is because we can seek to particular chunk.
 - Encryption key is `zeroize`d in mem on dispose and idle. Also, it's `mlock`ed while used to prevent being moved to swap. It's
   also `mprotect`ed while not in use.
-
-In progress:
-
-- Ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
+- `[WIP]` Ensure file integrity by saving each change to WAL, so on crash or power loss on next start we apply the pending
   changes. This makes the write operations atomic.
 - Multiple writes in parallel to the same file, ideal for torrent like applications.
 
@@ -472,7 +481,7 @@ on most CPUs via AES-NI. But where hardware acceleration is not available `ChaCh
 Both are good options. `AES-GCM` can be faster with **hardware support**, but **pure-software** implementations of
 `ChaCha20-Poly1305` are almost always **fast** and **constant-time**.
 
-# Security
+# ⚠️ Security Warning: Hazmat!
 
 - **Phantom reads**: reading older content from a file, this is not possible. Data is written with WAL and periodically
   flushed to file. This ensures data integrity and maintains change order.

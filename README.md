@@ -477,7 +477,7 @@ on most CPUs via AES-NI. But where hardware acceleration is not available `ChaCh
 Both are good options. `AES-GCM` can be faster with **hardware support**, but **pure-software** implementations of
 `ChaCha20-Poly1305` are almost always **fast** and **constant-time**.
 
-# Security
+# ⚠️ Security Warning: Hazmat!
 
 - **Phantom reads**: reading older content from a file, this is not possible. Data is written with WAL and periodically
   flushed to file. This ensures data integrity and maintains change order.

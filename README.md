@@ -111,7 +111,7 @@ For detailed description of the various sequence flows please look into [Flows](
 
 # Alternatives
 
-- [Alternatives](https://alternativeto.net/software/encfs/)
+- [Alternatives](https://www.libhunt.com/r/rencfs)
 - [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
 - [CryFS](https://www.cryfs.org/)
 - [gocryptfs](https://nuetzlich.net/gocryptfs/)

@@ -129,7 +129,7 @@ For detailed description of the various sequence flows please look into [Flows](
 
 ## What separates us
 
-[Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offers all the key functionalities we do, seems like there are none :) Seems that we are really building a unique solution.  
+[Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offers all the key functionalities we do, seems like there are none :)  
 You can see the [key features](README.md#key-features) that separates us.
   
 # Usage

@@ -32,7 +32,7 @@ Create a `simple`, `performant`, `modular` and `ergonomic` yet `very secure` `en
 
 # A short story
 
-[The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](docs/The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust.pdf)
+[The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](docs/The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust_2.pdf)
 
 # Blog and tutorial
 

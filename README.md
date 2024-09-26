@@ -44,7 +44,7 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 # Talks
 
-- [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](https://miro.com/app/board/uXjVLb-eiOk=/?share_link_id=429548788752)
+- [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](https://miro.com/app/board/uXjVLa8i1h0=/?share_link_id=852876406546)
 - [Basics of cryptography and FUSE for building a filesystem in Rust](https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323)
 
 # Key features

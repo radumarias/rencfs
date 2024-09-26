@@ -15,7 +15,7 @@ add_dryrun_to_version() {
     if [[ -f $CARGO_FILE ]]; then
         # Backup the original Cargo.toml before modification
         cp "$CARGO_FILE" "$BACKUP_FILE"
-        
+
         # Extract the current version from the file
         ORIGINAL_VERSION=$(grep -oP '^version\s*=\s*"\K[^\"]+' "$CARGO_FILE")
 
@@ -83,3 +83,7 @@ cargo clippy --all-targets --release --target x86_64-unknown-linux-gnu -- \
 cargo test --release --all --all-features --target x86_64-unknown-linux-gnu
 cargo doc --workspace --all-features --no-deps --target x86_64-unknown-linux-gnu
 cd ..
+
+#cargo fmt --all
+#cargo clippy --release --all-targets --fix --allow-dirty
+#act --action-offline-mode -W .github/workflows/build_and_tests_reusable.yaml

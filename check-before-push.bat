@@ -19,14 +19,14 @@ if exist "%CARGO_FILE%" (
     )
 
     copy /y "%CARGO_FILE%" "%BACKUP_FILE%" >nul
-    
+
     for /f "tokens=3 delims== " %%A in ('findstr /r "^version\s*=\s*\"[0-9\.]*\"" "%CARGO_FILE%"') do (
         set "ORIGINAL_VERSION=%%~A"
         set "MODIFIED_VERSION=%ORIGINAL_VERSION:~0,-1%-dryRun"
     )
-    
+
     powershell -Command "(Get-Content -Raw '%CARGO_FILE%') -replace 'version = \"%ORIGINAL_VERSION%\"', 'version = \"%MODIFIED_VERSION%\"' | Set-Content '%CARGO_FILE%'"
-    
+
     echo Version modified to: %MODIFIED_VERSION%
 ) else (
     echo Cargo.toml file not found!

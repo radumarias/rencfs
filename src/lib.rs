@@ -29,7 +29,6 @@
 //! use anyhow::Result;
 //! use shush_rs::SecretString;
 //!
-//! use rencfs::crypto::Cipher;
 //! use rencfs::encryptedfs::PasswordProvider;
 //! use rencfs::mount::create_mount_point;
 //! use rencfs::mount::MountPoint;

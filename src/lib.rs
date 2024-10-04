@@ -43,7 +43,9 @@
 //!     args.next(); // skip program name
 //!     let mount_path = args.next().expect("mount_path expected");
 //!     let data_path = args.next().expect("data_path expected");
-//!     struct PasswordProviderImpl {}
+//!     use rencfs::crypto::Cipher;
+//!
+//! struct PasswordProviderImpl {}
 //!     impl PasswordProvider for PasswordProviderImpl {
 //!         fn get_password(&self) -> Option<SecretString> {
 //!             // dummy password, use some secure way to get the password like with [keyring](https://crates.io/crates/keyring) crate

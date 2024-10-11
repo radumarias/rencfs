@@ -152,4 +152,233 @@ mod tests {
         // ensure provider was called again
         assert_eq!(*called.lock().await, 3);
     }
+
+    #[tokio::test]
+    async fn test_basic_functionality() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(1));
+
+        // First call should call the provider
+        let v1 = expire_value.get().await.unwrap();
+        assert_eq!(*v1, "test");
+        assert_eq!(*called.lock().await, 1);
+
+        // Second immediate call should use cached value
+        let v2 = expire_value.get().await.unwrap();
+        assert_eq!(*v2, "test");
+        assert_eq!(*called.lock().await, 1);
+
+        // Wait for cache to expire
+        tokio::time::sleep(Duration::from_secs(2)).await;
+
+        // This call should still use the weak reference
+        let v3 = expire_value.get().await.unwrap();
+        assert_eq!(*v3, "test");
+        assert_eq!(*called.lock().await, 1);
+
+        // Drop all strong references
+        drop(v1);
+        drop(v2);
+        drop(v3);
+
+        // This call should call the provider again
+        let v4 = expire_value.get().await.unwrap();
+        assert_eq!(*v4, "test");
+        assert_eq!(*called.lock().await, 2);
+    }
+
+    #[tokio::test]
+    async fn test_clear_cache() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(10));
+
+        // First call
+        let _ = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 1);
+
+        // Clear cache
+        expire_value.clear().await;
+
+        // This should call the provider again
+        let _ = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 2);
+    }
+
+    #[tokio::test]
+    async fn test_concurrent_access() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = Arc::new(ExpireValue::new(provider, Duration::from_secs(1)));
+
+        let mut handles = vec![];
+        for _ in 0..10 {
+            let ev = expire_value.clone();
+            handles.push(tokio::spawn(async move { ev.get().await.unwrap() }));
+        }
+
+        for handle in handles {
+            let _ = handle.await.unwrap();
+        }
+
+        // Provider should only be called once despite concurrent access
+        assert_eq!(*called.lock().await, 1);
+    }
+
+    #[tokio::test]
+    async fn test_error_propagation() {
+        struct ErrorProvider;
+
+        #[async_trait]
+        impl ValueProvider<String, std::io::Error> for ErrorProvider {
+            async fn provide(&self) -> Result<String, std::io::Error> {
+                Err(std::io::Error::new(std::io::ErrorKind::Other, "Test error"))
+            }
+        }
+
+        let expire_value = ExpireValue::new(ErrorProvider, Duration::from_secs(1));
+
+        let result = expire_value.get().await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().kind(), std::io::ErrorKind::Other);
+    }
+
+    #[tokio::test]
+    async fn test_very_long_expiration() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(1000));
+
+        // First call
+        let v1 = expire_value.get().await.unwrap();
+        assert_eq!(*v1, "test");
+        assert_eq!(*called.lock().await, 1);
+
+        // Wait for a reasonable amount of time (e.g., 5 seconds)
+        tokio::time::sleep(Duration::from_secs(5)).await;
+
+        // Second call should still use cached value due to very long expiration
+        let v2 = expire_value.get().await.unwrap();
+        assert_eq!(*v2, "test");
+        assert_eq!(*called.lock().await, 1);
+    }
+    #[tokio::test]
+    async fn test_rapid_consecutive_calls() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = Arc::new(ExpireValue::new(provider, Duration::from_secs(1)));
+
+        let mut handles = vec![];
+        for _ in 0..100 {
+            let ev = expire_value.clone();
+            handles.push(tokio::spawn(async move { ev.get().await.unwrap() }));
+        }
+
+        for handle in handles {
+            let _ = handle.await.unwrap();
+        }
+
+        // Provider should only be called once despite rapid consecutive calls
+        assert_eq!(*called.lock().await, 1);
+    }
+
+    #[tokio::test]
+    async fn test_alternating_clear_and_get() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(1));
+        for _ in 0..10 {
+            let _ = expire_value.get().await.unwrap();
+            expire_value.clear().await;
+        }
+
+        // Provider should be called 10 times due to alternating clear and get
+        assert_eq!(*called.lock().await, 10);
+    }
+
+    #[tokio::test]
+    async fn test_expired_value_with_living_reference() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+        let expire_value = ExpireValue::new(provider, Duration::from_millis(50));
+
+        // Get the initial value
+        let initial_value = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 1);
+
+        // Wait for the value to expire
+        tokio::time::sleep(Duration::from_secs(1)).await;
+
+        // ensure it's taken from Weak ref
+        let _ = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 1);
+
+        // The initial value should still be valid and contain the original data
+        assert_eq!(*initial_value, "test");
+    }
+
+    #[tokio::test]
+    async fn test_drop_expire_value_with_living_reference() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(1));
+
+        // Get the initial value
+        let value = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 1);
+
+        // Drop the ExpireValue instance
+        drop(expire_value);
+
+        // The value should still be valid and contain the original data
+        assert_eq!(*value, "test");
+    }
+
+    #[tokio::test]
+    async fn test_multiple_clears_between_gets() {
+        let called = Arc::new(Mutex::new(0));
+        let provider = TestProvider {
+            called: called.clone(),
+        };
+
+        let expire_value = ExpireValue::new(provider, Duration::from_secs(1));
+
+        // Initial get
+        let _ = expire_value.get().await.unwrap();
+        assert_eq!(*called.lock().await, 1);
+
+        // Multiple clears
+        for _ in 0..5 {
+            expire_value.clear().await;
+        }
+
+        // Get after multiple clears
+        let _ = expire_value.get().await.unwrap();
+
+        // Provider should only be called twice (once for initial, once after clears)
+        assert_eq!(*called.lock().await, 2);
+    }
 }

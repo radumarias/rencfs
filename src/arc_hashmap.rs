@@ -90,10 +90,6 @@ impl<K: Eq + Hash, V> ArcHashMap<K, V> {
     pub fn len(&self) -> usize {
         self.map.read().expect("cannot obtain lock").len()
     }
-
-    pub fn get_map(&self) -> &RwLock<HashMap<K, (Arc<V>, Arc<AtomicUsize>)>> {
-        &self.map
-    }
 }
 
 #[cfg(test)]

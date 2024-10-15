@@ -94,6 +94,8 @@ impl<K: Eq + Hash, V> ArcHashMap<K, V> {
 
 #[cfg(test)]
 mod tests {
+    use std::{thread, time::Duration};
+
     use super::*;
 
     #[test]
@@ -110,5 +112,195 @@ mod tests {
             assert_eq!(m.len(), 2);
         }
         assert_eq!(m.len(), 0);
+    }
+
+    #[test]
+    fn test_insert_and_get() {
+        let map = ArcHashMap::default();
+
+        let value = map.insert("key1", "value1");
+        assert_eq!(*value, "value1");
+
+        let retrieved = map.get(&"key1").unwrap();
+        assert_eq!(*retrieved, "value1");
+    }
+
+    #[test]
+    fn test_get_or_insert_with() {
+        let map = ArcHashMap::default();
+        let value = map.get_or_insert_with("key2", || "value2");
+        assert_eq!(*value, "value2");
+
+        let retrieved = map.get(&"key2").unwrap();
+        assert_eq!(*retrieved, "value2");
+
+        let existing = map.get_or_insert_with("key2", || "new value");
+        assert_eq!(*existing, "value2");
+    }
+
+    #[test]
+    fn test_holder_behavior() {
+        let map = ArcHashMap::default();
+        map.insert(1, "one");
+        assert!(map.is_empty());
+        let v = map.insert(1, "1");
+        assert!(!map.is_empty());
+        assert_eq!(map.len(), 1);
+        assert_eq!(*v, "1");
+    }
+
+    #[test]
+    fn test_len_and_is_emtpy() {
+        let map = ArcHashMap::default();
+        assert!(map.is_empty());
+        assert_eq!(map.len(), 0);
+
+        let _v = map.insert("key1", "value");
+        assert!(!map.is_empty());
+        assert_eq!(map.len(), 1);
+        let _v1 = map.insert("key2", "value");
+        assert_eq!(map.len(), 2);
+    }
+
+    #[test]
+    fn test_drop_behavior() {
+        let map = ArcHashMap::default();
+        {
+            let _v1 = map.insert("key1", "value1");
+            assert_eq!(map.len(), 1);
+            {
+                let _v2 = map.insert("key2", "value2");
+                assert_eq!(map.len(), 2);
+            }
+            assert_eq!(map.len(), 1);
+        }
+        assert_eq!(map.len(), 0)
+    }
+    #[test]
+    fn test_concurrent_access() {
+        let map = Arc::new(ArcHashMap::default());
+        let threads: Vec<_> = (0..10)
+            .map(|i| {
+                let map_clone = Arc::clone(&map);
+                thread::spawn(move || {
+                    let key = format!("key{}", i);
+                    let value = format!("value{}", i);
+                    let _v = map_clone.insert(key.clone(), value);
+                    thread::sleep(Duration::from_millis(10));
+                    let retrieved = map_clone.get(&key).unwrap();
+                    assert_eq!(*retrieved, format!("value{}", i));
+                })
+            })
+            .collect();
+
+        for thread in threads {
+            thread.join().unwrap();
+        }
+    }
+
+    #[test]
+    fn test_purge_behavior() {
+        let map = ArcHashMap::default();
+        {
+            let _value1 = map.insert("key7", "value7");
+            let _value2 = map.insert("key8", "value8");
+            assert_eq!(map.len(), 2);
+        }
+        // After dropping both values, the map should be empty
+        assert_eq!(map.len(), 0);
+
+        // Insert a new value to ensure the map still works after purging
+        let _value3 = map.insert("key9", "value9");
+        assert_eq!(map.len(), 1);
+    }
+
+    // New tests and edge cases
+
+    #[test]
+    fn test_overwrite_existing_key() {
+        let map = ArcHashMap::default();
+        let value1 = map.insert("key", "value1");
+        assert_eq!(*value1, "value1");
+
+        let value2 = map.insert("key", "value2");
+        assert_eq!(*value2, "value1"); // Should return the existing value
+
+        let retrieved = map.get(&"key").unwrap();
+        assert_eq!(*retrieved, "value1"); // Should still be the original value
+    }
+
+    #[test]
+    fn test_get_nonexistent_key() {
+        let map: ArcHashMap<&str, &str> = ArcHashMap::default();
+        assert!(map.get(&"nonexistent").is_none());
+    }
+
+    #[test]
+    fn test_multiple_references() {
+        let map = ArcHashMap::default();
+        let value1 = map.insert("key", "value");
+        let value2 = map.get(&"key").unwrap();
+        let value3 = map.get(&"key").unwrap();
+
+        assert_eq!(*value1, "value");
+        assert_eq!(*value2, "value");
+        assert_eq!(*value3, "value");
+        assert_eq!(map.len(), 1);
+
+        drop(value1);
+        assert_eq!(map.len(), 1);
+
+        drop(value2);
+        assert_eq!(map.len(), 1);
+
+        drop(value3);
+        assert_eq!(map.len(), 0);
+    }
+
+    #[test]
+    fn test_large_number_of_insertions() {
+        let map: ArcHashMap<i32, String> = ArcHashMap::default();
+
+        for i in 0..10000 {
+            let value = map.get_or_insert_with(i, || i.to_string());
+            assert_eq!(*value, i.to_string());
+        }
+    }
+
+    #[test]
+    fn test_concurrent_insert_and_drop() {
+        let map = Arc::new(ArcHashMap::default());
+        let threads: Vec<_> = (0..100)
+            .map(|i| {
+                let map_clone = Arc::clone(&map);
+                thread::spawn(move || {
+                    let key = i % 10; // Use only 10 keys to force contention
+                    let _value = map_clone.insert(key, i);
+                    thread::sleep(Duration::from_millis(1));
+                    // The value is immediately dropped here
+                })
+            })
+            .collect();
+
+        for thread in threads {
+            thread.join().unwrap();
+        }
+
+        // All values should have been dropped
+        assert_eq!(map.len(), 0);
+    }
+
+    #[test]
+    fn test_zero_sized_values() {
+        let map = ArcHashMap::default();
+        let _v1 = map.insert("key1", ());
+        let _v2 = map.insert("key2", ());
+
+        assert_eq!(map.len(), 2);
+        assert!(map.get(&"key1").is_some());
+        assert!(map.get(&"key2").is_some());
+
+        drop(_v1);
+        assert_eq!(map.len(), 1);
     }
 }

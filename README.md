@@ -229,6 +229,8 @@ You can install the encrypted file system binary using the following command
 cargo install rencfs
 ```
 
+### Usage
+
 A basic example of how to use the encrypted file system is shown below
 
 ```

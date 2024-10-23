@@ -31,7 +31,6 @@ jobs:
           cargo install cargo-generate-rpm          
 
       - name: run cargo aur and generate-rpm
-        if: inputs.upload_artifacts
         run: |
           cargo aur
           cargo generate-rpm

@@ -26,6 +26,10 @@ You can also store it in a cloud storage service like Google Drive, Dropbox, etc
 
 You can use it as CLI or as a library to build your custom FUSE implementation or other apps that work with encrypted data.
 
+# GUI
+
+There is a [GUI](https://github.com/radumarias/rencfs-desktop/blob/main/demo.gif) too.
+
 # Motivation
 
 Create a `simple,` `performant,` `modular` and `ergonomic` yet `very secure` `encrypted filesystem` to protect your `privacy`, which is also `open source` and is correctly and safely using `well-known audited` crates as `cryptographic primitives.`

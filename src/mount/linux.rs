@@ -139,8 +139,7 @@ impl EncryptedFsFuse3 {
         cipher: Cipher,
         read_only: bool,
     ) -> FsResult<Self> {
-        EncryptedFs::initialize(data_dir, password_provider, cipher, read_only).await?;
-        let fs = EncryptedFs::instance().ok_or(FsError::Other("not initialized"))?;
+        let fs = EncryptedFs::new(data_dir, password_provider, cipher, read_only).await?;
         Ok(Self { fs })
     }
 

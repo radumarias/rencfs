@@ -2,12 +2,14 @@
 
 use rencfs::crypto::fs::OpenOptions;
 use rencfs::crypto::Cipher;
-use rencfs::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, FsError, FsResult, PasswordProvider};
+use rencfs::encryptedfs::{
+    CreateFileAttr, EncryptedFs, FileType, FsError, FsResult, PasswordProvider,
+};
 use shush_rs::SecretString;
 use std::io::SeekFrom;
 use std::path::Path;
-use tokio::io::{AsyncBufReadExt, AsyncSeekExt, AsyncWriteExt};
 use std::str::FromStr;
+use tokio::io::{AsyncBufReadExt, AsyncSeekExt, AsyncWriteExt};
 
 static ROOT_CIPHER_FS_DATA_DIR: &str = "./tmp/rencfs_data_test";
 static FILENAME: &str = "test1";
@@ -17,28 +19,10 @@ use std::sync::Arc;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     init_fs().await?;
-    // let fs = get_fs().await?;
-    // let dir1_path = PathBuf::from(ROOT_CIPHER_FS_DATA_DIR).join("dir1");
-    // let secret_dir = SecretString::from_str("dir1")?;
-    // let secret_file = SecretString::from_str(&FILENAME)?;
-    // // let file_path = PathBuf::from(&dir1_path).join(&FILENAME);
-    // let file_rel_path = PathBuf::from("./dir1").join(FILENAME);
-
-    // let fs = get_fs().await?;
-    // let dir = fs.create(1, &secret_dir, dir_attr(), true, true).await?;
-    // let file = fs
-    //     .create(dir.1.ino, &secret_file, file_attr(), true, true)
-    //     .await?;
-    // fs.flush(file.0).await?;
-    // fs.release(file.0).await?;
-
-    // let file_in_root = fs.create(1, &secret_file, file_attr(), true, true).await?;
-    // fs.flush(file_in_root.0).await?;
-    // fs.release(file_in_root.0).await?;
-    // dbg!("test1");
+    let fs = get_fs().await?;
 
     {
-        let mut opened_file1 = rencfs::crypto::fs::OpenOptions::new()
+        let mut opened_file1 = OpenOptions::new()
             .write(true)
             .create(true)
             .open(FILENAME)
@@ -51,10 +35,7 @@ async fn main() -> anyhow::Result<()> {
         opened_file1.seek(SeekFrom::Start(0)).await?;
     }
 
-    let opened_file1 = rencfs::crypto::fs::OpenOptions::new()
-    .read(true)
-    .open(FILENAME)
-    .await?;
+    let opened_file1 = OpenOptions::new().read(true).open(FILENAME).await?;
 
     let reader = tokio::io::BufReader::new(opened_file1);
     let mut lines = reader.lines();
@@ -66,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn init_fs() -> anyhow::Result<()> {
-    EncryptedFs::initialize(
+    EncryptedFs::init_scope(
         Path::new(ROOT_CIPHER_FS_DATA_DIR).to_path_buf(),
         Box::new(PasswordProviderImpl {}),
         Cipher::ChaCha20Poly1305,
@@ -102,7 +83,9 @@ impl PasswordProvider for PasswordProviderImpl {
 }
 
 async fn get_fs() -> FsResult<Arc<EncryptedFs>> {
-    EncryptedFs::instance().ok_or(FsError::Other("not initialized"))
+    EncryptedFs::from_scope()
+        .await
+        .ok_or(FsError::Other("not initialized"))
 }
 
 const fn file_attr() -> CreateFileAttr {

@@ -288,8 +288,8 @@ impl File {
                     return Err(FsError::AlreadyExists);
                 }
                 (fh_write, attr) = fs
-                .create(dir_inode, &file_name, file_attr(), false, init.write)
-                .await?;
+                    .create(dir_inode, &file_name, file_attr(), false, init.write)
+                    .await?;
             }
             // 15
             (true, false, _, _, true) => {
@@ -297,8 +297,8 @@ impl File {
                     return Err(FsError::AlreadyExists);
                 }
                 (fh_write, attr) = fs
-                .create(dir_inode, &file_name, file_attr(), false, init.write)
-                .await?;
+                    .create(dir_inode, &file_name, file_attr(), false, init.write)
+                    .await?;
             }
         };
 
@@ -448,7 +448,9 @@ impl AsyncSeek for File {
 }
 
 async fn get_fs() -> FsResult<Arc<EncryptedFs>> {
-    let fs = EncryptedFs::instance().ok_or(FsError::Other("not initialized"));
+    let fs = EncryptedFs::from_scope()
+        .await
+        .ok_or(FsError::Other("not initialized"));
     fs
 }
 

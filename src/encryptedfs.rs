@@ -7,14 +7,15 @@ use serde::{Deserialize, Serialize};
 use shush_rs::{ExposeSecret, SecretBox, SecretString, SecretVec};
 use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 use std::fs::{DirEntry, File, OpenOptions, ReadDir};
+use std::future::Future;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::num::{NonZeroUsize, ParseIntError};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, LazyLock, OnceLock, Weak};
+use std::sync::{Arc, LazyLock, Weak};
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 use thiserror::Error;
@@ -29,8 +30,9 @@ use crate::crypto::read::{CryptoRead, CryptoReadSeek};
 use crate::crypto::write::{CryptoInnerWriter, CryptoWrite, CryptoWriteSeek};
 use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
-use crate::{async_util, crypto, fs_util, stream_util};
+use crate::{crypto, fs_util, stream_util};
 use bon::bon;
+use thread_local::ThreadLocal;
 
 mod bench;
 #[cfg(test)]
@@ -58,8 +60,7 @@ fn spawn_runtime() -> Runtime {
 static DIR_ENTRIES_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
 static NOD_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
 
-pub static INITIALIZED: OnceLock<FsResult<bool>> = OnceLock::new();
-pub static INSTANCE: OnceLock<Arc<EncryptedFs>> = OnceLock::new();
+pub static SCOPE: ThreadLocal<Mutex<Option<Arc<EncryptedFs>>>> = ThreadLocal::new();
 
 /// File attributes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -577,44 +578,46 @@ pub struct EncryptedFs {
     read_only: bool,
 }
 
+impl Debug for EncryptedFs {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EncryptedFs")
+            .field("data_dir", &self.data_dir)
+            .field("cipher", &self.cipher)
+            .field("read_only", &self.read_only)
+            .finish()
+    }
+}
+
 impl EncryptedFs {
-    pub async fn initialize(
+    pub async fn init_scope(
         data_dir: PathBuf,
         password_provider: Box<dyn PasswordProvider>,
         cipher: Cipher,
         read_only: bool,
     ) -> FsResult<()> {
-        let init = INITIALIZED.get_or_init(|| {
-            let res = async_util::call_async(async {
-                Self::new(data_dir, password_provider, cipher, read_only).await
-            });
-            match res {
-                Ok(fs) => match INSTANCE.set(fs) {
-                    Ok(_) => Ok(true),
-                    Err(_) => Err(FsError::Other("cannot initialize")),
-                },
-                Err(err) => Err(err),
-            }
-        });
-        match init {
-            Ok(v) => {
-                if *v {
-                    Ok(())
-                } else {
-                    Err(FsError::Other("cannot initialize"))
-                }
-            }
-            Err(_) => Err(FsError::Other("cannot initialize")),
-        }
+        Ok(Self::set_scope(Self::new(data_dir, password_provider, cipher, read_only).await?).await)
     }
 
-    pub fn instance() -> Option<Arc<EncryptedFs>> {
-        INSTANCE.get().cloned()
+    pub async fn set_scope(fs: Arc<EncryptedFs>) {
+        SCOPE.get_or_default().lock().await.replace(fs);
+    }
+
+    pub async fn clear_scope() {
+        SCOPE.get_or_default().lock().await.take();
+    }
+
+    pub async fn from_scope() -> Option<Arc<EncryptedFs>> {
+        SCOPE
+            .get_or_default()
+            .lock()
+            .await
+            .as_ref()
+            .map(|scope| scope.clone())
     }
 
     #[allow(clippy::missing_panics_doc)]
     #[allow(clippy::missing_errors_doc)]
-    pub(crate) async fn new(
+    pub async fn new(
         data_dir: PathBuf,
         password_provider: Box<dyn PasswordProvider>,
         cipher: Cipher,
@@ -2482,7 +2485,27 @@ impl EncryptedFs {
             return ino;
         }
     }
+
+    pub async fn in_scope<R, E, T: Future<Output = Result<R, E>>>(
+        f: T,
+        fs: Arc<EncryptedFs>,
+    ) -> FsResult<Result<R, E>> {
+        // set scope
+        let scope = Self::from_scope().await;
+        EncryptedFs::set_scope(fs).await;
+
+        // run code
+        let res = f.await;
+
+        // clear scope
+        if let Some(_) = scope {
+            Self::clear_scope().await;
+        };
+
+        Ok(res)
+    }
 }
+
 pub struct CopyFileRangeReq {
     src_ino: u64,
     src_offset: u64,

@@ -50,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn init_fs() -> anyhow::Result<()> {
-    EncryptedFs::initialize(
+    EncryptedFs::init_scope(
         Path::new(ROOT_CIPHER_FS_DATA_DIR).to_path_buf(),
         Box::new(PasswordProviderImpl {}),
         Cipher::ChaCha20Poly1305,

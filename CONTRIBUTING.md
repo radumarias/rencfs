@@ -2,7 +2,7 @@
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this project by you, as defined in the Apache License, shall be dual-licensed as above, without any additional terms or conditions.
 
-1. Join [slack](https://join.slack.com/t/rencfs/shared_invite/zt-2o4l1tdkk-VJeWIbO2p6zgeafDISPHbQ)
+1. Join [slack](https://bit.ly/3UU1oXi)
 2. Become familiar with docs and code by reading the [ramp-up](Ramp-up.md) guide
 3. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and be able to create your own branches and not needing to fork the repo
 4. Pick an open issue or a task in the corresponding [project](https://github.com/users/radumarias/projects/1) for the repo that you'll be working on. You can see [good for first issues](https://github.com/radumarias/rencfs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) that you can pick from

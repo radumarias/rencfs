@@ -22,364 +22,361 @@ async fn test_async_file_oo_flags() {
         },
         async move {
             let fs = get_fs().await;
-            OpenOptions::set_scope(fs).await;
-            let fs2 = fs.clone();
+            OpenOptions::set_scope(fs.clone()).await;
 
-            OpenOptions::in_scope::<Option<()>, String, _>(
-                {
-                    async move {
-                        let path = &fs.data_dir;
-                        dbg!(path);
-                        let dir_path_sec = SecretString::from_str("dir").unwrap();
-                        let file_path_sec = SecretString::from_str(FILENAME).unwrap();
-                        // Create dir and file in dir
-                        let dir_new = fs
-                            .create(1, &dir_path_sec, dir_attr(), true, true)
-                            .await
-                            .unwrap();
-                        fs.release(dir_new.0).await.unwrap();
-                        let fh_file_in_dir = fs
-                            .create(dir_new.1.ino, &file_path_sec, file_attr(), true, true)
-                            .await
-                            .unwrap();
-                        fs.release(fh_file_in_dir.0).await.unwrap();
-                        // Create file in root
-                        let file_in_root = fs
-                            .create(1, &file_path_sec, file_attr(), true, true)
-                            .await
-                            .unwrap();
-                        fs.release(file_in_root.0).await.unwrap();
+            let res: Result<(), String> = async move {
+                let path = &fs.data_dir;
+                dbg!(path);
+                let dir_path_sec = SecretString::from_str("dir").unwrap();
+                let file_path_sec = SecretString::from_str(FILENAME).unwrap();
+                // Create dir and file in dir
+                let dir_new = fs
+                    .create(1, &dir_path_sec, dir_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(dir_new.0).await.unwrap();
+                let fh_file_in_dir = fs
+                    .create(dir_new.1.ino, &file_path_sec, file_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(fh_file_in_dir.0).await.unwrap();
+                // Create a file in root
+                let file_in_root = fs
+                    .create(1, &file_path_sec, file_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(file_in_root.0).await.unwrap();
 
-                        // Case 1. No flags - existing and non existing file. Read true with existing file in root.
-                        let file = OpenOptions::new()
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
-                        let file = OpenOptions::new().open("aaaa").await.map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        let file = OpenOptions::new()
-                            .read(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        // File existing in sub directory
-                        let file = OpenOptions::new()
-                            .read(true)
-                            .open("/dir/test1")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
+                // Case.
+                // No flags - existing and non-existing file.
+                // Read true with an existing file in root.
+                let file = OpenOptions::new()
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                let file = OpenOptions::new().open("aaaa").await.map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                let file = OpenOptions::new()
+                    .read(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                // File existing in sub directory
+                let file = OpenOptions::new()
+                    .read(true)
+                    .open("/dir/test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                        // Case 2. Create true - existing and non existing file.
-                        let file = OpenOptions::new()
-                            .create(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        let file = OpenOptions::new()
-                            .create(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        // Case 3. Truncate true - existing and non existing file.
-                        let file = OpenOptions::new()
-                            .truncate(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        let file = OpenOptions::new()
-                            .truncate(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        // Case 4. Truncate and Create true - existing and non existing file.
-                        let file = OpenOptions::new()
-                            .truncate(true)
-                            .create(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        let file = OpenOptions::new()
-                            .truncate(true)
-                            .create(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
-                        // Case 5. Append true.
-                        let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
-                        file.write_all(b"Hello World!").await.unwrap();
-                        fs.flush(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let file = OpenOptions::new().append(true).open(FILENAME).await;
-                        assert!(file.is_ok());
+                // Case 2. Create true - existing and non-existing file.
+                let file = OpenOptions::new()
+                    .create(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                let file = OpenOptions::new()
+                    .create(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                // Case 3. Truncate true - existing and non-existing file.
+                let file = OpenOptions::new()
+                    .truncate(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                let file = OpenOptions::new()
+                    .truncate(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                // Case 4. Truncate and Create true - existing and non-existing file.
+                let file = OpenOptions::new()
+                    .truncate(true)
+                    .create(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                let file = OpenOptions::new()
+                    .truncate(true)
+                    .create(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::PermissionDenied)));
+                // Case 5. Append true.
+                let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
+                file.write_all(b"Hello World!").await.unwrap();
+                fs.flush(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new().append(true).open(FILENAME).await;
+                assert!(file.is_ok());
 
-                        let mut file = file.unwrap();
-                        assert_eq!(file.stream_position().await.unwrap(), 12);
-                        fs.set_len(file.context.ino, 0).await.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
+                let mut file = file.unwrap();
+                assert_eq!(file.stream_position().await.unwrap(), 12);
+                fs.set_len(file.context.ino, 0).await.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .open("aaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
-                        // Case 6. Append and Create true.
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .create(true)
-                            .open(FILENAME)
-                            .await;
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .append(true)
+                    .open("aaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
+                // Case 6. Append and Create true.
+                let file = OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open(FILENAME)
+                    .await;
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .create(true)
-                            .open("aaaa")
-                            .await;
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open("aaaa")
+                    .await;
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        // 7. Append and Truncate true
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .truncate(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                // 7. Append and Truncate true
+                let file = OpenOptions::new()
+                    .append(true)
+                    .truncate(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .truncate(true)
-                            .open("aaaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                let file = OpenOptions::new()
+                    .append(true)
+                    .truncate(true)
+                    .open("aaaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                        // 8. Append, Truncate and Create true
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .truncate(true)
-                            .create(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                // 8. Append, Truncate and Create true
+                let file = OpenOptions::new()
+                    .append(true)
+                    .truncate(true)
+                    .create(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .truncate(true)
-                            .create(true)
-                            .open("aaaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                let file = OpenOptions::new()
+                    .append(true)
+                    .truncate(true)
+                    .create(true)
+                    .open("aaaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                        // 9. Write true
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
+                // 9. Write true
+                let file = OpenOptions::new()
+                    .write(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
+                let file = OpenOptions::new()
+                    .write(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
 
-                        // 10. Write and Create true
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .create(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
+                // 10. Write and Create true
+                let file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .create(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        // 11. Write and Truncate true
-                        let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
-                        file.write_all(b"Hello World!").await.unwrap();
-                        fs.flush(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let size = fs.get_attr(file.context.ino).await.unwrap().size;
-                        assert_eq!(size, 12);
+                // 11. Write and Truncate true
+                let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
+                file.write_all(b"Hello World!").await.unwrap();
+                fs.flush(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let size = fs.get_attr(file.context.ino).await.unwrap().size;
+                assert_eq!(size, 12);
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .truncate(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let size = fs.get_attr(file.context.ino).await.unwrap().size;
-                        assert_eq!(size, 0);
+                let file = OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let size = fs.get_attr(file.context.ino).await.unwrap().size;
+                assert_eq!(size, 0);
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .truncate(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        // 12. Write, Truncate and Create true
-                        let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
-                        file.write_all(b"Hello World!").await.unwrap();
-                        fs.flush(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let size = fs.get_attr(file.context.ino).await.unwrap().size;
-                        assert_eq!(size, 12);
+                // 12. Write, Truncate and Create true
+                let mut file = OpenOptions::new().write(true).open(FILENAME).await.unwrap();
+                file.write_all(b"Hello World!").await.unwrap();
+                fs.flush(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let size = fs.get_attr(file.context.ino).await.unwrap().size;
+                assert_eq!(size, 12);
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .truncate(true)
-                            .create(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let size = fs.get_attr(file.context.ino).await.unwrap().size;
-                        assert_eq!(size, 0);
+                let file = OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .create(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let size = fs.get_attr(file.context.ino).await.unwrap().size;
+                assert_eq!(size, 0);
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .truncate(true)
-                            .create(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .create(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        // 13. Create_new true
-                        let file = OpenOptions::new()
-                            .create_new(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
-                        let file = OpenOptions::new()
-                            .create_new(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                // 13. Create_new true
+                let file = OpenOptions::new()
+                    .create_new(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
+                let file = OpenOptions::new()
+                    .create_new(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                        // 14. Append and create new
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .create_new(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
+                // 14. Append and create new
+                let file = OpenOptions::new()
+                    .append(true)
+                    .create_new(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
 
-                        let file = OpenOptions::new()
-                            .append(true)
-                            .create_new(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .append(true)
+                    .create_new(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        // 15. Write and Create new true
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .create_new(true)
-                            .open(FILENAME)
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
+                // 15. Write and Create new true
+                let file = OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::AlreadyExists)));
 
-                        let file = OpenOptions::new()
-                            .write(true)
-                            .create_new(true)
-                            .open("aaaa")
-                            .await
-                            .map_err(|e| e.kind());
-                        assert!(file.is_ok());
-                        let file = file.unwrap();
-                        fs.release(file.context.fh_write).await.unwrap();
-                        fs.release(file.context.fh_read).await.unwrap();
-                        let new_file = SecretString::from_str("aaaa").unwrap();
-                        fs.remove_file(1, &new_file).await.unwrap();
+                let file = OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open("aaaa")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
+                let new_file = SecretString::from_str("aaaa").unwrap();
+                fs.remove_file(1, &new_file).await.unwrap();
 
-                        Ok(None::<()>)
-                    }
-                },
-                fs2,
-            )
-            .await
-            .unwrap()
-            .unwrap();
+                Ok(())
+            }
+            .await;
+
+            OpenOptions::clear_scope().await;
+            res.unwrap();
         },
     )
     .await;
@@ -395,140 +392,138 @@ async fn test_async_file_options_paths() {
         },
         async {
             let fs = get_fs().await;
-            let fs2 = fs.clone();
+            OpenOptions::set_scope(fs.clone()).await;
 
-            OpenOptions::in_scope::<Option<()>, String, _>(
-                async move {
-                    let path = &fs.data_dir;
-                    dbg!(path);
+            let res: Result<(), String> = async move {
+                let path = &fs.data_dir;
+                dbg!(path);
 
-                    let dir_path_sec = SecretString::from_str("dir").unwrap();
-                    let file_path_sec = SecretString::from_str(FILENAME).unwrap();
-                    // Create dir and file in dir
-                    let dir_new = fs
-                        .create(1, &dir_path_sec, dir_attr(), true, true)
-                        .await
-                        .unwrap();
-                    fs.release(dir_new.0).await.unwrap();
-                    let fh_file_in_dir = fs
-                        .create(dir_new.1.ino, &file_path_sec, file_attr(), true, true)
-                        .await
-                        .unwrap();
-                    fs.release(fh_file_in_dir.0).await.unwrap();
-                    // Create a file in root
-                    let file_in_root = fs
-                        .create(1, &file_path_sec, file_attr(), true, true)
-                        .await
-                        .unwrap();
-                    fs.release(file_in_root.0).await.unwrap();
+                let dir_path_sec = SecretString::from_str("dir").unwrap();
+                let file_path_sec = SecretString::from_str(FILENAME).unwrap();
+                // Create dir and file in dir
+                let dir_new = fs
+                    .create(1, &dir_path_sec, dir_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(dir_new.0).await.unwrap();
+                let fh_file_in_dir = fs
+                    .create(dir_new.1.ino, &file_path_sec, file_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(fh_file_in_dir.0).await.unwrap();
+                // Create a file in root
+                let file_in_root = fs
+                    .create(1, &file_path_sec, file_attr(), true, true)
+                    .await
+                    .unwrap();
+                fs.release(file_in_root.0).await.unwrap();
 
-                    // TODO:
-                    // Empty paths handling
-                    // Current directory symbols: "././dir/test1"
-                    // Paths with parent directory? "./../dir/test1"
+                // TODO:
+                // Empty paths handling
+                // Current directory symbols: "././dir/test1"
+                // Paths with parent directory? "./../dir/test1"
 
-                    // Test paths and sub directories
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open(FILENAME)
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                // Test paths and sub directories
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(FILENAME)
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open(".test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(".test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open("")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open("")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::InvalidInput)));
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open("./test1/")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open("./test1/")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open(".//test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(".//test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open("./dir/test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open("./dir/test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open(".//dir//test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(".//dir//test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .open("////////dir//test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(file.is_ok());
-                    let file = file.unwrap();
-                    fs.release(file.context.fh_write).await.unwrap();
-                    fs.release(file.context.fh_read).await.unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open("////////dir//test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(file.is_ok());
+                let file = file.unwrap();
+                fs.release(file.context.fh_write).await.unwrap();
+                fs.release(file.context.fh_read).await.unwrap();
 
-                    // Try to create new in non-existing sub directory
-                    let file = OpenOptions::new()
-                        .write(true)
-                        .create_new(true)
-                        .open("./dir1/test1")
-                        .await
-                        .map_err(|e| e.kind());
-                    assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
+                // Try to create new in non-existing sub directory
+                let file = OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open("./dir1/test1")
+                    .await
+                    .map_err(|e| e.kind());
+                assert!(matches!(file, Err(std::io::ErrorKind::NotFound)));
 
-                    Ok(None::<()>)
-                },
-                fs2,
-            )
-            .await
-            .unwrap()
-            .unwrap();
+                Ok(())
+            }
+            .await;
+
+            OpenOptions::clear_scope().await;
+            res.unwrap();
         },
     )
     .await;

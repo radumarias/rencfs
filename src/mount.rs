@@ -65,11 +65,11 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 }
 /// Available arguments
 ///
-/// **`mountpoint`** where it wil mount the filesystem
+/// **`mountpoint`** where it will mount the filesystem
 /// **`data_dir`** the directory where the encrypted files will be stored  
 /// **`password_provider`** the password provider  
 /// **`cipher`** The encryption algorithm to use.
-
+///
 /// Currently, it supports these ciphers [`Cipher`]
 ///
 /// **`allow_root`** allow root to access the file system  

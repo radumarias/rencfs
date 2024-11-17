@@ -6,7 +6,7 @@ use anyhow::Result;
 use shush_rs::SecretString;
 
 use rencfs::crypto::Cipher;
-use rencfs::encryptedfs::{write_all_string_to_fs, FsError};
+use rencfs::encryptedfs::write_all_string_to_fs;
 use rencfs::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, PasswordProvider};
 
 const ROOT_INODE: u64 = 1;
@@ -58,17 +58,6 @@ async fn main() -> Result<()> {
 const fn file_attr() -> CreateFileAttr {
     CreateFileAttr {
         kind: FileType::RegularFile,
-        perm: 0o644,
-        uid: 0,
-        gid: 0,
-        rdev: 0,
-        flags: 0,
-    }
-}
-
-const fn dir_attr() -> CreateFileAttr {
-    CreateFileAttr {
-        kind: FileType::Directory,
         perm: 0o644,
         uid: 0,
         gid: 0,

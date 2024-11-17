@@ -81,7 +81,7 @@ impl OpenOptions {
             path: SecretString::from_str(path.as_ref().to_path_buf().to_str().unwrap()).unwrap(),
         })
         .await
-        .map_err(|err| map_err(err))
+        .map_err(map_err)
     }
 }
 
@@ -145,14 +145,14 @@ impl File {
 
         if paths.len() > 1 {
             for node in paths.iter().take(paths.len() - 1) {
-                let res = fs.find_by_name(dir_inode, &node).await?;
+                let res = fs.find_by_name(dir_inode, node).await?;
                 match res {
                     Some(res) => dir_inode = res.ino,
                     None => return Err(FsError::InodeNotFound),
                 }
             }
         }
-        let file_exists = fs.find_by_name(dir_inode, &file_name).await?.is_some();
+        let file_exists = fs.find_by_name(dir_inode, file_name).await?.is_some();
 
         match (
             init.write,
@@ -203,7 +203,7 @@ impl File {
                     pos = fs.get_attr(attr.ino).await?.size;
                 } else {
                     (fh_write, attr) = fs
-                        .create(dir_inode, &file_name, file_attr(), false, init.write)
+                        .create(dir_inode, file_name, file_attr(), false, init.write)
                         .await?;
                 }
             }
@@ -240,7 +240,7 @@ impl File {
                     fh_write = fs.open(attr.ino, false, init.write).await?;
                 } else {
                     (fh_write, attr) = fs
-                        .create(dir_inode, &file_name, file_attr(), false, init.write)
+                        .create(dir_inode, file_name, file_attr(), false, init.write)
                         .await?;
                 }
             }
@@ -255,7 +255,7 @@ impl File {
                     fs.set_len(attr.ino, 0).await?;
                 } else {
                     (fh_write, attr) = fs
-                        .create(dir_inode, &file_name, file_attr(), false, init.write)
+                        .create(dir_inode, file_name, file_attr(), false, init.write)
                         .await?;
                 }
             }
@@ -270,16 +270,16 @@ impl File {
                     fs.set_len(attr.ino, 0).await?;
                 } else {
                     (fh_write, attr) = fs
-                        .create(dir_inode, &file_name, file_attr(), false, init.write)
+                        .create(dir_inode, file_name, file_attr(), false, init.write)
                         .await?;
                 }
             }
             // 13
             (false, false, _, _, true) => {
-                if file_exists {
-                    return Err(FsError::AlreadyExists);
+                return if file_exists {
+                    Err(FsError::AlreadyExists)
                 } else {
-                    return Err(FsError::InvalidInput("No write access"));
+                    Err(FsError::InvalidInput("No write access"))
                 }
             }
             // 14
@@ -288,7 +288,7 @@ impl File {
                     return Err(FsError::AlreadyExists);
                 }
                 (fh_write, attr) = fs
-                    .create(dir_inode, &file_name, file_attr(), false, init.write)
+                    .create(dir_inode, file_name, file_attr(), false, init.write)
                     .await?;
             }
             // 15
@@ -297,7 +297,7 @@ impl File {
                     return Err(FsError::AlreadyExists);
                 }
                 (fh_write, attr) = fs
-                    .create(dir_inode, &file_name, file_attr(), false, init.write)
+                    .create(dir_inode, file_name, file_attr(), false, init.write)
                     .await?;
             }
         };
@@ -310,7 +310,7 @@ impl File {
             ino: attr.ino,
             fh_read,
             fh_write,
-            pos: pos as u64,
+            pos,
         })
     }
 
@@ -448,10 +448,9 @@ impl AsyncSeek for File {
 }
 
 async fn get_fs() -> FsResult<Arc<EncryptedFs>> {
-    let fs = EncryptedFs::from_scope()
+    EncryptedFs::from_scope()
         .await
-        .ok_or(FsError::Other("not initialized"));
-    fs
+        .ok_or(FsError::Other("not initialized"))
 }
 
 fn file_attr() -> CreateFileAttr {

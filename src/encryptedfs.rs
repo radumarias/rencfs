@@ -595,7 +595,8 @@ impl EncryptedFs {
         cipher: Cipher,
         read_only: bool,
     ) -> FsResult<()> {
-        Ok(Self::set_scope(Self::new(data_dir, password_provider, cipher, read_only).await?).await)
+        Self::set_scope(Self::new(data_dir, password_provider, cipher, read_only).await?).await;
+        Ok(())
     }
 
     pub async fn set_scope(fs: Arc<EncryptedFs>) {
@@ -2498,7 +2499,7 @@ impl EncryptedFs {
         let res = f.await;
 
         // clear scope
-        if let Some(_) = scope {
+        if scope.is_some() {
             Self::clear_scope().await;
         };
 

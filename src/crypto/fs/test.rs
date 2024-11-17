@@ -62,7 +62,7 @@ async fn test_async_file_oo_flags() {
                             .open(FILENAME)
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -72,7 +72,7 @@ async fn test_async_file_oo_flags() {
                             .open("/dir/test1")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -125,7 +125,7 @@ async fn test_async_file_oo_flags() {
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
                         let file = OpenOptions::new().append(true).open(FILENAME).await;
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
 
                         let mut file = file.unwrap();
                         assert_eq!(file.stream_position().await.unwrap(), 12);
@@ -145,7 +145,7 @@ async fn test_async_file_oo_flags() {
                             .create(true)
                             .open(FILENAME)
                             .await;
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -155,7 +155,7 @@ async fn test_async_file_oo_flags() {
                             .create(true)
                             .open("aaaa")
                             .await;
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -204,7 +204,7 @@ async fn test_async_file_oo_flags() {
                             .open(FILENAME)
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -223,7 +223,7 @@ async fn test_async_file_oo_flags() {
                             .open(FILENAME)
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -234,7 +234,7 @@ async fn test_async_file_oo_flags() {
                             .open("aaaa")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -256,7 +256,7 @@ async fn test_async_file_oo_flags() {
                             .open(FILENAME)
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -269,7 +269,7 @@ async fn test_async_file_oo_flags() {
                             .open("aaaa")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -292,7 +292,7 @@ async fn test_async_file_oo_flags() {
                             .open(FILENAME)
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -306,7 +306,7 @@ async fn test_async_file_oo_flags() {
                             .open("aaaa")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -342,7 +342,7 @@ async fn test_async_file_oo_flags() {
                             .open("aaaa")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -364,7 +364,7 @@ async fn test_async_file_oo_flags() {
                             .open("aaaa")
                             .await
                             .map_err(|e| e.kind());
-                        assert!(matches!(file, Ok(_)));
+                        assert!(file.is_ok());
                         let file = file.unwrap();
                         fs.release(file.context.fh_write).await.unwrap();
                         fs.release(file.context.fh_read).await.unwrap();
@@ -433,7 +433,7 @@ async fn test_async_file_options_paths() {
                         .open(FILENAME)
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -444,7 +444,7 @@ async fn test_async_file_options_paths() {
                         .open(".test1")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -463,7 +463,7 @@ async fn test_async_file_options_paths() {
                         .open("./test1/")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -474,7 +474,7 @@ async fn test_async_file_options_paths() {
                         .open(".//test1")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -485,7 +485,7 @@ async fn test_async_file_options_paths() {
                         .open("./dir/test1")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -496,7 +496,7 @@ async fn test_async_file_options_paths() {
                         .open(".//dir//test1")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();
@@ -507,7 +507,7 @@ async fn test_async_file_options_paths() {
                         .open("////////dir//test1")
                         .await
                         .map_err(|e| e.kind());
-                    assert!(matches!(file, Ok(_)));
+                    assert!(file.is_ok());
                     let file = file.unwrap();
                     fs.release(file.context.fh_write).await.unwrap();
                     fs.release(file.context.fh_read).await.unwrap();

@@ -22,6 +22,10 @@ fn main() {
     reader_seek.seek(SeekFrom::Start(0)).unwrap();
 }
 
+struct MyRead<R: Read> {
+    inner: R,
+}
+
 struct OnlyRead {}
 impl Read for OnlyRead {
     fn read(&mut self, _buf: &mut [u8]) -> io::Result<usize> {
@@ -39,10 +43,6 @@ impl Seek for ReadSeek {
     fn seek(&mut self, _pos: SeekFrom) -> io::Result<u64> {
         Ok(0)
     }
-}
-
-struct MyRead<R: Read> {
-    inner: R,
 }
 
 impl<R: Read> Read for MyRead<R> {

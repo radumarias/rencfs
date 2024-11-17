@@ -3,7 +3,7 @@ cargo-features = ["profile-rustflags"]
 [package]
 name = "rencfs"
 description = "An encrypted file system that is mounted with FUSE on Linux. It can be used to create encrypted directories."
-version = "0.13.75"
+version = "0.13.78"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Radu Marias <radumarias@gmail.com>"]
@@ -62,7 +62,7 @@ bon = "2.3.0"
 fuse3 = { version = "0.7.2", features = ["tokio-runtime", "unprivileged"] }
 
 [profile.release]
-panic = "abort"
+#panic = "abort"
 # Treat warnings as errors in release builds
 rustflags = ["-Dwarnings"]
 lto = true

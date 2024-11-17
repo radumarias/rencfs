@@ -9,7 +9,6 @@ use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::{Debug, Formatter};
 use std::fs::{DirEntry, File, OpenOptions, ReadDir};
-use std::future::Future;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::num::{NonZeroUsize, ParseIntError};
 use std::path::{Path, PathBuf};
@@ -32,7 +31,6 @@ use crate::crypto::Cipher;
 use crate::expire_value::{ExpireValue, ValueProvider};
 use crate::{crypto, fs_util, stream_util};
 use bon::bon;
-use thread_local::ThreadLocal;
 
 mod bench;
 #[cfg(test)]
@@ -59,8 +57,6 @@ fn spawn_runtime() -> Runtime {
 
 static DIR_ENTRIES_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
 static NOD_RT: LazyLock<Runtime> = LazyLock::new(spawn_runtime);
-
-pub static SCOPE: ThreadLocal<Mutex<Option<Arc<EncryptedFs>>>> = ThreadLocal::new();
 
 /// File attributes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -589,33 +585,6 @@ impl Debug for EncryptedFs {
 }
 
 impl EncryptedFs {
-    pub async fn init_scope(
-        data_dir: PathBuf,
-        password_provider: Box<dyn PasswordProvider>,
-        cipher: Cipher,
-        read_only: bool,
-    ) -> FsResult<()> {
-        Self::set_scope(Self::new(data_dir, password_provider, cipher, read_only).await?).await;
-        Ok(())
-    }
-
-    pub async fn set_scope(fs: Arc<EncryptedFs>) {
-        SCOPE.get_or_default().lock().await.replace(fs);
-    }
-
-    pub async fn clear_scope() {
-        SCOPE.get_or_default().lock().await.take();
-    }
-
-    pub async fn from_scope() -> Option<Arc<EncryptedFs>> {
-        SCOPE
-            .get_or_default()
-            .lock()
-            .await
-            .as_ref()
-            .map(|scope| scope.clone())
-    }
-
     #[allow(clippy::missing_panics_doc)]
     #[allow(clippy::missing_errors_doc)]
     pub async fn new(
@@ -2485,25 +2454,6 @@ impl EncryptedFs {
 
             return ino;
         }
-    }
-
-    pub async fn in_scope<R, E, T: Future<Output = Result<R, E>>>(
-        f: T,
-        fs: Arc<EncryptedFs>,
-    ) -> FsResult<Result<R, E>> {
-        // set scope
-        let scope = Self::from_scope().await;
-        EncryptedFs::set_scope(fs).await;
-
-        // run code
-        let res = f.await;
-
-        // clear scope
-        if scope.is_some() {
-            Self::clear_scope().await;
-        };
-
-        Ok(res)
     }
 }
 

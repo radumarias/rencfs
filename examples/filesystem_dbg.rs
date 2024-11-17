@@ -47,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn init_fs() -> anyhow::Result<()> {
-    EncryptedFs::init_scope(
+    OpenOptions::init_scope(
         Path::new(ROOT_CIPHER_FS_DATA_DIR).to_path_buf(),
         Box::new(PasswordProviderImpl {}),
         Cipher::ChaCha20Poly1305,
@@ -83,7 +83,7 @@ impl PasswordProvider for PasswordProviderImpl {
 }
 
 async fn get_fs() -> FsResult<Arc<EncryptedFs>> {
-    EncryptedFs::from_scope()
+    OpenOptions::from_scope()
         .await
         .ok_or(FsError::Other("not initialized"))
 }

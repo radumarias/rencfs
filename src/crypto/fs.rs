@@ -1,22 +1,28 @@
 use std::future::Future;
 use std::io::{self, Error, ErrorKind, SeekFrom};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 
+use crate::async_util;
+use crate::crypto::Cipher;
+use crate::encryptedfs::{
+    CreateFileAttr, EncryptedFs, FileAttr, FileType, FsError, FsResult, PasswordProvider,
+};
 use anyhow::Result;
 use shush_rs::{ExposeSecret, SecretBox, SecretString};
+use thread_local::ThreadLocal;
 use tokio::io::{AsyncRead, AsyncSeek, AsyncWrite, ReadBuf};
-
-use crate::async_util;
-use crate::encryptedfs::{CreateFileAttr, EncryptedFs, FileAttr, FileType, FsError, FsResult};
+use tokio::sync::Mutex;
 
 #[cfg(test)]
 mod test;
 
 const ROOT_INODE: u64 = 1;
+
+pub static SCOPE: ThreadLocal<Mutex<Option<Arc<EncryptedFs>>>> = ThreadLocal::new();
 
 #[allow(clippy::new_without_default)]
 pub struct OpenOptions {
@@ -82,6 +88,53 @@ impl OpenOptions {
         })
         .await
         .map_err(map_err)
+    }
+
+    pub async fn init_scope(
+        data_dir: PathBuf,
+        password_provider: Box<dyn PasswordProvider>,
+        cipher: Cipher,
+        read_only: bool,
+    ) -> FsResult<()> {
+        Self::set_scope(EncryptedFs::new(data_dir, password_provider, cipher, read_only).await?)
+            .await;
+        Ok(())
+    }
+
+    pub async fn set_scope(fs: Arc<EncryptedFs>) {
+        SCOPE.get_or_default().lock().await.replace(fs);
+    }
+
+    pub async fn clear_scope() {
+        SCOPE.get_or_default().lock().await.take();
+    }
+
+    pub async fn from_scope() -> Option<Arc<EncryptedFs>> {
+        SCOPE
+            .get_or_default()
+            .lock()
+            .await
+            .as_ref()
+            .map(|scope| scope.clone())
+    }
+
+    pub async fn in_scope<R, E, T: Future<Output = std::result::Result<R, E>>>(
+        f: T,
+        fs: Arc<EncryptedFs>,
+    ) -> FsResult<std::result::Result<R, E>> {
+        // set scope
+        let scope = Self::from_scope().await;
+        Self::set_scope(fs).await;
+
+        // run code
+        let res = f.await;
+
+        // clear scope
+        if scope.is_some() {
+            Self::clear_scope().await;
+        };
+
+        Ok(res)
     }
 }
 
@@ -448,7 +501,7 @@ impl AsyncSeek for File {
 }
 
 async fn get_fs() -> FsResult<Arc<EncryptedFs>> {
-    EncryptedFs::from_scope()
+    OpenOptions::from_scope()
         .await
         .ok_or(FsError::Other("not initialized"))
 }

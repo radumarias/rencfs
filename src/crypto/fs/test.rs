@@ -7,7 +7,7 @@ use shush_rs::SecretString;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
 
 use crate::crypto::fs::OpenOptions;
-use crate::encryptedfs::{CreateFileAttr, EncryptedFs, FileType, PasswordProvider};
+use crate::encryptedfs::{CreateFileAttr, FileType, PasswordProvider};
 use crate::test_common::{get_fs, run_test, TestSetup};
 
 static FILENAME: &str = "test1";
@@ -24,7 +24,7 @@ async fn test_async_file_oo_flags() {
             let fs = get_fs().await;
             let fs2 = fs.clone();
 
-            EncryptedFs::in_scope::<Option<()>, String, _>(
+            OpenOptions::in_scope::<Option<()>, String, _>(
                 {
                     async move {
                         let path = &fs.data_dir;
@@ -396,7 +396,7 @@ async fn test_async_file_options_paths() {
             let fs = get_fs().await;
             let fs2 = fs.clone();
 
-            EncryptedFs::in_scope::<Option<()>, String, _>(
+            OpenOptions::in_scope::<Option<()>, String, _>(
                 async move {
                     let path = &fs.data_dir;
                     dbg!(path);
@@ -545,7 +545,7 @@ async fn test_async_file_write_read() {
             let fs = get_fs().await;
             let fs2 = fs.clone();
 
-            EncryptedFs::in_scope::<Option<()>, String, _>(
+            OpenOptions::in_scope::<Option<()>, String, _>(
                 async move {
                     let mut file = OpenOptions::new()
                         .read(true)
@@ -610,7 +610,7 @@ async fn test_async_file_bufread() {
             let fs = get_fs().await;
             let fs2 = fs.clone();
 
-            EncryptedFs::in_scope::<Option<()>, String, _>(
+            OpenOptions::in_scope::<Option<()>, String, _>(
                 async move {
                     let mut file = OpenOptions::new()
                         .read(true)

@@ -22,6 +22,7 @@ async fn test_async_file_oo_flags() {
         },
         async move {
             let fs = get_fs().await;
+            OpenOptions::set_scope(fs).await;
             let fs2 = fs.clone();
 
             OpenOptions::in_scope::<Option<()>, String, _>(

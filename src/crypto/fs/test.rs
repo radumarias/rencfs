@@ -539,56 +539,54 @@ async fn test_async_file_write_read() {
         },
         async move {
             let fs = get_fs().await;
-            let fs2 = fs.clone();
+            OpenOptions::set_scope(fs.clone()).await;
 
-            OpenOptions::in_scope::<Option<()>, String, _>(
-                async move {
-                    let mut file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .create(true)
-                        .open("file_read_write")
-                        .await
-                        .unwrap();
-                    file.write_all(b"Hello world!").await.unwrap();
-                    let cur = file.stream_position().await.unwrap();
-                    assert_eq!(cur, 12);
+            let res: Result<(), String> = async move {
+                let mut file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .create(true)
+                    .open("file_read_write")
+                    .await
+                    .unwrap();
+                file.write_all(b"Hello world!").await.unwrap();
+                let cur = file.stream_position().await.unwrap();
+                assert_eq!(cur, 12);
 
-                    file.seek(std::io::SeekFrom::Start(0)).await.unwrap();
-                    let cur = file.stream_position().await.unwrap();
-                    assert_eq!(cur, 0);
-                    file.shutdown().await.unwrap();
+                file.seek(std::io::SeekFrom::Start(0)).await.unwrap();
+                let cur = file.stream_position().await.unwrap();
+                assert_eq!(cur, 0);
+                file.shutdown().await.unwrap();
 
-                    let mut file = OpenOptions::new()
-                        .read(true)
-                        .open("file_read_write")
-                        .await
-                        .unwrap();
+                let mut file = OpenOptions::new()
+                    .read(true)
+                    .open("file_read_write")
+                    .await
+                    .unwrap();
 
-                    let mut buf = vec![0u8; 2];
-                    let bytes_read = file.read(&mut buf).await.unwrap();
-                    let read_content = std::str::from_utf8(&buf[..bytes_read]).unwrap();
-                    assert_eq!(read_content, "He");
+                let mut buf = vec![0u8; 2];
+                let bytes_read = file.read(&mut buf).await.unwrap();
+                let read_content = std::str::from_utf8(&buf[..bytes_read]).unwrap();
+                assert_eq!(read_content, "He");
 
-                    file.seek(std::io::SeekFrom::Start(2)).await.unwrap();
-                    let cur = file.stream_position().await.unwrap();
-                    assert_eq!(cur, 2);
+                file.seek(std::io::SeekFrom::Start(2)).await.unwrap();
+                let cur = file.stream_position().await.unwrap();
+                assert_eq!(cur, 2);
 
-                    let mut buf = vec![0u8; 2];
-                    let bytes_read = file.read(&mut buf).await.unwrap();
-                    let read_content = std::str::from_utf8(&buf[..bytes_read]).unwrap();
-                    assert_eq!(read_content, "ll");
+                let mut buf = vec![0u8; 2];
+                let bytes_read = file.read(&mut buf).await.unwrap();
+                let read_content = std::str::from_utf8(&buf[..bytes_read]).unwrap();
+                assert_eq!(read_content, "ll");
 
-                    file.seek(std::io::SeekFrom::End(0)).await.unwrap();
-                    let cur = file.stream_position().await.unwrap();
+                file.seek(std::io::SeekFrom::End(0)).await.unwrap();
+                let cur = file.stream_position().await.unwrap();
 
-                    Ok(None::<()>)
-                },
-                fs2,
-            )
-            .await
-            .unwrap()
-            .unwrap();
+                Ok(())
+            }
+            .await;
+
+            OpenOptions::clear_scope().await;
+            res.unwrap();
         },
     )
     .await;
@@ -604,40 +602,38 @@ async fn test_async_file_bufread() {
         },
         async {
             let fs = get_fs().await;
-            let fs2 = fs.clone();
+            OpenOptions::set_scope(fs.clone()).await;
 
-            OpenOptions::in_scope::<Option<()>, String, _>(
-                async move {
-                    let mut file = OpenOptions::new()
-                        .read(true)
-                        .write(true)
-                        .create(true)
-                        .open("file_bufread")
-                        .await
-                        .unwrap();
-                    file.write_all(b"Hello world!").await.unwrap();
-                    file.shutdown().await.unwrap();
+            let res: Result<(), String> = async move {
+                let mut file = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .create(true)
+                    .open("file_bufread")
+                    .await
+                    .unwrap();
+                file.write_all(b"Hello world!").await.unwrap();
+                file.shutdown().await.unwrap();
 
-                    let file = OpenOptions::new()
-                        .read(true)
-                        .open("file_bufread")
-                        .await
-                        .unwrap();
+                let file = OpenOptions::new()
+                    .read(true)
+                    .open("file_bufread")
+                    .await
+                    .unwrap();
 
-                    let reader = tokio::io::BufReader::new(file);
-                    let mut lines = reader.lines();
-                    while let Some(line) = lines.next_line().await.unwrap() {
-                        eprintln!("Read line: {}", line);
-                        assert_eq!(line, "Hello world!");
-                    }
+                let reader = tokio::io::BufReader::new(file);
+                let mut lines = reader.lines();
+                while let Some(line) = lines.next_line().await.unwrap() {
+                    eprintln!("Read line: {}", line);
+                    assert_eq!(line, "Hello world!");
+                }
 
-                    Ok(None::<()>)
-                },
-                fs2,
-            )
-            .await
-            .unwrap()
-            .unwrap();
+                Ok(())
+            }
+            .await;
+
+            OpenOptions::clear_scope().await;
+            res.unwrap();
         },
     )
     .await;

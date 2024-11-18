@@ -2172,10 +2172,7 @@ impl EncryptedFs {
         // read
         let lock = self.opened_files_for_read.read().await;
         if let Some(set) = lock.get(&ino) {
-            for handle in set
-                .iter()
-                .filter(|h| skip_write_fh.map_or(true, |fh| **h != fh))
-            {
+            for handle in set.iter().filter(|h| skip_write_fh != Some(**h)) {
                 let guard = self.read_handles.read().await;
                 let ctx = guard.get(handle).unwrap().lock().await;
                 let set_attr: SetFileAttr = ctx.attr.clone().into();

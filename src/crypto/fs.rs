@@ -117,25 +117,6 @@ impl OpenOptions {
             .as_ref()
             .map(|scope| scope.clone())
     }
-
-    pub async fn in_scope<R, E, T: Future<Output = std::result::Result<R, E>>>(
-        f: T,
-        fs: Arc<EncryptedFs>,
-    ) -> FsResult<std::result::Result<R, E>> {
-        // set scope
-        let scope = Self::from_scope().await;
-        Self::set_scope(fs).await;
-
-        // run code
-        let res = f.await;
-
-        // clear scope
-        if scope.is_some() {
-            Self::clear_scope().await;
-        };
-
-        Ok(res)
-    }
 }
 
 impl Default for OpenOptions {

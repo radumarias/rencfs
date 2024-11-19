@@ -498,18 +498,7 @@ files. However, the content of the file could be bigger, and we read until the o
   pick up
   the new zeros bytes are written on truncating by increasing the size. If content is smaller, the read would stop and
   end-of-file of the actual content, so this would not be such a big issue
-- **What kind of metadata does it leak**: close to none. The filename, actual file size and other file attrs (times,
-  permissions, other flags) are kept encrypted. What it could possibly leak is the following
-    - If a directory has children, we keep those children in a directory with name as inode number and encrypted names
-      of children as files in it.
-      So we could see how many children a directory has.
-      However, we can't identify that actual directory name;
-      We can just see its inode number (internal representation like an ID for each file), but we cannot see the actual
-      filenames of the directory or children.
-      Also, we cannot identify which file content corresponds to a directory child
-    - Each file content is saved in a separate file, so we can see the size of the encrypted content but not the
-      actual filesize
-    - We can also see the last time the file was accessed
+- **What kind of metadata does it leak**: None, we encrypt filename, content, metadata and we hide files count, size amd all time fields
 - It's always recommended to use encrypted disks for at least your sensitive data; this project is not a replacement for
   that
 - To reduce the risk of the encryption key being exposed from memory, it's recommended to disable memory dumps on the

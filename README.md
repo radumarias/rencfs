@@ -48,8 +48,12 @@ It was [crate of the week](https://this-week-in-rust.org/blog/2024/08/14/this-we
 
 # Talks
 
-- [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](https://startech-rd.io/hitchhikers-guide-to/)
-- [Basics of cryptography and FUSE for building a filesystem in Rust](https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323)
+- [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust @meetup.com/star-tech-rd-reloaded and @OmniOpenCon](https://startech-rd.io/hitchhikers-guide-to/)
+- [Basics of cryptography, Authenticated Encryption, Rust in cryptography and how to build an encrypted filesystem @ITDays](https://www.youtube.com/live/HwmVxOl3pQg), [slides](https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=342563218323).
+
+
+Talk: https://startech-rd.io/hitchhikers-guide-to/
+Another talk about cryptography and FUSE: https://miro.com/app/board/uXjVLccxeCE=/?share_link_id=919818831100
 
 # Key features
 
@@ -98,7 +102,7 @@ changes at the next start. This makes the write operations atomic.
 
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 
-For detailed description of the various sequence flows please look into [Flows](docs/flows.md). 
+For detailed description of the various sequence flows please look into [Flows](docs/flows.md).
 
 # Stack
 

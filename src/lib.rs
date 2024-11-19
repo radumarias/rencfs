@@ -105,7 +105,8 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<()> {
-//!     tracing_subscriber::fmt().init();
+//!     use rencfs::encryptedfs::FsError;
+//! tracing_subscriber::fmt().init();
 //!
 //!     let data_dir = Path::new("/tmp/rencfs_data_test").to_path_buf();
 //!     let  _ = fs::remove_dir_all(data_dir.to_str().unwrap());

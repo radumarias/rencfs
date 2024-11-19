@@ -34,6 +34,7 @@ async fn main() -> Result<()> {
         false,
     )
     .await?;
+    dbg!(fs.exists(1));
 
     let file1 = SecretString::from_str("file1").unwrap();
     let (fh, attr) = fs

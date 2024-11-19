@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use shush_rs::{ExposeSecret, SecretBox, SecretString, SecretVec};
 use std::backtrace::Backtrace;
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 use std::fs::{DirEntry, File, OpenOptions, ReadDir};
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::num::{NonZeroUsize, ParseIntError};
@@ -555,11 +555,9 @@ pub struct EncryptedFs {
     opened_files_for_read: RwLock<HashMap<u64, HashSet<u64>>>,
     opened_files_for_write: RwLock<HashMap<u64, u64>>,
     // used for rw ops of actual serialization
-    // use std::sync::RwLock instead of tokio::sync::RwLock because we need to use it also in sync code in `DirectoryEntryIterator` and `DirectoryEntryPlusIterator`
     serialize_inode_locks: Arc<ArcHashMap<u64, RwLock<bool>>>,
     // used for the update op
     serialize_update_inode_locks: ArcHashMap<u64, Mutex<bool>>,
-    // use std::sync::RwLock instead of tokio::sync::RwLock because we need to use it also in sync code in `DirectoryEntryIterator` and `DirectoryEntryPlusIterator`
     serialize_dir_entries_ls_locks: Arc<ArcHashMap<String, RwLock<bool>>>,
     serialize_dir_entries_hash_locks: Arc<ArcHashMap<String, RwLock<bool>>>,
     read_write_locks: ArcHashMap<u64, RwLock<bool>>,
@@ -574,6 +572,16 @@ pub struct EncryptedFs {
     sizes_read: Mutex<HashMap<u64, AtomicU64>>,
     requested_read: Mutex<HashMap<u64, AtomicU64>>,
     read_only: bool,
+}
+
+impl Debug for EncryptedFs {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EncryptedFs")
+            .field("data_dir", &self.data_dir)
+            .field("cipher", &self.cipher)
+            .field("read_only", &self.read_only)
+            .finish()
+    }
 }
 
 impl EncryptedFs {
@@ -2142,8 +2150,7 @@ impl EncryptedFs {
     }
 
     fn next_handle(&self) -> u64 {
-        self.current_handle
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+        self.current_handle.fetch_add(1, Ordering::SeqCst)
     }
 
     /// Reset all handles for a file.
@@ -2446,6 +2453,7 @@ impl EncryptedFs {
         }
     }
 }
+
 pub struct CopyFileRangeReq {
     src_ino: u64,
     src_offset: u64,

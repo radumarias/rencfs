@@ -139,9 +139,8 @@ impl EncryptedFsFuse3 {
         cipher: Cipher,
         read_only: bool,
     ) -> FsResult<Self> {
-        Ok(Self {
-            fs: EncryptedFs::new(data_dir, password_provider, cipher, read_only).await?,
-        })
+        let fs = EncryptedFs::new(data_dir, password_provider, cipher, read_only).await?;
+        Ok(Self { fs })
     }
 
     fn get_fs(&self) -> Arc<EncryptedFs> {

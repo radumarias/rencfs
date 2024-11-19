@@ -72,8 +72,9 @@ impl PasswordProvider for PasswordProviderImpl {
         Some(SecretString::from_str("password").unwrap())
     }
 }
+
 #[allow(dead_code)]
-async fn setup(setup: TestSetup) -> SetupResult {
+async fn setup(setup: TestSetup) {
     let path = TESTS_DATA_DIR.join(setup.key);
     let read_only = setup.read_only;
     let data_dir_str = path.to_str().unwrap();
@@ -89,10 +90,14 @@ async fn setup(setup: TestSetup) -> SetupResult {
     .await
     .unwrap();
 
-    SetupResult {
+    let res = SetupResult {
         fs: Some(fs),
         setup,
-    }
+    };
+
+    let s = SETUP_RESULT.get_or(|| Mutex::new(None));
+    let mut s = s.lock().await;
+    *s = Some(res)
 }
 
 #[allow(dead_code)]
@@ -112,11 +117,7 @@ pub async fn run_test<T>(init: TestSetup, t: T)
 where
     T: Future,
 {
-    {
-        let s = SETUP_RESULT.get_or(|| Mutex::new(None));
-        let mut s = s.lock().await;
-        *s = Some(setup(init).await);
-    }
+    setup(init).await;
     t.await;
     teardown().await.unwrap();
 }

@@ -498,7 +498,7 @@ files. However, the content of the file could be bigger, and we read until the o
   pick up
   the new zeros bytes are written on truncating by increasing the size. If content is smaller, the read would stop and
   end-of-file of the actual content, so this would not be such a big issue
-- **What kind of metadata does it leak**: None, we encrypt filename, content, metadata and we hide files count, size amd all time fields
+- **What kind of metadata does it leak**: None, we encrypt filename, content, metadata and we hide files count, size and all time fields
 - It's always recommended to use encrypted disks for at least your sensitive data; this project is not a replacement for
   that
 - To reduce the risk of the encryption key being exposed from memory, it's recommended to disable memory dumps on the

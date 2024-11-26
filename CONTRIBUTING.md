@@ -6,7 +6,7 @@
 Unless you explicitly state otherwise, any Contribution intentionally submitted for inclusion in this project by you, as
 defined in the Apache License shall be dual-licensed as above, without any additional terms or conditions.
 
-1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel
+1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel and become familiar with the info in there
 2. Become familiar with docs and code by reading the [ramp-up](Ramp-up.md) guide
 3. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and
    be able to create your own branches and not need to fork the repo

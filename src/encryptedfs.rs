@@ -838,7 +838,7 @@ impl EncryptedFs {
         }
         let lock = self
             .serialize_dir_entries_hash_locks
-            .get_or_insert_with(hash_path.to_str().unwrap().to_string(), || {
+            .get_or_insert_with(hash_path.to_str().unwrap().to_owned(), || {
                 RwLock::new(false)
             });
         let guard = lock.read().await;
@@ -1150,7 +1150,7 @@ impl EncryptedFs {
                 }
             }
         };
-        let file_path = entry.path().to_str().unwrap().to_string();
+        let file_path = entry.path().to_str().unwrap().to_owned();
         // try from cache
         let lock = self.dir_entries_meta_cache.get().await?;
         let mut cache = lock.lock().await;
@@ -2038,7 +2038,7 @@ impl EncryptedFs {
                 attr.ino,
                 &DirectoryEntry {
                     ino: new_parent,
-                    name: SecretBox::new(Box::new("$..".to_string())),
+                    name: SecretBox::new(Box::new("$..".to_owned())),
                     kind: FileType::Directory,
                 },
             )
@@ -2347,7 +2347,7 @@ impl EncryptedFs {
                 .join(encrypted_name_clone.clone());
             let lock = self_clone
                 .serialize_dir_entries_ls_locks
-                .get_or_insert_with(file_path.to_str().unwrap().to_string(), || {
+                .get_or_insert_with(file_path.to_str().unwrap().to_owned(), || {
                     RwLock::new(false)
                 });
             let _guard = lock.write().await;
@@ -2376,7 +2376,7 @@ impl EncryptedFs {
             let file_path = parent_path.join(HASH_DIR).join(name);
             let lock = self_clone
                 .serialize_dir_entries_hash_locks
-                .get_or_insert_with(file_path.to_str().unwrap().to_string(), || {
+                .get_or_insert_with(file_path.to_str().unwrap().to_owned(), || {
                     RwLock::new(false)
                 });
             let _guard = lock.write().await;
@@ -2411,7 +2411,7 @@ impl EncryptedFs {
         let path = parent_path.join(HASH_DIR).join(name);
         let lock = self
             .serialize_dir_entries_hash_locks
-            .get_or_insert_with(path.to_str().unwrap().to_string(), || RwLock::new(false));
+            .get_or_insert_with(path.to_str().unwrap().to_owned(), || RwLock::new(false));
         let guard = lock.write().await;
         let (_, _, name): (u64, FileType, String) =
             bincode::deserialize_from(crypto::create_read(
@@ -2425,7 +2425,7 @@ impl EncryptedFs {
         let path = parent_path.join(LS_DIR).join(name);
         let lock = self
             .serialize_dir_entries_ls_locks
-            .get_or_insert_with(path.to_str().unwrap().to_string(), || RwLock::new(false));
+            .get_or_insert_with(path.to_str().unwrap().to_owned(), || RwLock::new(false));
         let _guard = lock.write().await;
         fs::remove_file(path)?;
         Ok(())

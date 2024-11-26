@@ -30,7 +30,7 @@ fn bench_read_1mb_chacha_file(c: &mut Criterion) {
             let mut reader = crypto::create_read(file, cipher, &key);
             black_box(&reader);
             io::copy(&mut reader, &mut io::sink()).unwrap();
-        })
+        });
     });
 }
 
@@ -52,7 +52,7 @@ fn bench_read_1mb_aes_file(c: &mut Criterion) {
             io::copy(&mut cursor_random, &mut writer).unwrap();
             black_box(&writer);
             writer.finish().unwrap();
-        })
+        });
     });
 }
 
@@ -79,7 +79,7 @@ fn bench_read_1mb_chacha_ram(c: &mut Criterion) {
             let mut reader = crypto::create_read(cursor, cipher, &key);
             black_box(&reader);
             io::copy(&mut reader, &mut io::sink()).unwrap();
-        })
+        });
     });
 }
 
@@ -106,7 +106,7 @@ fn bench_read_1mb_aes_ram(c: &mut Criterion) {
             let mut reader = crypto::create_read(cursor, cipher, &key);
             black_box(&reader);
             io::copy(&mut reader, &mut io::sink()).unwrap();
-        })
+        });
     });
 }
 

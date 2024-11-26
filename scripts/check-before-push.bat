@@ -2,7 +2,7 @@
 setlocal
 
 set CARGO_TERM_COLOR=always
-set RUSTFLAGS=-Dwarnings
+gsset RUSTFLAGS=-Dwarnings
 set RUSTDOCFLAGS=-Dwarnings
 
 if %errorlevel% neq 0 exit /b %errorlevel%

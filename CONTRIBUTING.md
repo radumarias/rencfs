@@ -1,12 +1,12 @@
 ## How to contribute
 
 > [!IMPORTANT]  
-> **These steps are a bit particular to this repo but you can mainly apply them to all repositories by changing the specifics.**
+> **These steps are more particular to this repo but mainly apply to all repositories; change the specifics.**
 
 Unless you explicitly state otherwise, any Contribution intentionally submitted for inclusion in this project by you, as
 defined in the Apache License shall be dual-licensed as above, without any additional terms or conditions.
 
-1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel and become familiar with the info in there
+1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel
 2. Become familiar with docs and code by reading the [ramp-up](Ramp-up.md) guide
 3. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and
    be able to create your own branches and not need to fork the repo
@@ -14,8 +14,8 @@ defined in the Apache License shall be dual-licensed as above, without any addit
    repo that you'll be working on. You can
    see [good for first issues](https://github.com/radumarias/rencfs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
    that you can pick from
-5. **Assign the issues you are working on to you and move them to the corresponding status column as you progress
-   on them. If the task is not an issue yet, convert it to an issue first**
+5. **Assign the issues you are working on to you and move them to the corresponding status column as you are progressing
+   on them. If the task is not an issue yet, convert it to issue first**
 6. Make the changes in your branch
 7. Add docs as they apply
 8. Add tests, benchmarks, and examples for your changes, if applicable
@@ -29,8 +29,7 @@ defined in the Apache License shall be dual-licensed as above, without any addit
     Make it executable in Linux and macOS
     with `chmod +x .git/hooks/pre-push` .This will run when you do `git push` and will make the push quite
     slow, but please give it time to complete as this helps to fix any issues locally and not rely just on
-    running `ci` on GitHub when you create the PR.
-    If you don't want to create this git hook then make sure before you push you run `check-before-push.sh` on Linux and `macOS` or `check-before-push.bat` on `Windows`
+    running `ci` on GitHub when you create the PR
 13. Commit and push your changes, and if there are any errors, fix them before you push them
 14. Create a `PR` back to the `parent` repo targeting the `main` branch and request review from
     owners of the repository by adding them to the `Reviewers` field

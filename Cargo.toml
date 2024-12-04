@@ -227,7 +227,7 @@ harness = false
 #significant_drop_tightening = "allow" # An update of parking_lot made this trigger in a lot of places.
 
 [profile.release]
-#panic = "abort"
+panic = "abort" # This leads to better optimizations and smaller binaries (and is the default in Wasm anyways).
 # Treat warnings as errors in release builds
 rustflags = ["-Dwarnings"]
 lto = true

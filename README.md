@@ -153,7 +153,7 @@ docker pull xorio42/rencfs
 Start a container to set up mount in it
 
 ```bash
-docker run -v ~/Downloads:/Downloads -it --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined xorio42/rencfs:latest /bin/sh
+docker run -v ~/Downloads:/share -it --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined xorio42/rencfs:latest /bin/sh
 ```
 
 **Replace `~/Downloads` with a path you want to share with the container.**
@@ -192,6 +192,14 @@ mkdir 1
 ls
 echo "test" > 1/test
 cat 1/test
+```
+
+You can also copy files from `/share`.
+
+```bash
+cd mnt
+cp /share/file1.txt .
+file file1.txt
 ```
 
 ## As a library

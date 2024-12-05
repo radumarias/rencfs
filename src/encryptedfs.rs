@@ -1677,7 +1677,7 @@ impl EncryptedFs {
                 buf.len()
             );
         }
-        info!(
+        warn!(
             "written uncommited for {ino} size {}",
             self.sizes_write
                 .lock()

@@ -153,19 +153,21 @@ docker pull xorio42/rencfs
 Start a container to set up mount in it
 
 ```bash
-docker run -it --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined xorio42/rencfs:latest /bin/sh
+docker run -v ~/Downloads:/Downloads -it --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined xorio42/rencfs:latest /bin/sh
 ```
+
+**Replace `~/Downloads` with a path you want to share with the container.**
 
 In the container, create mount and data directories
 
 ```bash
-mkdir fsmnt && mkdir fsdata
+mkdir mnt && mkdir data
 ```
 
 Start `rencfs`
 
 ```bash
-rencfs mount --mount-point fsmnt --data-dir fsdata
+rencfs mount --mount-point mnt --data-dir data -l WARN
 ```
 
 Enter a password for encryption.
@@ -179,13 +181,13 @@ docker ps
 In another terminal, attach to the running container with the above ID
 
 ```bash
-docker exec -it <ID> /bin/sh
+docker exec -it <CONTAINER-ID> /bin/sh
 ```
 
-From here, you can play with it by creating files in `fsmnt` directory
+From here, you can play with it by creating files in `mnt` directory
 
 ```bash
-cd fsmnt
+cd mnt
 mkdir 1
 ls
 echo "test" > 1/test

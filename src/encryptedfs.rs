@@ -1677,15 +1677,15 @@ impl EncryptedFs {
                 buf.len()
             );
         }
-        warn!(
-            "written uncommited for {ino} size {}",
-            self.sizes_write
-                .lock()
-                .await
-                .get(&ino)
-                .unwrap()
-                .load(Ordering::SeqCst)
-        );
+        // warn!(
+        //     "written uncommited for {ino} size {}",
+        //     self.sizes_write
+        //         .lock()
+        //         .await
+        //         .get(&ino)
+        //         .unwrap()
+        //         .load(Ordering::SeqCst)
+        // );
 
         Ok(len)
     }

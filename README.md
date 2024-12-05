@@ -114,14 +114,14 @@ For detailed description of the various sequence flows please look into [Flows](
 # Alternatives
 
 - [Alternatives](https://www.libhunt.com/r/rencfs)
-- [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
-- [CryFS](https://www.cryfs.org/)
-- [gocryptfs](https://nuetzlich.net/gocryptfs/)
-- [fscrypt](https://www.kernel.org/doc/html/v4.18/filesystems/fscrypt.html)
-- [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
 - [Cryptomator](https://cryptomator.org/)
+- [gocryptfs](https://nuetzlich.net/gocryptfs/)
+- [VeraCrypt](https://www.veracrypt.fr/code/VeraCrypt/?h=NewSysEncWizard)
 - [TrueCrypt](https://truecrypt.sourceforge.net/)
 - [DroidFS, F-Droid](https://f-droid.org/en/packages/sushi.hardcore.droidfs/)
+- [EncFS](https://vgough.github.io/encfs/) and [alternatives](https://alternativeto.net/software/encfs/)
+- [CryFS](https://www.cryfs.org/)
+- [fscrypt](https://www.kernel.org/doc/html/v4.18/filesystems/fscrypt.html)
 - [LUKS, dm-crypt](https://guardianproject.info/archive/luks/)
 - [AES Crypt](https://www.aescrypt.com/)
 - [Windows BitLocker](https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/)
@@ -299,7 +299,7 @@ You can see more [here](https://crates.io/crates/rencfs)
 
 ## Browser
 
-If you want to give it a quick try and not setup anything locally you can  
+If you want to give it a quick try and not setup anything locally, you can  
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/radumarias/rencfs)
 
 [![Open Rustlings On Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/?repo=radumarias%2Frencfs&ref=main)
@@ -307,7 +307,7 @@ If you want to give it a quick try and not setup anything locally you can
 You can compile it, run it, and give it a quick try in the browser. After you start it from above
 
 ```bash
-sudo apt-get update && sudo apt-get install fuse3
+apt-get update && apt-get install fuse3
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 mkdir mnt && mkdir data
 cargo run --release -- mount -m mnt -d data

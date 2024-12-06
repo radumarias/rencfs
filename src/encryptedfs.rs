@@ -1529,7 +1529,7 @@ impl EncryptedFs {
                     .load(Ordering::SeqCst);
                 info!("written for {ino} {write_size}");
                 if attr.size != write_size {
-                    error!("size mismatch write {} {}", write_size, attr.size);
+                    // error!("size mismatch write {} {}", write_size, attr.size);
                 }
                 let requested_read = self
                     .requested_read
@@ -1672,10 +1672,10 @@ impl EncryptedFs {
             .unwrap()
             .fetch_add(len as u64, Ordering::SeqCst);
         if buf.len() != len {
-            error!(
-                "size mismatch in write(), size {size} offset {offset} buf_len {} len {len}",
-                buf.len()
-            );
+            // error!(
+            //     "size mismatch in write(), size {size} offset {offset} buf_len {} len {len}",
+            //     buf.len()
+            // );
         }
         // warn!(
         //     "written uncommited for {ino} size {}",

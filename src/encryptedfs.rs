@@ -1650,7 +1650,7 @@ impl EncryptedFs {
             (writer.stream_position()?, len)
         };
 
-        let size = ctx.attr.size;
+        // let size = ctx.attr.size;
         if pos > ctx.attr.size {
             // if we write pass file size set the new size
             debug!("setting new file size {}", pos);

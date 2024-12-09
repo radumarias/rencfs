@@ -177,7 +177,7 @@ pub extern "system" fn Java_RustLibrary_mount(
     struct PasswordProviderImpl(SecretVec<u8>); // use secretvec instead of string
     impl PasswordProvider for PasswordProviderImpl {
         fn get_password(&self) -> Option<SecretString> {
-            let password_str = String::from_utf8_lossy(self.0.expose_secret()); 
+            let password_str = String::from_utf8_lossy(self.0.expose_secret());
             Some(SecretString::from_str(&password_str).unwrap())
         }
     }

@@ -44,7 +44,6 @@ argon2 = "0.5.3"
 keyring = "2.3.2"
 retainer = "0.3.0"
 num-format = "0.4.4"
-ring = "0.17.8"
 hex = "0.4.3"
 rand_chacha = "0.3.1"
 lru = "0.12.3"
@@ -58,9 +57,25 @@ subtle = "2.6.1"
 bon = "2.2.0"
 shush-rs = "0.1.10"
 criterion = { version = "0.5.1", features = ["html_reports"] }
+ring = { version = "0.17.8", optional = true}
+aead = {version = "0.5.2", optional = true}
+aes = { version = "0.9.0-pre.2", optional = true }
+aes-gcm = { version = "0.10.3", optional = true }
+aes-gcm-siv = { version = "0.11.1", optional = true}
+aes-siv = { version = "0.7.0", optional = true}
+ascon-aead = {version = "0.4.2", optional = true }
+chacha20poly1305 = { version = "0.10.1", optional = true}
+deoxys = { version = "0.1.0", optional = true} 
+eax = { version = "0.5.0", optional = true}
+secrets = { version = "^1.2.0", features = ["use-libsodium-sys"], optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 fuse3 = { version = "0.7.2", features = ["tokio-runtime", "unprivileged"] }
+
+[features]
+provider_ring = ["ring"]
+provider_rust_crypto = ["dep:aes-gcm", "dep:aes", "dep:aes-gcm", "dep:aes-gcm-siv", "dep:aes-siv", "dep:ascon-aead", "dep:chacha20poly1305", "dep:deoxys", "dep:eax", "dep:secrets"]
+default = ["provider_rust_crypto"]
 
 [[bench]]
 name = "crypto_read"

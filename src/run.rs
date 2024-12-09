@@ -197,13 +197,38 @@ fn get_cli_args() -> ArgMatches {
 async fn async_main() -> Result<()> {
     let matches = get_cli_args();
 
-    let cipher: String = matches.get_one::<String>("cipher").unwrap().to_string();
-    let cipher = Cipher::from_str(cipher.as_str());
-    if cipher.is_err() {
-        error!("Invalid cipher");
+    let alg: String = matches.get_one::<String>("cipher").unwrap().to_string();
+    let alg = Cipher::from_str(alg.as_str());
+  
+    let provider: String = matches.get_one::<String>("provider").unwrap().to_string();
+    let cipher_meta_res = match provider {
+        CipherMeta::RustCrypto.to_string() => {
+            match RustCryptoAlgorithm::from_str(alg) {
+                Ok(alg) => Ok(CipherMeta::RustCrypto { alg }),
+                Err(err) => Err("Invalid cipher"),
+            }
+        },
+        CipherMeta::Ring.to_string() => {
+            match RingAlgorithm::from_str(alg) {
+                Ok(alg) => Ok(CipherMeta::Ring { alg }),
+                Err(err) => Err("Invalid cipher"),
+            }
+        },
+        _ => Err("Invalid provider"),
+    };
+    if cipher_meta_res.is_err() {
+        error!(cipher_meta = %cipher_meta_res.unwrap_err());
         return Err(ExitStatusError::Failure(1).into());
     }
-    let cipher = cipher.unwrap();
+    let cipher_meta = cipher_meta_res.unwrap();
+
+    // let cipher: String = matches.get_one::<String>("cipher").unwrap().to_string();
+    // let cipher = Cipher::from_str(cipher.as_str());
+    // if cipher.is_err() {
+    //     error!("Invalid cipher");
+    //     return Err(ExitStatusError::Failure(1).into());
+    // }
+    // let cipher = cipher.unwrap();
 
     match matches.subcommand() {
         Some(("change-password", matches)) => run_change_password(cipher, matches).await?,

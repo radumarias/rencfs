@@ -2,24 +2,32 @@ use std::io;
 use std::sync::{Arc, Mutex};
 
 // use crate::cipher::orion::OrionCipher;
+#[cfg(feature = "ring")]
 use ::ring::aead::{Nonce, NonceSequence};
+#[cfg(feature = "ring")]
 use ::ring::error::Unspecified;
 use rand_core::RngCore;
 use secrets::SecretVec;
 use strum_macros::{Display, EnumIter};
 
+#[cfg(feature = "ring")]
 use crate::cipher::ring::RingCipher;
 // use crate::cipher::sodiumoxide::SodiumoxideCipher;
 use crate::crypto;
 
 // mod orion;
+#[cfg(feature = "ring")]
 pub(crate) mod ring;
+#[cfg(feature = "default")]
 pub(crate) mod rust_crypto;
 // pub(crate) mod sodiumoxide;
 
+
 #[derive(Debug, Clone, Copy, EnumIter, Display)]
 pub enum CipherMeta {
+    #[cfg(feature = "ring")]
     Ring { alg: RingAlgorithm },
+    #[cfg(feature = "default")]
     RustCrypto { alg: RustCryptoAlgorithm },
     // Sodiumoxide { alg: SodiumoxideAlgorithm },
     // Orion { alg: OrionAlgorithm },
@@ -47,6 +55,7 @@ pub trait Cipher: Send + Sync {
 }
 
 #[derive(Debug, Clone, Copy, EnumIter, Display, Default)]
+#[cfg(feature = "ring")]
 pub enum RingAlgorithm {
     ChaCha20Poly1305,
     Aes128Gcm,
@@ -55,6 +64,7 @@ pub enum RingAlgorithm {
 }
 
 #[derive(Debug, Clone, Copy, EnumIter, Display, Default)]
+#[cfg(feature = "default")]
 pub enum RustCryptoAlgorithm {
     ChaCha20Poly1305,
     XChaCha20Poly1305,
@@ -140,7 +150,9 @@ impl CipherMeta {
 
 fn key_len(cipher_meta: CipherMeta) -> usize {
     match cipher_meta {
+        #[cfg(feature = "ring")]
         CipherMeta::Ring { alg } => ring::key_len(alg),
+        #[cfg(feature = "default")]
         CipherMeta::RustCrypto { alg } => rust_crypto::key_len(alg),
         // CipherMeta::Sodiumoxide { alg } => sodiumoxide::key_len(alg),
         // CipherMeta::Orion { alg } => orion::key_len(alg),
@@ -149,7 +161,9 @@ fn key_len(cipher_meta: CipherMeta) -> usize {
 
 fn nonce_len(cipher_meta: CipherMeta) -> usize {
     match cipher_meta {
+        #[cfg(feature = "ring")]
         CipherMeta::Ring { alg } => ring::nonce_len(alg),
+        #[cfg(feature = "default")]
         CipherMeta::RustCrypto { alg } => rust_crypto::nonce_len(alg),
         // CipherMeta::Sodiumoxide { alg } => sodiumoxide::nonce_len(alg),
         // CipherMeta::Orion { alg } => orion::nonce_len(alg),
@@ -158,7 +172,9 @@ fn nonce_len(cipher_meta: CipherMeta) -> usize {
 
 fn tag_len(cipher_meta: CipherMeta) -> usize {
     match cipher_meta {
+        #[cfg(feature = "ring")]
         CipherMeta::Ring { alg } => ring::tag_len(alg),
+        #[cfg(feature = "default")]
         CipherMeta::RustCrypto { alg } => rust_crypto::tag_len(alg),
         // CipherMeta::Sodiumoxide { alg } => sodiumoxide::tag_len(alg),
         // CipherMeta::Orion { alg } => orion::tag_len(alg),
@@ -171,7 +187,9 @@ fn overhead(cipher_meta: CipherMeta) -> usize {
 
 pub fn new(cipher_meta: CipherMeta, key: &SecretVec<u8>) -> io::Result<Box<dyn Cipher>> {
     match cipher_meta {
+        #[cfg(feature = "ring")]
         CipherMeta::Ring { alg } => Ok(Box::new(RingCipher::new(alg, key)?)),
+        #[cfg(feature = "default")]
         CipherMeta::RustCrypto { alg } => rust_crypto::new(alg, key),
         // CipherMeta::Sodiumoxide { alg } => Ok(Box::new(SodiumoxideCipher::new(alg, key)?)),
         // CipherMeta::Orion { alg } => Ok(Box::new(OrionCipher::new(alg, key)?)),

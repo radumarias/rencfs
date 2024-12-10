@@ -14,14 +14,14 @@ use hex::FromHexError;
 use num_format::{Locale, ToFormattedString};
 use rand_chacha::rand_core::{CryptoRng, RngCore, SeedableRng};
 use rand_chacha::ChaCha20Rng;
-use ring::aead::{AES_256_GCM, CHACHA20_POLY1305};
+
 use serde::{Deserialize, Serialize};
 use shush_rs::{ExposeSecret, SecretString, SecretVec};
 use strum_macros::{Display, EnumIter, EnumString};
 use thiserror::Error;
 use tracing::{debug, error, instrument};
 use write::CryptoInnerWriter;
-
+use crate::cipher::rust_crypto;
 use crate::crypto::read::{CryptoRead, CryptoReadSeek, RingCryptoRead};
 use crate::crypto::write::{CryptoWrite, CryptoWriteSeek, RingCryptoWrite};
 use crate::encryptedfs::FsResult;
@@ -47,8 +47,14 @@ impl Cipher {
     #[allow(clippy::use_self)]
     pub fn key_len(&self) -> usize {
         match self {
-            Cipher::ChaCha20Poly1305 => CHACHA20_POLY1305.key_len(),
-            Cipher::Aes256Gcm => AES_256_GCM.key_len(),
+            #[cfg(feature = "ring")]
+            Cipher::ChaCha20Poly1305 => ring::CHACHA20_POLY1305.key_len(),
+            #[cfg(feature = "ring")]
+            Cipher::Aes256Gcm => ring::AES_256_GCM.key_len(),
+            #[cfg(feature = "default")]
+            Cipher::ChaCha20Poly1305 => rust_crypto::RustCryptoAlgorithm::chacha20poly1305.key_len(),
+            #[cfg(feature = "default")]
+            Cipher::Aes256Gcm => rust_crypto::RustCryptoAlgorithm::Aes256Gcm.key_len(),
         }
     }
 
@@ -133,8 +139,14 @@ fn create_ring_write<W: CryptoInnerWriter + Send + Sync>(
     key: &SecretVec<u8>,
 ) -> RingCryptoWrite<W> {
     let algorithm = match cipher {
-        Cipher::ChaCha20Poly1305 => &CHACHA20_POLY1305,
-        Cipher::Aes256Gcm => &AES_256_GCM,
+        #[cfg(feature = "ring")]
+        Cipher::ChaCha20Poly1305 => &ring::CHACHA20_POLY1305,
+        #[cfg(feature = "ring")]
+        Cipher::Aes256Gcm => &ring::AES_256_GCM,
+        #[cfg(feature = "default")]
+        Cipher::ChaCha20Poly1305 => &rust_crypto::RustCryptoAlgorithm::chacha20poly1305,
+        #[cfg(feature = "default")]
+        Cipher::Aes256Gcm => &rust_crypto::RustCryptoAlgorithm::Aes256Gcm,
     };
     RingCryptoWrite::new(writer, false, algorithm, key)
 }
@@ -145,8 +157,14 @@ fn create_ring_write_seek<W: CryptoInnerWriter + Seek + Read + Send + Sync>(
     key: &SecretVec<u8>,
 ) -> RingCryptoWrite<W> {
     let algorithm = match cipher {
-        Cipher::ChaCha20Poly1305 => &CHACHA20_POLY1305,
-        Cipher::Aes256Gcm => &AES_256_GCM,
+        #[cfg(feature = "ring")]
+        Cipher::ChaCha20Poly1305 => &ring::CHACHA20_POLY1305,
+        #[cfg(feature = "ring")]
+        Cipher::Aes256Gcm => &ring::AES_256_GCM,
+        #[cfg(feature = "default")]
+        Cipher::ChaCha20Poly1305 => &rust_crypto::RustCryptoAlgorithm::chacha20poly1305,
+        #[cfg(feature = "default")]
+        Cipher::Aes256Gcm => &rust_crypto::RustCryptoAlgorithm::Aes256Gcm,
     };
     RingCryptoWrite::new(writer, true, algorithm, key)
 }
@@ -157,8 +175,14 @@ fn create_ring_read<R: Read + Send + Sync>(
     key: &SecretVec<u8>,
 ) -> RingCryptoRead<R> {
     let algorithm = match cipher {
-        Cipher::ChaCha20Poly1305 => &CHACHA20_POLY1305,
-        Cipher::Aes256Gcm => &AES_256_GCM,
+        #[cfg(feature = "ring")]
+        Cipher::ChaCha20Poly1305 => &ring::CHACHA20_POLY1305,
+        #[cfg(feature = "ring")]
+        Cipher::Aes256Gcm => &ring::AES_256_GCM,
+        #[cfg(feature = "default")]
+        Cipher::ChaCha20Poly1305 => &rust_crypto::RustCryptoAlgorithm::chacha20poly1305,
+        #[cfg(feature = "default")]
+        Cipher::Aes256Gcm => &rust_crypto::RustCryptoAlgorithm::Aes256Gcm,
     };
     RingCryptoRead::new(reader, algorithm, key)
 }
@@ -169,8 +193,14 @@ fn create_ring_read_seek<R: Read + Seek + Send + Sync>(
     key: &SecretVec<u8>,
 ) -> RingCryptoRead<R> {
     let algorithm = match cipher {
-        Cipher::ChaCha20Poly1305 => &CHACHA20_POLY1305,
-        Cipher::Aes256Gcm => &AES_256_GCM,
+        #[cfg(feature = "ring")]
+        Cipher::ChaCha20Poly1305 => &ring::CHACHA20_POLY1305,
+        #[cfg(feature = "ring")]
+        Cipher::Aes256Gcm => &ring::AES_256_GCM,
+        #[cfg(feature = "default")]
+        Cipher::ChaCha20Poly1305 => &rust_crypto::RustCryptoAlgorithm::chacha20poly1305,
+        #[cfg(feature = "default")]
+        Cipher::Aes256Gcm => &rust_crypto::RustCryptoAlgorithm::Aes256Gcm,
     };
     RingCryptoRead::new_seek(reader, algorithm, key)
 }

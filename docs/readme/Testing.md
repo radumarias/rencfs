@@ -45,7 +45,7 @@ Do steps 2, 8, 9, 10, 11, 12.
   git pull
   cargo run --release -- mount -m mnt -d data
   ```
-2. Input a password and confirm it the first time.****
+2. Input a password and confirm it the first time
 3. Copy test files from your machine to `tmp` folder in `VSCode`, by `Ctrl + C / Ctrl + V` or by Drag and Drop
 4. Copy files and folders from `tmp` to `mnt` and do all kinds of operations on `nnt` folder
 5. Make sure files were copied successfully by right-clicking a file and then `Download...` and save it to local machine

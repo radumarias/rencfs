@@ -65,6 +65,8 @@ jobs:
       IMAGE_NAME: ${{ github.event.repository.name }}
       IMAGE_TAG: latest
       SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
+    with:
+      file: docker/Dockerfile
     steps:
       - uses: actions/checkout@v4
 

@@ -37,7 +37,8 @@ Do steps 1, 7, 8 from above.
 
 #### In Browser
 
-Do step 9 from above. This will open VSCode in browwser.
+Do step 9 from above. This will open VSCode in browwser.  
+Instead of taking step 8 and the above, you can directly click on the container name.
 
 #### In local VSCode
 

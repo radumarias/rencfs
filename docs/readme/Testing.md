@@ -4,41 +4,50 @@ We'd appreciate it if you could help test the app. For now, the filesystem mount
 
 Here are some ways you can do it.
 
-## Testing in VSCode
-
-If you want to test quickly and have just VSCode installed locally.
+## Testing in VSCode in browser and locally
 
 ### First setup
 
-1. Install VSCode based on your OS
-2. Open the [repo](https://github.com/radumarias/rencfs)
-3. Press `Code` button  
+1. Open the [repo](https://github.com/radumarias/rencfs)
+2. Press `Code` button  
   ![image](https://github.com/user-attachments/assets/7c0e8872-fe1f-44b9-a833-2586ade4f618)
-4. Create codespace on main  
+3. Create codespace on main  
   ![image](https://github.com/user-attachments/assets/5fee55f6-ef54-427c-b790-c135312d3355)
-5. This will create the container on GitHub. If it asks you to setup config, select the minimum possible CPU and RAM
-6. Start it and leave it to finish
-7. Go back to the repo root. You can close the current tab
-8. Press `Code` button
+4. This will create the container on GitHub. If it asks you to setup config, select the minimum possible CPU and RAM
+5. Start it and leave it to finish
+6. Go back to the repo root. You can close the current tab
+7. Press `Code` button
   ![image](https://github.com/user-attachments/assets/0baec7da-cbbd-4186-a82b-887e18c0c85d)
-9. Press ```...``` right to the instance in the list
+8. Press ```...``` right to the instance in the list
   ![image](https://github.com/user-attachments/assets/c621c258-009d-46bf-adb7-f81a3d7131f6)
-10. Press `Open in Visual Studio Code`
-11. Allow it to finish
-12. Open a terminal in VSCode from the menu `Terminal -> New Terminal`
-13. If you start it for the first time, install Rust and create a `tmp` folder, which we will use to copy files from our machine, by typing these in terminal:
+9. Press `Open in Browser`
+10. Allow it to finish
+11. Open a terminal in VSCode from the menu `Terminal -> New Terminal`
+12. Install Rust and create a `tmp` folder, which we will use to copy files from our machine, by typing these in terminal:
   ```bash
-  mkdir tmp
-  
   apt-get update && apt-get install fuse3
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   mkdir mnt && mkdir data
   ```
   Press enter on Rust installation, accepting all defaults
 
-### Each resume and after Fist setup
+### Each resume and after fist setup
 
-Do steps 2, 8, 9, 10, 11, 12.
+Do steps 1, 7, 8 from above.
+
+#### In Browser
+
+Do step 9 from above. This will open VSCode in browwser.
+
+#### In local VSCode
+
+Make sure you have VSCode installed locally, based on your OS
+
+After step 8 press `Open in Visual Studio Code`.
+
+#### Continue
+
+Do step 11 from above.
 
 1. Type this in terminal, which will fetch the changes from the repo (if there are conflicts, accept Theirs):
   ```bash

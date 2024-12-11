@@ -82,6 +82,7 @@ jobs:
 
       - name: java-bridge clippy
         run: |
+          cd java-bridge
           cargo clippy --all-targets --release -- \
             -A clippy::similar_names \
             -A clippy::too_many_arguments \
@@ -92,7 +93,9 @@ jobs:
         shell: bash
 
       - name: java-bridge doc
-        run: cargo doc --workspace --all-features --no-deps
+        run: |
+          cd java-bridge
+          cargo doc --workspace --all-features --no-deps
 
       - name: java-bridge tests
         if: matrix.os != 'windows-latest'

@@ -4,7 +4,10 @@ We'd appreciate it if you could help test the app. For now, the filesystem mount
 
 Here are some ways you can do it.
 
-## Testing in VSCode in browser and locally
+## Testing in browser or in local VSCode
+
+This will create a Codespace instance on GitHub, which is a Linux container, so we will be able to test in it.  
+Instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month free for Codespace, which means 60 hours for that instance. We will connect to it from yhe browser of local VSCode.
 
 ### First setup
 

@@ -28,7 +28,6 @@ Instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month free fo
 11. Open a terminal in VSCode from the menu `Terminal -> New Terminal`
   On the browser you can find the menu in the top left 3 lines icon
   ![image](https://github.com/user-attachments/assets/48681023-e450-49b3-8526-ec0323be0d40)
-
 12. Install Rust and create a `tmp` folder, which we will use to copy files from our machine, by typing these in terminal:
   ```bash
   apt-get update && apt-get install fuse3

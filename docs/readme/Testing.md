@@ -4,7 +4,10 @@ We'd appreciate it if you could help test the app. For now, the filesystem mount
 
 Here are some ways you can do it.
 
-## Testing in VSCode in browser and locally
+## Testing in the browser or in local VSCode
+
+This will create a Codespace instance on GitHub, which is a Linux container, so we will be able to test it.  
+The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month free for Codespace, which means 60 hours for that instance. We will connect to it from the local VSCode browser.
 
 ### First setup
 
@@ -23,6 +26,8 @@ Here are some ways you can do it.
 9. Press `Open in Browser`
 10. Allow it to finish
 11. Open a terminal in VSCode from the menu `Terminal -> New Terminal`
+  On the browser, you can find the menu in the top left 3 lines icon
+  ![image](https://github.com/user-attachments/assets/48681023-e450-49b3-8526-ec0323be0d40)
 12. Install Rust and create a `tmp` folder, which we will use to copy files from our machine, by typing these in terminal:
   ```bash
   apt-get update && apt-get install fuse3
@@ -31,20 +36,20 @@ Here are some ways you can do it.
   ```
   Press enter on Rust installation, accepting all defaults
 
-### Each resume and after fist setup
+### Each resume and after the first setup
 
-Do steps 1, 7, 8 from above.
+Do steps 1, 7, and 8 from above.
 
 #### In Browser
 
-Do step 9 from above. This will open VSCode in browwser.  
+Do step 9 from above. This will open VSCode in the browser.  
 Instead of taking step 8 and the above, you can directly click on the container name.
 
 #### In local VSCode
 
 Make sure you have VSCode installed locally, based on your OS
 
-After step 8 press `Open in Visual Studio Code`.
+After step 8, press `Open in Visual Studio Code`.
 
 #### Continue
 

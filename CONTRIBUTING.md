@@ -7,7 +7,7 @@ Unless you explicitly state otherwise, any Contribution intentionally submitted 
 defined in the Apache License shall be dual-licensed as above, without any additional terms or conditions.
 
 1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel
-2. Become familiar with docs and code by reading the [ramp-up](Ramp-up.md) guide
+2. Become familiar with docs and code by reading the [ramp-up](docs/readme/Ramp-up.md) guide
 3. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and
    be able to create your own branches and not need to fork the repo
 4. Pick an open issue or a task in the corresponding [project](https://github.com/users/radumarias/projects/1) for the
@@ -24,7 +24,8 @@ defined in the Apache License shall be dual-licensed as above, without any addit
    and [VSCode](https://code.visualstudio.com/docs/languages/rust#_formatting)
 10. `cargo clippy --all --release` and fix any errors
 11. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
-12. Create a `git` `push hook` file in `.git/hooks/pre-push` with [pre-push](scripts/git-hooks/linux-macos/pre-push) content
+12. Create a `git` `push hook` file in `.git/hooks/pre-push` with [pre-push](scripts/git-hooks/linux-macos/pre-push)
+    content
     on `Linux` and `macOS`, and [pre-push](scripts/git-hooks/windows/pre-push) on `Windows`.
     Make it executable in Linux and macOS
     with `chmod +x .git/hooks/pre-push` .This will run when you do `git push` and will make the push quite

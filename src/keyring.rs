@@ -33,15 +33,15 @@ mod tests {
     #[test]
     fn test_save() {
         let password = SecretString::from_str("password").unwrap();
-        assert!(save(&password, "test").is_ok());
+        assert!(save(&password, "test1").is_ok());
     }
 
     #[test]
     fn test_get() {
         let password = SecretString::from_str("password").unwrap();
-        save(&password, "test").unwrap();
+        save(&password, "test2").unwrap();
         assert_eq!(
-            get("test").unwrap().expose_secret(),
+            get("test2").unwrap().expose_secret(),
             password.expose_secret()
         );
     }
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn test_remove() {
         let password = SecretString::from_str("password").unwrap();
-        save(&password, "test").unwrap();
-        assert!(remove("test").is_ok());
+        save(&password, "test3").unwrap();
+        assert!(remove("test3").is_ok());
     }
 }

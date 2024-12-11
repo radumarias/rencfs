@@ -692,7 +692,7 @@ impl EncryptedFs {
         if self.exists_by_name(parent, name)? {
             return Err(FsError::AlreadyExists);
         }
-        self.validate_filename(&name)?;
+        self.validate_filename(name)?;
 
         // spawn on a dedicated runtime to not interfere with other higher priority tasks
         let self_clone = self
@@ -2014,7 +2014,7 @@ impl EncryptedFs {
         if !self.exists_by_name(parent, name)? {
             return Err(FsError::NotFound("name not found"));
         }
-        self.validate_filename(&new_name)?;
+        self.validate_filename(new_name)?;
 
         if parent == new_parent && name.expose_secret() == new_name.expose_secret() {
             // no-op

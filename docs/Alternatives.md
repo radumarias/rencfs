@@ -16,7 +16,7 @@
 - [ZenCrypt](https://play.google.com/store/apps/details?id=com.zestas.cryptmyfiles&hl=en)
 - [Hat.sh](https://hat.sh/)
 
-- What separates us
+## What separates us
 
-  [Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offer all the key functionalities we do, seems like there are none :)  
+[Asked](https://chatgpt.com/share/66e7a5a5-d254-8003-9359-9b1556b75fe9) ChatGPT if there are other solutions out there which offer all the key functionalities we do, seems like there are none :)  
 You can see the [key features](README.md#key-features) that separate us.

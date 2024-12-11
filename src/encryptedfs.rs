@@ -407,7 +407,7 @@ impl From<TimesFileAttr> for SetFileAttr {
 #[derive(Debug, Clone)]
 pub struct DirectoryEntry {
     pub ino: u64,
-    pub name: SecretBox<String>,
+    pub name: SecretString,
     pub kind: FileType,
 }
 
@@ -423,7 +423,7 @@ impl PartialEq for DirectoryEntry {
 #[derive(Debug)]
 pub struct DirectoryEntryPlus {
     pub ino: u64,
-    pub name: SecretBox<String>,
+    pub name: SecretString,
     pub kind: FileType,
     pub attr: FileAttr,
 }
@@ -567,7 +567,7 @@ pub struct EncryptedFs {
     self_weak: std::sync::Mutex<Option<Weak<Self>>>,
     attr_cache: ExpireValue<RwLock<LruCache<u64, FileAttr>>, FsError, AttrCacheProvider>,
     dir_entries_name_cache:
-        ExpireValue<Mutex<LruCache<String, SecretBox<String>>>, FsError, DirEntryNameCacheProvider>,
+        ExpireValue<Mutex<LruCache<String, SecretString>>, FsError, DirEntryNameCacheProvider>,
     dir_entries_meta_cache:
         ExpireValue<Mutex<DirEntryMetaCache>, FsError, DirEntryMetaCacheProvider>,
     sizes_write: Mutex<HashMap<u64, AtomicU64>>,
@@ -1992,9 +1992,9 @@ impl EncryptedFs {
     pub async fn rename(
         &self,
         parent: u64,
-        name: &SecretBox<String>,
+        name: &SecretString,
         new_parent: u64,
-        new_name: &SecretBox<String>,
+        new_name: &SecretString,
     ) -> FsResult<()> {
         if self.read_only {
             return Err(FsError::ReadOnly);
@@ -2132,8 +2132,8 @@ impl EncryptedFs {
     /// Change the password of the filesystem used to access the encryption key.
     pub async fn passwd(
         data_dir: &Path,
-        old_password: SecretBox<String>,
-        new_password: SecretBox<String>,
+        old_password: SecretString,
+        new_password: SecretString,
         cipher: Cipher,
     ) -> FsResult<()> {
         check_structure(data_dir, false).await?;

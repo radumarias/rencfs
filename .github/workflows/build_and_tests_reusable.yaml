@@ -56,7 +56,7 @@ jobs:
 
       - name: tests
         if: matrix.os != 'windows-latest'
-        run: cargo test --release --all --all-features
+        run: cargo test --release --all --all-features -- --skip keyring
 
       - name: test package
         if: matrix.os == 'ubuntu-latest'

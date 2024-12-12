@@ -34,6 +34,7 @@ mod tests {
     fn test_save() {
         let password = SecretString::from_str("password").unwrap();
         assert!(save(&password, "test1").is_ok());
+        remove("test1").unwrap();
     }
 
     #[test]
@@ -44,6 +45,7 @@ mod tests {
             get("test2").unwrap().expose_secret(),
             password.expose_secret()
         );
+        remove("test2").unwrap();
     }
 
     #[test]

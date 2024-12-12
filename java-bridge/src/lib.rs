@@ -13,7 +13,7 @@ use rencfs::crypto::Cipher;
 use rencfs::encryptedfs::PasswordProvider;
 use rencfs::log::log_init;
 use rencfs::mount::{create_mount_point, umount, MountHandle};
-use shush_rs::{ExposeSecret, SecretString, SecretVec};
+use shush_rs::SecretString;
 use std::collections::BTreeMap;
 use std::ops::Add;
 use std::path::Path;
@@ -119,7 +119,7 @@ pub extern "system" fn Java_RustLibrary_mount(
     let mount_path: String = env.get_string(&mnt).unwrap().into();
     let data_dir_path: String = env.get_string(&data_dir).unwrap().into();
     let password: String = env.get_string(&password).unwrap().into();
-    let new_pass = SecretVec::<u8>::new(Box::new(password.into_bytes()));
+    let new_pass = SecretString::new(Box::new(password));
 
     info!("mount_path: {}", mount_path);
     info!("data_dir_path: {}", data_dir_path);
@@ -172,11 +172,10 @@ pub extern "system" fn Java_RustLibrary_mount(
         });
     }
 
-    struct PasswordProviderImpl(SecretVec<u8>);
+    struct PasswordProviderImpl(SecretString); // use secretvec instead of string
     impl PasswordProvider for PasswordProviderImpl {
         fn get_password(&self) -> Option<SecretString> {
-            let password_str = String::from_utf8_lossy(&*self.0.expose_secret());
-            Some(SecretString::from_str(&password_str).unwrap())
+            Some(self.0.clone())
         }
     }
 
@@ -189,6 +188,7 @@ pub extern "system" fn Java_RustLibrary_mount(
         false,
         false,
     );
+    drop(new_pass); // drop pass after use
 
     let handle = match RT.block_on(async {
         match mount_point.mount().await {

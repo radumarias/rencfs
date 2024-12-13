@@ -84,7 +84,19 @@ Test specific issues from the [project](https://github.com/users/radumarias/proj
 - [ ] Testing on macOS
 - [ ] Testing on Windows
 
+## Test cases
+
+I created some [files](https://drive.google.com/drive/folders/1N-2KhGNo7f23tQ9Si4yWa9dlFtxUnsoM?usp=sharing) to keep our tests until we migrate to browserstack or similar. 
+
+- `test cases`: generic test cases
+- `smoke tests`: short, small tests used to test a build quickly
+- `acceptance`: tests that must be passed to consider a build stable. These we will run for prod builds
+- `bug` sample sample file to create a new bug. Copy it and create a new file in `bugs` folder. After you have this, please create a bug on GitHub, too and name the file as the bug in there, including #id too
+
 ## Open a bug
 
-## Open a feature
+Please use [this](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=) and follow the steps in there.
 
+## Creating a test case
+
+## Creating a smoke test

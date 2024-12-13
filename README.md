@@ -112,14 +112,13 @@ Please look into [Flows](docs/readme/flows.md) for a detailed description of the
 
 # Contribute
 
-If you find any issues or you desire a feature, please follow these steps:
+If you find any issues, vulnerabilities or you'd like a feature, please follow these steps:
 
 - [Open a bug](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
 - [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
 - [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
 
-Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull
-requests are always appreciated.
+Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull requests, it is always appreciated.
 
 - How to contribute
   Please see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -127,6 +126,6 @@ requests are always appreciated.
 # Follow us
 
 - Blog and tutorial
-  There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this
+  There is a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this
   project, trying to keep it like a tutorial. This is
   the [first one](https://systemweakness.com/the-hitchhikers-guide-to-building-an-encrypted-filesystem-in-rust-4d678c57d65c).

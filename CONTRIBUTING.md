@@ -37,10 +37,11 @@ defined in the Apache License shall be dual-licensed as above, without any addit
 13. Commit and push your changes, and if there are any errors, fix them before you push them
 14. Create a `PR` back to the `parent` repo targeting the `main` branch and request review from
     owners of the repository by adding them to the `Reviewers` field
-15. Monitor the checks (GitHub actions runs) and fix the code if they are failing
-16. Respond to any comments
-17. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
-18. In the end, ideally, it will be merged into `main`
+15. In the project, move the item to `In Code Review`
+16. Monitor the checks (GitHub actions runs) and fix the code if they are failing
+17. Respond to any comments
+18. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
+19. In the end, ideally, it will be merged into `main`
 
 # QA manual
 

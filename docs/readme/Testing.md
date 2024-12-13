@@ -29,7 +29,14 @@ The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month fre
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   mkdir tmp && mkdir mnt && mkdir data
   ```
-  Press enter on Rust installation, accepting all defaults
+  Press 1 and Enter on Rust installation, accepting all defaults.
+
+  If installation aborts, then run these
+  ```bash
+    apt update
+    apt install rustc
+    rustc
+  ```
   
 ### Each resume and after the first setup
 

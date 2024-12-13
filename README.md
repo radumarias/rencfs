@@ -16,7 +16,7 @@ least the primitives should offer a similar level of security.
 stable release.  
 > It's mostly ideal for experimental and learning projects.**
 
-An encrypted file system written in Rust that is mounted with FUSE on Linux. It can be used to create encrypted
+An encrypted file system written in Rust mounted with FUSE on Linux. It can be used to create encrypted
 directories.
 
 You can then safely back up the encrypted directory to an untrusted server without worrying about the data being
@@ -60,7 +60,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 - `Change password` without re-encrypting all data;
 - `[WIP]` [Generate unique nonce in offline mode](https://github.com/radumarias/rencfs/issues/47)
 - `[WIP]` [Add file inode and chunk index to AAD](https://github.com/radumarias/rencfs/issues/49) This prevents blocks
-  from being copied between or within files by an attacker.
+  from being copied between or within files by an attacker;
 - `Fast seek` on both reads and writes;
 - `Writes in parallel`;
 - Exposed with `FUSE`;
@@ -112,8 +112,13 @@ Please look into [Flows](docs/readme/flows.md) for a detailed description of the
 
 # Contribute
 
-Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull
-requests are always appreciated.
+If you find any issues, vulnerabilities or you'd like a feature, please follow these steps:
+
+- [Open a bug](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
+- [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
+- [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
+
+Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull requests, it is always appreciated.
 
 - How to contribute
   Please see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -121,6 +126,6 @@ requests are always appreciated.
 # Follow us
 
 - Blog and tutorial
-  There will be a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this
+  There is a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this
   project, trying to keep it like a tutorial. This is
   the [first one](https://systemweakness.com/the-hitchhikers-guide-to-building-an-encrypted-filesystem-in-rust-4d678c57d65c).

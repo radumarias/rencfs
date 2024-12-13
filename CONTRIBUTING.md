@@ -7,15 +7,18 @@ Unless you explicitly state otherwise, any Contribution intentionally submitted 
 defined in the Apache License shall be dual-licensed as above, without any additional terms or conditions.
 
 1. Join [slack](https://bit.ly/3UU1oXi) and join `#dev-beginners` channel
-2. Become familiar with docs and code by reading the [ramp-up](docs/readme/Ramp-up.md) guide
-3. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and
+2. **Ask the owner of the repository to add your GitHub username to the repository** so that you can work on issues and
    be able to create your own branches and not need to fork the repo
+
+# Devs & QA automation (which steps apply)
+
+3. Become familiar with docs and code by reading the [ramp-up](docs/readme/Ramp-up.md) guide
 4. Pick an open issue or a task in the corresponding [project](https://github.com/users/radumarias/projects/1) for the
-   repo that you'll be working on. You can
+   repo you'll work on. You can
    see [good for first issues](https://github.com/radumarias/rencfs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
    that you can pick from
-5. **Assign the issues you are working on to you and move them to the corresponding status column as you are progressing
-   on them. If the task is not an issue yet, convert it to issue first**
+5. **Assign the issues you are working on to you and move them to the corresponding status column as you progress
+   . If the task is not an issue yet, convert it to an issue first**
 6. Make the changes in your branch
 7. Add docs as they apply
 8. Add tests, benchmarks, and examples for your changes, if applicable
@@ -23,7 +26,7 @@ defined in the Apache License shall be dual-licensed as above, without any addit
    save, [RustRover](https://www.jetbrains.com/help/rust/rustfmt.html)
    and [VSCode](https://code.visualstudio.com/docs/languages/rust#_formatting)
 10. `cargo clippy --all --release` and fix any errors
-11. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAN WHEN RELEASING**
+11. **DON'T INCREASE THE VERSION NUMBER IN `Cargo.toml`, WE WILL DO THAT WHEN RELEASING**
 12. Create a `git` `push hook` file in `.git/hooks/pre-push` with [pre-push](scripts/git-hooks/linux-macos/pre-push)
     content
     on `Linux` and `macOS`, and [pre-push](scripts/git-hooks/windows/pre-push) on `Windows`.
@@ -34,7 +37,12 @@ defined in the Apache License shall be dual-licensed as above, without any addit
 13. Commit and push your changes, and if there are any errors, fix them before you push them
 14. Create a `PR` back to the `parent` repo targeting the `main` branch and request review from
     owners of the repository by adding them to the `Reviewers` field
-15. Monitor the checks (GitHub actions runs) and fix the code if they are failing
-16. Respond to any comments
-17. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
-18. In the end, ideally, it will be merged into `main`
+15. In the project, move the item to `In Code Review`
+16. Monitor the checks (GitHub actions runs) and fix the code if they are failing
+17. Respond to any comments
+18. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
+19. In the end, ideally, it will be merged into `main`
+
+# QA manual
+
+Please follow these [steps](docs/readme/Testing.md).

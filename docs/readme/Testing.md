@@ -60,12 +60,31 @@ Do step 11 from above.
   cargo run --release -- mount -m mnt -d data
   ```
 6. Input a password and confirm it the first time
-9. Copy test files from your machine to `tmp` folder in `VSCode`, by `Ctrl + C / Ctrl + V` or by Drag and Drop
-10. Copy files and folders from `tmp` to `mnt` and do all kinds of operations on `nnt` folder
-11. Make sure files were copied successfully by right-clicking a file and then `Download...` and save it to local machine
-12. Make sure files open correctly
-13. Do all kinds of operations in `mnt` folder and make sure they are ok
+
+You can now perform two types of tests; see below. In both cases, follow these steps.
+
+7. Copy files and folders from your local machine to `tmp` folder in VSCode
+8. Copy files and folders from `tmp` to `mnt` and then do your operations the data in `nnt` folder
+9. Make sure files were copied successfully by right-clicking a file and then `Download...` and save it to local machine and making sure it opens correctly
+
+#### Exploratory testing
+
+That is, testing anything that comes to mind.
+
+Repeat steps 7-9 in various ways.
+
+#### Test specific issues
+
+Test specific issues from the [project](https://github.com/users/radumarias/projects/1). You can take the ones from `Ready for QA` column:
+1. Assign the issue to you and move it to `In QA`
+2. Test it
+3. When you finished, move it to `Tested`
 
 - [ ] Testing on Linux
 - [ ] Testing on macOS
 - [ ] Testing on Windows
+
+## Open a bug
+
+## Open a feature
+

@@ -27,7 +27,6 @@ The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month fre
   ```bash
   apt-get update && apt-get install fuse3
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  mkdir tmp && mkdir mnt && mkdir data
   ```
   Press 1 and Enter on Rust installation, accepting all defaults.
 
@@ -36,6 +35,10 @@ The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month fre
     apt update
     apt install rustc
     rustc
+  ```
+9. Run this in terminal:
+  ```bash
+  mkdir tmp && mkdir mnt && mkdir data
   ```
   
 ### Each resume and after the first setup

@@ -112,6 +112,12 @@ Please look into [Flows](docs/readme/flows.md) for a detailed description of the
 
 # Contribute
 
+If you find any issues or you desire a feature, please follow these steps:
+
+- [Open a bug](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
+- [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
+- [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
+
 Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull
 requests are always appreciated.
 

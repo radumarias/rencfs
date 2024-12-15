@@ -101,7 +101,6 @@ I created some [files](https://drive.google.com/drive/folders/1N-2KhGNo7f23tQ9Si
 - `test cases`: generic test cases
 - `smoke tests`: short, small tests used to test a build quickly
 - `acceptance`: tests that must be passed to consider a build stable. These we will run for prod builds
-- `bug` sample sample file to create a new bug. Copy it and create a new file in `bugs` folder. After you have this, please create a bug on GitHub, too, and name the file as the bug in there, including #id too
 
 ## Open a bug
 

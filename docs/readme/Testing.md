@@ -94,7 +94,7 @@ Test specific issues from the [project](https://github.com/users/radumarias/proj
 - [ ] Testing on macOS
 - [ ] Testing on Windows
 
-## Test cases
+## Tests
 
 I created some [files](https://drive.google.com/drive/folders/1N-2KhGNo7f23tQ9Si4yWa9dlFtxUnsoM?usp=sharing) to keep our tests until we migrate to browserstack or similar. 
 

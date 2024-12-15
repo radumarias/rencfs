@@ -35,13 +35,14 @@ defined in the Apache License shall be dual-licensed as above, without any addit
     slow, but please give it time to complete as this helps to fix any issues locally and not rely just on
     running `ci` on GitHub when you create the PR
 13. Commit and push your changes, and if there are any errors, fix them before you push them
-14. Create a `PR` back to the `parent` repo targeting the `main` branch and request review from
+14. Create a `PR` back to the `parent` repo targeting the `main` branch with the title as the GitHub issue title, including `#ID`. Also, include the link to GitHub issue in the description saying like `Fix for <link>` for bugs or `Implementation for <link>` for features and others
+15. Request review from
     owners of the repository by adding them to the `Reviewers` field
-15. In the project, move the item to `In Code Review`
-16. Monitor the checks (GitHub actions runs) and fix the code if they are failing
-17. Respond to any comments
-18. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
-19. In the end, ideally, it will be merged into `main`
+16. In the project, move the item to `In Code Review`
+17. Monitor the checks (GitHub actions runs) and fix the code if they are failing
+18. Respond to any comments
+19. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
+20. In the end, ideally, it will be merged into `main`
 
 # QA manual
 

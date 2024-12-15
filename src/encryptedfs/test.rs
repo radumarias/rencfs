@@ -2481,3 +2481,127 @@ async fn test_read_only_write() {
     )
     .await;
 }
+
+#[tokio::test]
+#[traced_test]
+async fn test_file_names() {
+    run_test(
+        TestSetup {
+            key: "test_file_names",
+            read_only: false,
+        },
+        async {
+            let fs = get_fs().await;
+            let test_file1 = SecretString::from_str("test\\file1").unwrap();
+            let test_file1_renamed = SecretString::from_str("test/file1_renamed").unwrap();
+            let test_file2 = SecretString::from_str("test/file2").unwrap();
+            let test_file2_renamed = SecretString::from_str("test\\file2_renamed").unwrap();
+            let test_dir1 = SecretString::from_str("test\\dir1").unwrap();
+            let test_dir1_renamed = SecretString::from_str("test/dir1_renamed").unwrap();
+            let test_dir2 = SecretString::from_str("test/dir2").unwrap();
+            let test_dir2_renamed = SecretString::from_str("test\\dir2_renamed").unwrap();
+            let new_parent = ROOT_INODE;
+
+            // create file 1
+            assert!(matches!(
+                fs.create(
+                    ROOT_INODE,
+                    &test_file1,
+                    create_attr(FileType::RegularFile),
+                    false,
+                    true,
+                )
+                .await,
+                Err(FsError::InvalidInput("'\\' not allowed in the filename"))
+            ));
+
+            // rename file 1
+            assert!(matches!(
+                fs.rename(
+                    ROOT_INODE,
+                    &test_file1,
+                    new_parent,
+                    &test_file1_renamed
+                )
+                .await,
+                Err(FsError::InvalidInput("'/' not allowed in the filename"))
+            ));
+
+            // create file 2
+            assert!(matches!(
+                fs.create(
+                    ROOT_INODE,
+                    &test_file2,
+                    create_attr(FileType::RegularFile),
+                    false,
+                    true,
+                )
+                .await,
+                Err(FsError::InvalidInput("'/' not allowed in the filename"))
+            ));
+
+            // rename file 2
+            assert!(matches!(
+                fs.rename(
+                    ROOT_INODE,
+                    &test_file2,
+                    new_parent,
+                    &test_file2_renamed,
+                )
+                .await,
+                Err(FsError::InvalidInput("'\\' not allowed in the filename"))
+            ));
+
+            // create dir 1
+            assert!(matches!(
+                fs.create(
+                    ROOT_INODE,
+                    &test_dir1,
+                    create_attr(FileType::Directory),
+                    false,
+                    true,
+                )
+                .await,
+                Err(FsError::InvalidInput("'\\' not allowed in the filename"))
+            ));
+
+            // rename dir 1
+            assert!(matches!(
+                fs.rename(
+                    ROOT_INODE,
+                    &test_dir1,
+                    new_parent,
+                    &test_dir1_renamed,
+                )
+                .await,
+                Err(FsError::InvalidInput("'/' not allowed in the filename"))
+            ));
+
+            // create dir 2
+            assert!(matches!(
+                fs.create(
+                    ROOT_INODE,
+                    &test_dir2,
+                    create_attr(FileType::Directory),
+                    false,
+                    true,
+                )
+                .await,
+                Err(FsError::InvalidInput("'/' not allowed in the filename"))
+            ));
+
+            // rename dir 2
+            assert!(matches!(
+                fs.rename(
+                    ROOT_INODE,
+                    &test_dir2,
+                    new_parent,
+                    &test_dir2_renamed,
+                )
+                .await,
+                Err(FsError::InvalidInput("'\\' not allowed in the filename"))
+            ));
+        },
+    )
+    .await
+}

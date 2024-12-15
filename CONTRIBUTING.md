@@ -36,7 +36,7 @@ defined in the Apache License shall be dual-licensed as above, without any addit
     running `ci` on GitHub when you create the PR
 13. Commit the changes and include the `<title> <#ID>` of the GitHub issue in the message. This will make the commits visible in the context of the issue so we can clearly see a clean history of all changes
 14. Push your changes, and if there are any errors, fix them before you push them
-15. Create a `PR` back to the `parent` repo targeting the `main` branch with the title as the GitHub issue title, including `#ID`. Also, include the link to GitHub issue in the description, saying like `Fix for <link>` for bugs or `Implementation for <link>` for features and others
+15. Create a `PR` back to the `parent` repo targeting the `main` branch with the title as the GitHub issue title, including `#ID`. Also, include the link to the GitHub issue in the description, saying like `Fix for <link>` for bugs or `Implementation for <link>` for features and others
 16. Request review from owners of the repository by adding them to the `Reviewers` field
 17. After you've created the PR, go to the GitHub issue, and in the mid-right of the page, press the gear icon from the below image, select `radumarias/rencfs`, then write the PR number and select it. This will link the two, and when the PR is merged, it will close the issue too  
   ![image](https://github.com/user-attachments/assets/5ac0313d-4175-44d1-8d1e-d18da773ab32)

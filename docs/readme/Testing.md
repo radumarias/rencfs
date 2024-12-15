@@ -23,7 +23,7 @@ The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month fre
 6. Goto terminal in the browser version of the VSCode editor you're presented with. It should be at the bottom, or open it from the menu `Terminal -> New Terminal`
 7. You can find the menu in the top left, with 3 lines icon  
   ![image](https://github.com/user-attachments/assets/48681023-e450-49b3-8526-ec0323be0d40)
-8. Install Rust and create a `tmp` folder, which we will use to copy files from our machine, by typing these in terminal:
+8. Install Rust by pasting these in the terminal:
   ```bash
   apt-get update && apt-get install fuse3
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -36,7 +36,7 @@ The instance config is 2 CPUs and 4 GB RAM. You have 120 CPU hours per month fre
     apt install rustc
     rustc
   ```
-9. Run this in terminal:
+9. Create a `tmp` folder, which we will use to copy files from our machine, by pasting this in the terminal:
   ```bash
   mkdir tmp && mkdir mnt && mkdir data
   ```

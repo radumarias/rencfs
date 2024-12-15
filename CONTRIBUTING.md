@@ -34,16 +34,17 @@ defined in the Apache License shall be dual-licensed as above, without any addit
     with `chmod +x .git/hooks/pre-push` .This will run when you do `git push` and will make the push quite
     slow, but please give it time to complete as this helps to fix any issues locally and not rely just on
     running `ci` on GitHub when you create the PR
-13. Commit the changes and make sure to include the `<title> <#ID>` of the GitHub issue in the message. This will make the commits visible in the context of the issue so we can clearly see a clean history of all changes
+13. Commit the changes and include the `<title> <#ID>` of the GitHub issue in the message. This will make the commits visible in the context of the issue so we can clearly see a clean history of all changes
 14. Push your changes, and if there are any errors, fix them before you push them
 15. Create a `PR` back to the `parent` repo targeting the `main` branch with the title as the GitHub issue title, including `#ID`. Also, include the link to GitHub issue in the description, saying like `Fix for <link>` for bugs or `Implementation for <link>` for features and others
-16. Request review from
-    owners of the repository by adding them to the `Reviewers` field
-17. In the project, move the item to `In Code Review`
-18. Monitor the checks (GitHub actions runs) and fix the code if they are failing
-19. Respond to any comments
-20. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
-21. In the end, ideally, it will be merged into `main`
+16. Request review from owners of the repository by adding them to the `Reviewers` field
+17. ![image](https://github.com/user-attachments/assets/5ac0313d-4175-44d1-8d1e-d18da773ab32)
+  After you've created the PR, go to the GitHub issue, and in the mid-right of the page, press the gear icon from above, select `radumarias/rencfs`, then write the PR number and select it. This will link the two, and when the PR is merged, it will close the issue too
+18. In the project, move the item to `In Code Review`
+19. Monitor the checks (GitHub actions runs) and fix the code if they are failing
+20. Respond to any comments
+21. **DON'T MERGE THE PR YOURSELF. LEAVE THAT TO REPOSITORY OWNERS**
+22. In the end, ideally, it will be merged into `main`
 
 # QA manual
 

@@ -58,6 +58,10 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: cargo test --release --all --all-features -- --skip keyring
 
+      - name: bench
+        if: matrix.os != 'windows-latest'
+        run: cargo bench --workspace --all-targets --all-features -- --skip keyring
+
       - name: test package
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -102,3 +106,9 @@ jobs:
         run: |
           cd java-bridge
           cargo test --release --all --all-features
+
+      - name: java-bridge bench
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd java-bridge
+          cargo bench --workspace --all-targets --all-features

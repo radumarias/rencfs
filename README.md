@@ -6,7 +6,7 @@
 [![build-and-tests](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml)
 [![release](https://github.com/radumarias/rencfs/actions/workflows/release.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yaml)
 [![codecov](https://codecov.io/gh/radumarias/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/radumarias/rencfs)
-<a href="https://bit.ly/3UU1oXi"><img src="website/resources/slack3.png" style = "width: 87px; height: 20px;"/></a>
+<a href="https://bit.ly/3UU1oXi"><img src="website/resources/slack.png" style = "width: 87px; height: 20px;"/></a>
 [![Open Source Helpers](https://www.codetriage.com/radumarias/rencfs/badges/users.svg)](https://www.codetriage.com/radumarias/rencfs)
 
 > [!WARNING]  

@@ -105,20 +105,19 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
   `Aes256Gcm` is slightly faster than `ChaCha20Poly1305` by an average factor of **1.28**. This is because of the
   hardware acceleration of AES
   on most CPUs via AES-NI. However, where hardware acceleration is unavailable, `ChaCha20Poly1305` is faster.
-  Also `ChaChaPoly1305` is better at `SIMD`.
+  Also, `ChaChaPoly1305` is better at `SIMD.`
 - [⚠️ Security ](docs/readme/Security.md)
 - [Cipher comparison](docs/readme/Cipher_comparison.md)
 - [Others](docs/readme/Considerations.md)
 
 # Contribute
 
-If you find any issues, vulnerabilities or you'd like a feature, please follow these steps:
-
+If you find any issues or vulnerabilities or you'd like a feature, please follow these steps:
 - [Open a bug](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
 - [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
 - [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
 
-Feel free to fork, change, and use it however you want. It is always appreciated if you build something interesting and feel like sharing pull requests.
+Feel free to fork, change, and use it however you want. We always appreciate it if you build something interesting and feel like sharing pull requests.
 
 - How to contribute
   Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).

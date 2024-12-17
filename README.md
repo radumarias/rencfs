@@ -121,7 +121,7 @@ If you find any issues, vulnerabilities or you'd like a feature, please follow t
 Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull requests, it is always appreciated.
 
 - How to contribute
-  Please see [CONTRIBUTING.md](CONTRIBUTING.md).
+  Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 # Follow us
 

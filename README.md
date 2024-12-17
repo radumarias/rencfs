@@ -33,7 +33,7 @@ data.
   your `privacy`, which is also `open source` and is correctly and safely using `well-known audited` crates
   as `cryptographic primitives.`
 - A short story
-  [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](docs/The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust_2.pdf)
+  [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](docs/The_Hitchhiker_s_Guide_to_Building_an_Encrypted_Filesystem_in_Rust.pdf)
 - Talks
     - [The Hitchhiker’s Guide to Building an Encrypted Filesystem in Rust](https://startech-rd.io/hitchhikers-guide-to/) [@meetup.com/star-tech-rd-reloaded](https://www.meetup.com/star-tech-rd-reloaded/)
       and [@OmniOpenCon](https://omniopencon.org/)

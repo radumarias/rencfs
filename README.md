@@ -82,7 +82,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 
-Please look into [Flows](docs/readme/flows.md) for a detailed description of the various sequence flows.
+Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow description.
 
 # Usage and Development
 
@@ -118,7 +118,7 @@ If you find any issues, vulnerabilities or you'd like a feature, please follow t
 - [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
 - [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
 
-Feel free to fork it, change and use it however you want. If you build something interesting and feel like sharing pull requests, it is always appreciated.
+Feel free to fork, change, and use it however you want. It is always appreciated if you build something interesting and feel like sharing pull requests.
 
 - How to contribute
   Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md).

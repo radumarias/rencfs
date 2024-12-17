@@ -1,20 +1,19 @@
-name: '_package'
+name: '_build-and-tests'
 on:
   workflow_call:
-    inputs:
-      upload_artifacts:
-        description: 'If we should upload artifacts'
-        type: boolean
-        required: true
-      version:
-        description: 'The current value in version file (type: string)'
-        type: string
-        required: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0 # TODO: remove this when we cache the builds
 
 jobs:
-  aur_build:
-    name: build AUR
-    runs-on: ubuntu-latest
+  tests:
+    name: build and tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+      fail-fast: true
     steps:
       - uses: actions/checkout@v4
 
@@ -30,59 +29,73 @@ jobs:
           cargo install cargo-aur
           cargo install cargo-generate-rpm          
 
-      - name: run cargo aur and generate-rpm
+      - name: build
+        run: |
+          cargo build --all-targets --all-features
+          cargo build --release --all-targets --all-features
+
+      - name: fmt check
+        run: cargo fmt --all -- --check
+
+      - name: check
+        run: cargo check --all
+
+      - name: clippy
+        run: |
+          cargo clippy --all-targets --release -- \
+            -A clippy::similar_names \
+            -A clippy::too_many_arguments \
+            -A clippy::significant_drop_tightening \
+            -A clippy::redundant_closure \
+            -A clippy::missing_errors_doc \
+            -A clippy::type_complexity
+        shell: bash
+
+      - name: doc
+        run: cargo doc --workspace --all-features --no-deps
+
+      - name: tests
+        if: matrix.os != 'windows-latest'
+        run: cargo test --release --all --all-features
+
+      - name: test package
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cargo aur
           cargo generate-rpm
 
-      - name: upload PKGBUILD artifact
-        if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: PKGBUILD
-          path: ./target/cargo-aur/PKGBUILD
+      - name: java-bridge build
+        run: |
+          cd java-bridge
+          cargo build --all-targets --all-features
+          cargo build --release --all-targets --all-features
 
-      - name: upload ${{ github.event.repository.name }}-${{ inputs.version }}-x86_64.tar.gz artifact
-        if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ github.event.repository.name }}-${{ inputs.version }}-x86_64.tar.gz
-          path: ./target/cargo-aur/${{ github.event.repository.name }}-${{ inputs.version }}-x86_64.tar.gz
+      - name: java-bridge fmt check
+        run: |
+          cd java-bridge
+          cargo fmt --all -- --check
 
-  docker:
-    name: docker
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      packages: write
-      contents: read
-      attestations: write
-    env:
-      # Hostname of your registry
-      REGISTRY: docker.io
-      REGISTRY_USER: xorio42
-      # Image repository, without hostname and tag
-      IMAGE_NAME: ${{ github.event.repository.name }}
-      IMAGE_TAG: latest
-      SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
-    steps:
-      - uses: actions/checkout@v4
+      - name: java-bridge check
+        run: |
+          cd java-bridge
+          cargo check --all
 
-      - name: log in to Docker Hub
-        if: inputs.upload_artifacts
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: java-bridge clippy
+        run: |
+          cargo clippy --all-targets --release -- \
+            -A clippy::similar_names \
+            -A clippy::too_many_arguments \
+            -A clippy::significant_drop_tightening \
+            -A clippy::redundant_closure \
+            -A clippy::missing_errors_doc \
+            -A clippy::type_complexity
+        shell: bash
 
-      - name: set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: java-bridge doc
+        run: cargo doc --workspace --all-features --no-deps
 
-      - name: build push = ${{ inputs.upload_artifacts }}
-        uses: docker/build-push-action@v6
-        with:
-          file: docker/Dockerfile
-          push: ${{ inputs.upload_artifacts }}
-          tags: ${{ env.REGISTRY_USER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          sbom: true
-          provenance: true
+      - name: java-bridge tests
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd java-bridge
+          cargo test --release --all --all-features

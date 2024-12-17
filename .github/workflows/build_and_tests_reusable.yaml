@@ -57,7 +57,7 @@ jobs:
 
       - name: bench
         if: matrix.os != 'windows-latest'
-        run: cargo bench --workspace --all-targets --all-features -- --skip keyring
+        run: cargo bench --workspace --all-targets --all-features --target x86_64-unknown-linux-gnu -j 14 -- --skip keyring
 
       - name: doc
         run: cargo doc --workspace --all-features --no-deps
@@ -106,7 +106,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd java-bridge
-          cargo bench --workspace --all-targets --all-features
+          cargo bench --workspace --all-targets --all-features --target x86_64-unknown-linux-gnu -j 14 -- --skip keyring
 
       - name: java-bridge doc
         run: |

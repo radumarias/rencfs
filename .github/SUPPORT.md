@@ -1,9 +1,9 @@
 # Support
 
-Feel free to contact us at
-- hello@xorio.rs or on [slack](https://bit.ly/3UU1oXi)
-- in the `#support` channel
-- or write us on [LinkedIn](https://www.linkedin.com/company/xorio)
+Feel free to contact us on
+- hello@xorio.rs
+- [slack](https://bit.ly/3UU1oXi) in the `#support` channel
+- [LinkedIn](https://www.linkedin.com/company/xorio)
 
 # Issues
 

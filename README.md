@@ -128,3 +128,9 @@ Feel free to fork, change, and use it however you want. We always appreciate it 
   There is a [series](https://medium.com/@xorio42/list/828492b94c23) of articles about the evolution of this
   project, trying to keep it like a tutorial. This is
   the [first one](https://systemweakness.com/the-hitchhikers-guide-to-building-an-encrypted-filesystem-in-rust-4d678c57d65c).
+
+# Get in touch
+
+- [Slack](https://bit.ly/3UU1oXi)
+- [hello@xorio.rs](mailto:hello@xorio.rs)
+- [LinkedIn](https://www.linkedin.com/company/xorio)

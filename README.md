@@ -1,13 +1,13 @@
-# [![](favicon.png)](https://github.com/radumarias/rencfs) rencfs
+# [![](favicon.png)](https://github.com/xoriors/rencfs) rencfs
 
 [![rencfs-bin](https://img.shields.io/aur/version/rencfs-bin?color=1793d1&label=rencfs-bin&logo=arch-linux)](https://aur.archlinux.org/packages/rencfs-bin/)
 [![crates.io](https://img.shields.io/crates/v/rencfs.svg)](https://crates.io/crates/rencfs)
 [![docs.rs](https://img.shields.io/docsrs/rencfs?label=docs.rs)](https://docs.rs/rencfs/)
-[![build-and-tests](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/build_and_tests.yaml)
-[![release](https://github.com/radumarias/rencfs/actions/workflows/release.yaml/badge.svg)](https://github.com/radumarias/rencfs/actions/workflows/release.yaml)
-[![codecov](https://codecov.io/gh/radumarias/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/radumarias/rencfs)
+[![build-and-tests](https://github.com/xoriors/rencfs/actions/workflows/build_and_tests.yaml/badge.svg)](https://github.com/xoriors/rencfs/actions/workflows/build_and_tests.yaml)
+[![release](https://github.com/xoriors/rencfs/actions/workflows/release.yaml/badge.svg)](https://github.com/xoriors/rencfs/actions/workflows/release.yaml)
+[![codecov](https://codecov.io/gh/xoriors/rencfs/graph/badge.svg?token=NUQI6XGF2Y)](https://codecov.io/gh/xoriors/rencfs)
 <a href="https://bit.ly/3UU1oXi"><img src="website/resources/slack.png" style = "width: 20px; height: 20px;"/></a>
-[![Open Source Helpers](https://www.codetriage.com/radumarias/rencfs/badges/users.svg)](https://www.codetriage.com/radumarias/rencfs)
+[![Open Source Helpers](https://www.codetriage.com/xoriors/rencfs/badges/users.svg)](https://www.codetriage.com/xoriors/rencfs)
 
 > [!WARNING]  
 > **This crate hasn't been audited; it's using `ring` crate, which is a well-known audited library, so in principle, at
@@ -49,8 +49,8 @@ data.
 Some of these are still being worked on and marked with `[WIP]`.
 
 - `Security` using well-known audited `AEAD` cryptography primitives;
-- `[WIP]` [Data integrity, data is written with WAL to ensure integrity even on crash or power loss](https://github.com/radumarias/rencfs/issues/48)
-- `[WIP]` [Hide all info for enhanced privacy; all metadata, content, file name, file size, *time fields, files count, and directory structure is encrypted](https://github.com/radumarias/rencfs/issues/53)
+- `[WIP]` [Data integrity, data is written with WAL to ensure integrity even on crash or power loss](https://github.com/xoriors/rencfs/issues/48)
+- `[WIP]` [Hide all info for enhanced privacy; all metadata, content, file name, file size, *time fields, files count, and directory structure is encrypted](https://github.com/xoriors/rencfs/issues/53)
 - `Safely` manage `credentials` in memory with `mlock(2)`, `mprotect`, `zeroize`, and `expiry` to mitigate cold boot
   attacks;
 - `Memory safety`, `performance`, and `optimized` for `concurrency` with Rust;
@@ -58,16 +58,16 @@ Some of these are still being worked on and marked with `[WIP]`.
 - Encryption key generated from password;
 - Password saved in OS's `keyring`;
 - `Change password` without re-encrypting all data;
-- `[WIP]` [Generate unique nonce in offline mode](https://github.com/radumarias/rencfs/issues/47)
-- `[WIP]` [Add file inode and chunk index to AAD](https://github.com/radumarias/rencfs/issues/49) This prevents blocks
+- `[WIP]` [Generate unique nonce in offline mode](https://github.com/xoriors/rencfs/issues/47)
+- `[WIP]` [Add file inode and chunk index to AAD](https://github.com/xoriors/rencfs/issues/49) This prevents blocks
   from being copied between or within files by an attacker;
 - `Fast seek` on both reads and writes;
 - `Writes in parallel`;
 - Exposed with `FUSE`;
 - Fully `concurrent` for all operations;
-- `[WIP]` [Handle long file names](https://github.com/radumarias/rencfs/issues/47)
-- `[WIP]` [Abstraction layer for Rust File and fs API to use it as lib to switch to using encrypted files by just changing the use statements](https://github.com/radumarias/rencfs/issues/97)
-- `[WIP]` [Abstraction layer to access the storage with implementations for desktop, Wasm, Android, and iOS and the ability to write your own implementation](https://github.com/radumarias/rencfs/issues/111)
+- `[WIP]` [Handle long file names](https://github.com/xoriors/rencfs/issues/47)
+- `[WIP]` [Abstraction layer for Rust File and fs API to use it as lib to switch to using encrypted files by just changing the use statements](https://github.com/xoriors/rencfs/issues/97)
+- `[WIP]` [Abstraction layer to access the storage with implementations for desktop, Wasm, Android, and iOS and the ability to write your own implementation](https://github.com/xoriors/rencfs/issues/111)
 
 # [Alternatives](docs/readme/Alternatives.md)
 
@@ -113,9 +113,9 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
 # Contribute
 
 If you find any issues or vulnerabilities or you'd like a feature, please follow these steps:
-- [Open a bug](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
-- [Report a security vulnerability](https://github.com/radumarias/rencfs/security/advisories/new): Report a security vulnerability.
-- [Feature request](https://github.com/radumarias/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
+- [Open a bug](https://github.com/xoriors/rencfs/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=): Create a report to help us improve.
+- [Report a security vulnerability](https://github.com/xoriors/rencfs/security/advisories/new): Report a security vulnerability.
+- [Feature request](https://github.com/xoriors/rencfs/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=): Suggest an idea for this project.
 
 Feel free to fork, change, and use it however you want. We always appreciate it if you build something interesting and feel like sharing pull requests.
 

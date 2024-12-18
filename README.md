@@ -12,7 +12,7 @@
 > [!WARNING]  
 > **This crate hasn't been audited; it's using `ring` crate, which is a well-known audited library, so in principle, at
 least the primitives should offer a similar level of security.  
-> This is still under development. Please do not use it with sensitive data now; please wait for a
+> This is still under development. Please do not use it with sensitive data for now; please wait for a
 stable release.  
 > It's mostly ideal for experimental and learning projects.**
 

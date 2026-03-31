@@ -4,10 +4,12 @@ mod keyring;
 
 #[cfg(target_os = "linux")]
 mod run;
+#[cfg(target_os = "windows")]
+mod run_windows;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    #[cfg(any(target_os = "macos"))]
     {
         eprintln!("he he, not yet ready for this platform, but soon my friend, soon :)");
         eprintln!("Bye!");
@@ -22,4 +24,6 @@ async fn main() -> Result<()> {
 
     #[cfg(target_os = "linux")]
     run::run().await
+    #[cfg(target_os = "windows")]
+    run_windows::run().await
 }

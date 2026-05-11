@@ -10,3 +10,11 @@
 - [blake3](https://crates.io/crates/blake3) for hashing
 - password saved in OS keyring using [keyring](https://crates.io/crates/keyring)
 - [tracing](https://crates.io/crates/tracing) for logs
+
+## Platform mount backends
+
+- Linux uses [fuse3](https://crates.io/crates/fuse3) in `src/mount/linux.rs`.
+- Other platforms currently use a dummy mount implementation so the crate can
+  compile without a real filesystem adapter.
+- See [Windows support research](Windows.md) for notes on adding a native
+  Windows backend.

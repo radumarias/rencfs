@@ -2,6 +2,8 @@
 
 We'd appreciate it if you could help test the app. For now, the filesystem mounting works only on Linux, so the cleanest way is to test on Linux.
 
+Windows remains a planned target; see [Windows support research](Windows.md).
+
 Here are some ways you can do it.
 
 ## Testing in VSCode in browser or local

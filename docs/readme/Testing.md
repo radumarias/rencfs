@@ -1,6 +1,6 @@
 # Testing
 
-We'd appreciate it if you could help test the app. For now, the filesystem mounting works only on Linux, so the cleanest way is to test on Linux.
+We'd appreciate it if you could help test the app. For now, the filesystem mounting works only on Linux, so the cleanest way is to test on Linux. Native Windows support is tracked in [Windows support research](Windows.md).
 
 Here are some ways you can do it.
 

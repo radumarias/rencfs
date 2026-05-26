@@ -44,6 +44,12 @@ Why recommended:
 - `src/mount/windows.rs` (new)
 - optional `src/mount/windows/adapter.rs` for callback bridging
 
+### First implementation slice
+
+1. Add a Windows-only `MountPointImpl` stub that returns a clear unsupported/error path.
+2. Wire `cfg(target_os = "windows")` dispatch so Windows builds compile without Linux FUSE code.
+3. Add a Windows CI job that only runs `cargo check` until mount integration lands.
+
 ### Platform dispatch
 
 - Use `cfg(target_os = "windows")` gates to compile Windows adapter only on Windows.

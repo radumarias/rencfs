@@ -62,6 +62,15 @@ criterion = { version = "0.5.1", features = ["html_reports"] }
 [target.'cfg(target_os = "linux")'.dependencies]
 fuse3 = { version = "0.8.1", features = ["tokio-runtime", "unprivileged"] }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+winfsp = "0.13"
+winfsp-sys = "0.12"
+widestring = "1"
+windows = { version = "0.61", features = ["Win32_Foundation"] }
+
+[target.'cfg(target_os = "windows")'.build-dependencies]
+winfsp = "0.13"
+
 [[bench]]
 name = "crypto_read"
 harness = false

@@ -15,11 +15,18 @@ use linux::MountHandleInnerImpl;
 #[cfg(target_os = "linux")]
 use linux::MountPointImpl;
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "windows")]
+mod windows;
+#[cfg(target_os = "windows")]
+use windows::MountHandleInnerImpl;
+#[cfg(target_os = "windows")]
+use windows::MountPointImpl;
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 mod dummy;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 use dummy::MountHandleInnerImpl;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 use dummy::MountPointImpl;
 
 #[async_trait]
@@ -97,6 +104,9 @@ pub fn create_mount_point(
     )
 }
 
+/// Unmount a filesystem. On Unix, uses the `umount` command.
+/// On Windows, unmounting is handled by the WinFsp service lifecycle.
+#[cfg(not(target_os = "windows"))]
 pub fn umount(mountpoint: &str) -> io::Result<()> {
     // try normal umount
     if process::Command::new("umount")
@@ -132,4 +142,11 @@ pub fn umount(mountpoint: &str) -> io::Result<()> {
             format!("cannot umount {mountpoint}"),
         ))
     }
+}
+
+/// On Windows, unmounting is handled by the WinFsp `FileSystemHost` teardown.
+/// The `MountHandle.umount()` method triggers the proper shutdown sequence.
+#[cfg(target_os = "windows")]
+pub fn umount(_mountpoint: &str) -> io::Result<()> {
+    Ok(())
 }

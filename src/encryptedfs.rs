@@ -1594,6 +1594,17 @@ impl EncryptedFs {
         self.write_handles.read().await.contains_key(&fh)
     }
 
+    /// Retrieve the inode associated with an open file handle.
+    pub async fn get_inode_from_handle(&self, fh: u64) -> Option<u64> {
+        if let Some(ctx) = self.read_handles.read().await.get(&fh) {
+            return Some(ctx.lock().await.ino);
+        }
+        if let Some(ctx) = self.write_handles.read().await.get(&fh) {
+            return Some(ctx.lock().await.ino);
+        }
+        None
+    }
+
     /// Writes the contents of `buf` to the file with `ino` starting at `offset`.
     ///
     /// If we write outside file size, we fill up with zeros until the `offset`.

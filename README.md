@@ -84,6 +84,7 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
 - [Usage](docs/readme/Usage.md)
 - [Build from Source](docs/readme/Build_from_Source.md)
 - Minimum Supported Rust Version (MSRV). The minimum supported version is `1.75`.
+- [Windows support (implementation research)](docs/readme/Windows.md)
 
 # Next steps
 

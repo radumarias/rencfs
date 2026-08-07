@@ -66,7 +66,7 @@ Tokio (async runtime) · fuse3 (FUSE, Linux-only dep) · ring (AEAD) · argon2 (
 | `src/lib.rs` | Library root with extensive rustdoc usage examples; exports `UID`/`GID`/`is_debug` | — |
 | `src/crypto.rs` + `src/crypto/` | Ciphers, encrypted read/write streams, KDF, hashing | [crypto.md](docs/claude/crypto.md) |
 | `src/encryptedfs.rs` + `src/encryptedfs/` | Core `EncryptedFs` (inode-based, FUSE-independent) | [encryptedfs.md](docs/claude/encryptedfs.md) |
-| `src/mount.rs` + `src/mount/` | Mount API; `linux.rs` (fuse3) / `dummy.rs` (other OS) | [mount.md](docs/claude/mount.md) |
+| `src/mount.rs` + `src/mount/` | Mount API; `linux.rs` (fuse3) / `dummy.rs` (other OS); Windows WinFsp path researched in [Windows.md](docs/readme/Windows.md) | [mount.md](docs/claude/mount.md) |
 | `src/main.rs`, `src/run.rs`, `src/keyring.rs` | Binary only (not in the library): platform gate, CLI, OS keyring | [cli.md](docs/claude/cli.md) |
 | `src/log.rs` | tracing init (`log_init` returns a guard that must be kept alive) | [cli.md](docs/claude/cli.md) |
 | `java-bridge/` | Separate cdylib crate with JNI bindings | [java-bridge/CLAUDE.md](java-bridge/CLAUDE.md) |

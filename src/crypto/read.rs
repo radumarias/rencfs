@@ -55,7 +55,7 @@ macro_rules! decrypt_block {
                 let data = &mut data[NONCE_LEN..];
                 let plaintext = $opening_key.open_within(aad, data, 0..).map_err(|err| {
                     error!("error opening within: {}", err);
-                    io::Error::new(io::ErrorKind::Other, "error opening within")
+                    io::Error::other("error opening within")
                 })?;
                 len = plaintext.len();
             }
@@ -201,7 +201,7 @@ impl<R: Read + Seek> Seek for RingCryptoRead<R> {
         let block_index = self.pos() / self.plaintext_block_size as u64;
         let new_block_index = new_pos / self.plaintext_block_size as u64;
         if block_index == new_block_index {
-            let at_full_block_end = self.pos() % self.plaintext_block_size as u64 == 0
+            let at_full_block_end = self.pos().is_multiple_of(self.plaintext_block_size as u64)
                 && self.buf.available_read() == 0;
             if self.buf.available() > 0
                 // this make sure we are not at the end of the current block, which is the start boundary of next block
@@ -224,7 +224,7 @@ impl<R: Read + Seek> Seek for RingCryptoRead<R> {
             ))?;
             self.buf.clear();
             self.block_index = new_block_index;
-            if new_pos % self.plaintext_block_size as u64 == 0 {
+            if new_pos.is_multiple_of(self.plaintext_block_size as u64) {
                 // in case we need to seek at the start of the new block, we need to decrypt here, because we altered
                 // the block_index but the seek seek_forward from below will not decrypt anything
                 // as the offset in new block is 0. In that case the po()

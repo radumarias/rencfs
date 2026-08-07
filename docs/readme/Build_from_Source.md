@@ -12,6 +12,8 @@ You can compile, run, and try it quickly in the browser. After you start it from
 ```bash
 apt-get update && apt-get install fuse3
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+git clone git@github.com:xoriors/rencfs.git
+cd rencfs
 mkdir final && mkdir data
 cargo run --release -- mount -m final -d data
 ```
@@ -32,9 +34,10 @@ You can also:
 
 ## Locally
 
-For now, the `FUSE` (`fuse3` crate) only works on `Linux`, so you must be on Linux to start the project. 
+For now, the `FUSE` (`fuse3` crate) mount backend only works on `Linux`, so you must be on Linux to run the mounted filesystem.
 Instead, you can [Develop inside a Container](#developing-inside-a-container) by starting a local Linux container to which the IDE will connect. You can build, run, and debug the app there and use the terminal to test it.  
 On Windows, you can start it in [WSL](https://harsimranmaan.medium.com/install-and-setup-rust-development-environment-on-wsl2-dccb4bf63700).
+Native Windows mounting is not implemented yet; see [Windows support research](Windows.md) for the proposed WinFsp implementation path, licensing checkpoint, operation mapping, and smoke-test plan.
 
 ### Getting the sources
 
@@ -149,7 +152,7 @@ sudo dnf localinstall rencfs-xxx.x86_64.rpm
 
 ## Developing inside a Container
 
-See here how to configure for [RustRover](https://www.jetbrains.com/help/rust/connect-to-devcontainer.html) and for [VsCode](https://code.visualstudio.com/docs/devcontainers/containers).
+See here how to configure for [RustRover](https://www.jetbrains.com/help/rust/connect-to-devcontainer.html) and for [VSCode](https://code.visualstudio.com/docs/devcontainers/containers).
 
 You can use the `.devcontainer` directory from the project to start a container with all the necessary tools to build
 and run the app.

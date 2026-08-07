@@ -1,6 +1,6 @@
 ################
 ##### Builder
-FROM alpine:3.19.1 AS builder
+FROM alpine:3.22.5 AS builder
 
 RUN apk update && apk upgrade && apk add binutils build-base ca-certificates curl file g++ gcc make patch
 
@@ -29,7 +29,7 @@ RUN . ~/.cargo/env &&  \
 
 ################
 ##### Runtime
-FROM alpine:3.19.1 AS runtime
+FROM alpine:3.22.5 AS runtime
 
 RUN apk update && apk upgrade && apk add fuse3
 RUN apk upgrade busybox --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
@@ -38,7 +38,7 @@ RUN apk upgrade busybox --repository=http://dl-cdn.alpinelinux.org/alpine/edge/m
 COPY --from=builder /usr/src/rencfs/target/x86_64-unknown-linux-musl/release/rencfs /usr/local/bin
 
 ARG USER=rencfs
-ENV HOME /home/$USER
+ENV HOME=/home/$USER
 
 # install sudo as rootdocker
 RUN apk add --update sudo

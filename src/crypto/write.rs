@@ -32,7 +32,7 @@ impl<T: Write + Seek + Read> WriteSeekRead for T {}
 
 /// If you have your custom implementation for [Write] you want to pass to [`CryptoWrite`] it needs to implement this trait.
 ///
-/// It has a blanket implementation for [Write] + [Seek] + [Read] + [`'static`] but in case your implementation is only [Write] it needs to implement this.
+/// It has a blanket implementation for [Write] + [Seek] + [Read] + `'static` but in case your implementation is only [Write] it needs to implement this.
 pub trait CryptoInnerWriter: Write + Any {
     fn into_any(self) -> Box<dyn Any>;
     fn as_write(&mut self) -> Option<&mut dyn Write>;
@@ -125,22 +125,18 @@ impl<W: CryptoInnerWriter + Send + Sync> RingCryptoWrite<W> {
     fn encrypt_and_write(&mut self) -> io::Result<()> {
         let data = self.buf.as_mut();
         let aad = Aad::from(self.block_index.to_le_bytes());
+
         let tag = self
             .sealing_key
             .seal_in_place_separate_tag(aad, data)
-            .map_err(|err| {
-                error!("error sealing in place: {}", err);
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("error sealing in place: {err}"),
-                )
-            })?;
+            .map_err(|err| io::Error::other(format!("error sealing in place: {err}")))?; // Ensure tag is properly extracted
+
         let nonce_sequence = self.nonce_sequence.lock().unwrap();
         let nonce = &nonce_sequence.last_nonce;
         let writer = self
             .writer
             .as_mut()
-            .ok_or(io::Error::new(io::ErrorKind::NotConnected, "no writer"))?;
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotConnected, "no writer"))?;
         writer.write_all(nonce)?;
         writer.write_all(data)?;
         self.buf.clear();
@@ -212,10 +208,7 @@ impl<W: CryptoInnerWriter + Send + Sync> RingCryptoWrite<W> {
 impl<W: CryptoInnerWriter + Send + Sync> Write for RingCryptoWrite<W> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.writer.is_none() {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "write called on already finished writer",
-            ));
+            return Err(io::Error::other("write called on already finished writer"));
         }
         if self.pos() == 0 && self.buf.available() == 0 {
             if self.seek {
@@ -283,8 +276,8 @@ impl<W: CryptoInnerWriter + Send + Sync> CryptoWrite<W> for RingCryptoWrite<W> {
             .ok_or(io::Error::new(io::ErrorKind::NotConnected, "no writer"))?
             .into_any()
             .downcast::<W>()
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "downcast failed"))?;
-        Ok(Box::into_inner(boxed))
+            .map_err(|_| io::Error::other("downcast failed"))?;
+        Ok(*boxed)
     }
 }
 
@@ -389,7 +382,7 @@ impl<W: CryptoInnerWriter + Send + Sync> Seek for RingCryptoWrite<W> {
                 self.block_index = 0;
                 self.decrypt_block()?;
             }
-            let at_full_block_end = self.pos() % self.plaintext_block_size as u64 == 0
+            let at_full_block_end = self.pos().is_multiple_of(self.plaintext_block_size as u64)
                 && self.buf.pos_write() == self.buf.available();
             if self.buf.available() == 0
                 // this checks if we are at the end of the current block,

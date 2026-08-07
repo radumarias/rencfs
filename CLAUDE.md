@@ -6,7 +6,7 @@ Detailed per-module guides live in `docs/claude/` — read the linked file when 
 
 - [docs/claude/crypto.md](docs/claude/crypto.md) — ciphers, block-based encrypted streams, key derivation, hashing
 - [docs/claude/encryptedfs.md](docs/claude/encryptedfs.md) — `EncryptedFs` core, data-dir layout, key management, caching/locking
-- [docs/claude/mount.md](docs/claude/mount.md) — FUSE integration (fuse3, Linux-only) and the platform-independent mount API
+- [docs/claude/mount.md](docs/claude/mount.md) — FUSE integration (fuse3, Linux-only) and the platform-independent mount API; Windows WinFsp research in [docs/readme/Windows.md](docs/readme/Windows.md)
 - [docs/claude/cli.md](docs/claude/cli.md) — binary entry point, clap CLI, password/keyring flow, logging
 - [docs/claude/testing.md](docs/claude/testing.md) — test/bench layout, pre-push script, CI
 - [java-bridge/CLAUDE.md](java-bridge/CLAUDE.md) — JNI bindings crate (auto-loaded when working in `java-bridge/`)

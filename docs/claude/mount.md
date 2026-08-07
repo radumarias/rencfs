@@ -4,6 +4,10 @@ Files: `src/mount.rs` (platform-independent API), `src/mount/linux.rs` (fuse3 im
 
 Adapts `EncryptedFs` to a FUSE mount. Compiled per-platform via `#[cfg(target_os = "linux")]`: Linux gets the real `fuse3` implementation, everything else gets `dummy.rs` (compiles but does not work) so the library still builds cross-platform.
 
+Native Windows mounting is not implemented. The proposed WinFsp backend,
+operation mapping, licensing checkpoint, and acceptance criteria are documented
+in [docs/readme/Windows.md](../readme/Windows.md).
+
 ## Public API (`src/mount.rs`)
 
 - `create_mount_point(mountpoint, data_dir, password_provider, cipher, allow_root, allow_other, read_only) -> impl MountPoint`

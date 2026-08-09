@@ -10,3 +10,12 @@
 - [blake3](https://crates.io/crates/blake3) for hashing
 - password saved in OS keyring using [keyring](https://crates.io/crates/keyring)
 - [tracing](https://crates.io/crates/tracing) for logs
+
+## Platform mount backends
+
+- Linux uses [`fuse3`](https://crates.io/crates/fuse3) in `src/mount/linux.rs`.
+- Windows currently compiles through `src/mount/windows.rs`, a compile-only
+  adapter that returns a controlled "not implemented" error at mount time.
+- Other non-Linux/non-Windows targets compile through `src/mount/dummy.rs`.
+- The proposed native Windows backend (WinFsp) is documented in
+  [Windows support](Windows.md).

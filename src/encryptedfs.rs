@@ -2309,11 +2309,8 @@ impl EncryptedFs {
             }
             .into();
             attr.ino = ROOT_INODE;
-            #[cfg(any(target_os = "linux", target_os = "macos"))]
-            unsafe {
-                attr.uid = libc::getuid();
-                attr.gid = libc::getgid();
-            }
+            attr.uid = *crate::UID;
+            attr.gid = *crate::GID;
 
             self.write_inode_to_storage(&attr).await?;
 

@@ -7,108 +7,134 @@ env:
   CARGO_INCREMENTAL: 0 # TODO: remove this when we cache the builds
 
 jobs:
-  tests:
-    name: build and tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v4
+   tests:
+     name: build and tests
+     runs-on: ${{ matrix.os }}
+     strategy:
+       matrix:
+         os: [ ubuntu-latest, macos-latest, windows-latest ]
+       fail-fast: true
+     steps:
+       - uses: actions/checkout@v4
 
-      - name: setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          components: rustfmt, clippy
-          profile: minimal
+       - name: setup Rust
+         uses: actions-rs/toolchain@v1
+         with:
+           toolchain: nightly
+           components: rustfmt, clippy
+           profile: minimal
 
-      - name: setup Rust
-        run: |
-          cargo install cargo-aur
-          cargo install cargo-generate-rpm          
+       - name: setup Rust (Windows)
+         if: matrix.os == 'windows-latest'
+         run: |
+           rustup target add x86_64-pc-windows-msvc
 
-      - name: build
-        run: |
-          cargo build --all-targets --all-features
-          cargo build --release --all-targets --all-features
+       - name: setup Rust
+         run: |
+           cargo install cargo-aur
+           cargo install cargo-generate-rpm
 
-      - name: fmt check
-        run: cargo fmt --all -- --check
+       - name: Install WinFSP (Windows)
+         if: matrix.os == 'windows-latest'
+         run: |
+           choco install winfsp --version 2.1
 
-      - name: check
-        run: cargo check --all
+       - name: cross-compile-windows
+         if: matrix.os != 'windows-latest'
+         run: |
+           rustup target add x86_64-pc-windows-gnu
+           cargo check --target x86_64-pc-windows-gnu --all-targets --all-features
+           cargo build --target x86_64-pc-windows-gnu --release --all-features
 
-      - name: clippy
-        run: |
-          cargo clippy --all-targets --release -- \
-            -A clippy::similar_names \
-            -A clippy::too_many_arguments \
-            -A clippy::significant_drop_tightening \
-            -A clippy::redundant_closure \
-            -A clippy::missing_errors_doc \
-            -A clippy::type_complexity
-        shell: bash
+       - name: build
+         run: |
+           cargo build --all-targets --all-features
+           cargo build --release --all-targets --all-features
 
-      - name: tests
-        if: matrix.os != 'windows-latest'
-        run: cargo test --release --all --all-features -- --skip keyring
+       - name: fmt check
+         run: cargo fmt --all -- --check
 
-      - name: bench
-        if: matrix.os != 'windows-latest'
-        run: cargo bench --workspace --all-targets --all-features -- --skip keyring
+       - name: check
+         run: cargo check --all
 
-      - name: doc
-        run: cargo doc --workspace --all-features --no-deps
+       - name: clippy
+         run: |
+           cargo clippy --all-targets --release -- \
+             -A clippy::similar_names \
+             -A clippy::too_many_arguments \
+             -A clippy::significant_drop_tightening \
+             -A clippy::redundant_closure \
+             -A clippy::missing_errors_doc \
+             -A clippy::type_complexity
+         shell: bash
 
-      - name: test package
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cargo aur
-          cargo generate-rpm
+       - name: tests
+         if: matrix.os != 'windows-latest'
+         run: cargo test --release --all --all-features -- --skip keyring
 
-      - name: java-bridge build
-        run: |
-          cd java-bridge
-          cargo build --all-targets --all-features
-          cargo build --release --all-targets --all-features
+       - name: tests (Windows)
+         if: matrix.os == 'windows-latest'
+         run: cargo test --release --all --all-features -- --skip keyring
 
-      - name: java-bridge fmt check
-        run: |
-          cd java-bridge
-          cargo fmt --all -- --check
+       - name: bench
+         if: matrix.os != 'windows-latest'
+         run: cargo bench --workspace --all-targets --all-features -- --skip keyring
 
-      - name: java-bridge check
-        run: |
-          cd java-bridge
-          cargo check --all
+       - name: doc
+         run: cargo doc --workspace --all-features --no-deps
 
-      - name: java-bridge clippy
-        run: |
-          cd java-bridge
-          cargo clippy --all-targets --release -- \
-            -A clippy::similar_names \
-            -A clippy::too_many_arguments \
-            -A clippy::significant_drop_tightening \
-            -A clippy::redundant_closure \
-            -A clippy::missing_errors_doc \
-            -A clippy::type_complexity
-        shell: bash
+       - name: test package
+         if: matrix.os == 'ubuntu-latest'
+         run: |
+           cargo aur
+           cargo generate-rpm
 
-      - name: java-bridge tests
-        if: matrix.os != 'windows-latest'
-        run: |
-          cd java-bridge
-          cargo test --release --all --all-features
+       - name: java-bridge build
+         run: |
+           cd java-bridge
+           cargo build --all-targets --all-features
+           cargo build --release --all-targets --all-features
 
-      - name: java-bridge bench
-        if: matrix.os != 'windows-latest'
-        run: |
-          cd java-bridge
-          cargo bench --workspace --all-targets --all-features
+       - name: java-bridge fmt check
+         run: |
+           cd java-bridge
+           cargo fmt --all -- --check
 
-      - name: java-bridge doc
-        run: |
-          cd java-bridge
-          cargo doc --workspace --all-features --no-deps
+       - name: java-bridge check
+         run: |
+           cd java-bridge
+           cargo check --all
+
+       - name: java-bridge clippy
+         run: |
+           cd java-bridge
+           cargo clippy --all-targets --release -- \
+             -A clippy::similar_names \
+             -A clippy::too_many_arguments \
+             -A clippy::significant_drop_tightening \
+             -A clippy::redundant_closure \
+             -A clippy::missing_errors_doc \
+             -A clippy::type_complexity
+         shell: bash
+
+       - name: java-bridge tests
+         if: matrix.os != 'windows-latest'
+         run: |
+           cd java-bridge
+           cargo test --release --all --all-features
+
+       - name: java-bridge bench
+         if: matrix.os != 'windows-latest'
+         run: |
+           cd java-bridge
+           cargo bench --workspace --all-targets --all-features
+
+       - name: java-bridge doc
+         run: |
+           cd java-bridge
+           cargo doc --workspace --all-features --no-deps
+
+       - name: Windows cross-compile verification
+         if: matrix.os == 'windows-latest'
+         run: |
+           cargo check --target x86_64-pc-windows-msvc --all-targets --all-features

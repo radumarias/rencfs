@@ -17,7 +17,7 @@ stable release.
 > It's mostly ideal for experimental and learning projects.**
 
 An encrypted file system written in Rust mounted with FUSE on Linux. It can be used to create encrypted
-directories.
+directories. Native Windows mounting is not yet implemented; see the [Windows support implementation research](docs/research/windows-support.md).
 
 You can then safely back up the encrypted directory to an untrusted server without worrying about the data being
 exposed.
@@ -74,6 +74,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 # Documentation
 
 - [Docs](docs/)
+- [Windows support implementation research](docs/research/windows-support.md) (research only; native mounting is not yet implemented)
 
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 
@@ -87,7 +88,7 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
 
 # Next steps
 
-- The plan is to implement it also on macOS and Windows
+- The plan is to implement it also on macOS and Windows; the [Windows implementation research](docs/research/windows-support.md) defines the proposed first milestone.
 - **Systemd service** is being worked on [rencfs-daemon](https://github.com/radumarias/rencfs-daemon)
 - **GUI** is being worked on [rencfs-desktop](https://github.com/radumarias/rencfs-desktop)
   and [ciphershell-kotlin](https://github.com/radumarias/ciphershell-kotlin)

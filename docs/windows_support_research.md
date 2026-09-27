@@ -1,8 +1,8 @@
 # Windows Support Research — Issue #3
 
-**Status:** Decided (research complete)
+**Status:** Decided (research complete); proof-of-concept WinFsp backend implemented
 **Decision:** Adopt **WinFsp** via the [`winfsp`](https://crates.io/crates/winfsp) crate (winfsp-rs) as the Windows user-mode filesystem backend.
-**Scope of this issue:** research, decision record, semantic-mapping spec, and build plumbing. The mount implementation itself is tracked in the follow-up epic (see §9).
+**Scope of this issue:** research, decision record, semantic-mapping spec, build plumbing, and a proof-of-concept mount backend (`src/mount/windows/`, behind the `windows-mount` feature). Hardening, integration tests on a WinFsp-installed runner, and distribution packaging are tracked in the follow-up epic (see §9).
 
 ---
 
@@ -16,13 +16,14 @@ There is no FUSE on Windows, so the missing piece was a decision on which Window
 
 | Area | State before this issue | State after this issue |
 |---|---|---|
-| Mount backend | `src/mount/linux.rs` (fuse3) on Linux; `src/mount/dummy.rs` stub elsewhere | Unchanged; `src/mount/windows.rs` to be added by the implementation epic |
-| Mount abstraction | `MountPoint` / `MountHandle` / `MountHandleInner` traits in `src/mount.rs`, backend selected by `cfg` | Unchanged — the abstraction is already sufficient; no Linux regression risk |
+| Mount backend | `src/mount/linux.rs` (fuse3) on Linux; `src/mount/dummy.rs` stub elsewhere | Added `src/mount/windows/` (WinFsp PoC, `cfg(all(windows, feature = "windows-mount"))`); `dummy.rs` remains the fallback for other platforms |
+| Mount abstraction | `MountPoint` / `MountHandle` / `MountHandleInner` traits in `src/mount.rs`, backend selected by `cfg` | Unchanged — the abstraction proved sufficient; the WinFsp backend implements the same traits, no Linux regression risk |
 | `libc` dependency | Unconditional in `Cargo.toml` | Moved to `[target.'cfg(unix)'.dependencies]`; all uses (`UID`/`GID` in `src/lib.rs`, root-dir ownership in `encryptedfs.rs`) are `cfg(unix)`-gated and return `0` on Windows |
 | `umount` | `mount::umount()` shells out to `umount(8)` on every platform | Shell-out is `cfg(unix)`-only; on Windows it returns `io::ErrorKind::Unsupported` (WinFsp volumes are unmounted via the mount handle) |
-| CLI | `src/main.rs` prints "not yet ready for this platform" on Windows | Unchanged for this issue; the Windows `run` path is part of the epic |
+| CLI | `src/main.rs` prints "not yet ready for this platform" on Windows | With `windows-mount`, the full `run` CLI (`mount`, `passwd`) works on Windows; without the feature it prints build instructions |
 | Windows deps | none | Optional `winfsp = "0.13"` under `cfg(target_os = "windows")`, enabled by the new `windows-mount` cargo feature |
-| CI | `windows-latest` builds only; no tests run | `windows-latest` additionally runs `cargo test --release --lib` to lock the core as Windows-clean |
+| Semantic mapping | n/a | `src/mount/windows_semantics.rs` — pure, platform-independent POSIX→Windows mapping helpers (FILETIME, file attributes, path/name rules, case-insensitive compare), unit-tested on every platform |
+| CI | `windows-latest` builds only; no tests run | `windows-latest` additionally runs `cargo test --release --lib` and `cargo check`/`clippy --features windows-mount`, locking the core and the WinFsp backend as Windows-clean |
 
 ## 3. Options evaluated
 
@@ -36,7 +37,7 @@ There is no FUSE on Windows, so the missing piece was a decision on which Window
 
 ### 3.1 Why WinFsp
 
-- **FUSE-compatible mental model.** WinFsp exposes an async-capable callback interface (`FileSystemInterface`) that maps almost one-to-one onto the `fuse3::Filesystem` trait the Linux backend already implements (see §6). This minimizes new concepts and lets `src/mount/windows.rs` mirror the structure of `src/mount/linux.rs`.
+- **FUSE-compatible mental model.** WinFsp exposes an async-capable callback interface (`FileSystemInterface`) that maps almost one-to-one onto the `fuse3::Filesystem` trait the Linux backend already implements (see §6). This minimizes new concepts and lets `src/mount/windows/` mirror the structure of `src/mount/linux.rs`.
 - **Production-proven.** WinFsp ships with a signed kernel driver and installer; rclone mount and sshfs-win rely on it at scale.
 - **Rust bindings are first-class.** winfsp-rs provides safe wrappers (`FileSystemContext`, `FileSystemHost`), builds on a plain `windows-latest` CI runner without WinFsp installed, and delay-loads `winfsp.dll` at runtime so the binary starts (and can error gracefully) on machines without the driver.
 - **Distribution story.** WinFsp's signed installer can be bundled or required as a documented prerequisite — a UX concern, not a code blocker.
@@ -44,7 +45,7 @@ There is no FUSE on Windows, so the missing piece was a decision on which Window
 ## 4. Decision record (ADR)
 
 - **Context:** rencfs needs a Windows mount backend; there is no FUSE on Windows.
-- **Decision:** Use WinFsp via the `winfsp` crate, behind the `windows-mount` cargo feature, in a new `src/mount/windows.rs` module implementing the existing `MountPoint`/`MountHandleInner` traits. `encryptedfs` stays platform-neutral and untouched by the adapter.
+- **Decision:** Use WinFsp via the `winfsp` crate, behind the `windows-mount` cargo feature, in a new `src/mount/windows/` module implementing the existing `MountPoint`/`MountHandleInner` traits. `encryptedfs` stays platform-neutral and untouched by the adapter.
 - **Consequences:**
   - End users must install WinFsp (signed driver) — documented prerequisite, later bundled in an installer (epic task).
   - The adapter must translate POSIX-ish `FileAttr`/inode semantics to Windows file attributes/security descriptors (§5).
@@ -108,7 +109,7 @@ Windows forbids deleting/renaming files with open handles unless opened with del
                  └─┬──────────────┬─────────┘
         cfg(linux) │   cfg(win)   │  cfg(other)
         ┌──────────▼─┐ ┌──────────▼───────┐ ┌──────────────┐
-        │ mount/     │ │ mount/windows.rs │ │ mount/       │
+        │ mount/     │ │ mount/windows/ │ │ mount/       │
         │ linux.rs   │ │ WinFsp           │ │ dummy.rs     │
         │ fuse3      │ │ FileSystemContext│ │ (stub)       │
         └──────────┬─┘ └──────────┬───────┘ └──────────────┘
@@ -118,7 +119,7 @@ Windows forbids deleting/renaming files with open handles unless opened with del
                  └─────────────────┘
 ```
 
-`src/mount/windows.rs` implements a WinFsp `FileSystemContext` whose callbacks delegate to `EncryptedFs`:
+`src/mount/windows/` implements a WinFsp `FileSystemContext` whose callbacks delegate to `EncryptedFs`:
 
 | WinFsp callback | EncryptedFs call |
 |---|---|
@@ -138,30 +139,41 @@ Because WinFsp callbacks are synchronous and `EncryptedFs` is async, the adapter
 ## 7. Build & dependency plumbing (done in this issue)
 
 1. `libc` moved from unconditional to `[target.'cfg(unix)'.dependencies]`; `UID`/`GID` (`src/lib.rs`) and root-dir ownership (`src/encryptedfs.rs`) re-gated to `cfg(unix)`, returning `0` on Windows.
-2. Optional `winfsp = "0.13"` dependency added under `[target.'cfg(target_os = "windows")'.dependencies]`, behind the new `windows-mount` cargo feature. It compiles without WinFsp installed (bundled import library) and delay-loads the driver DLL at runtime, so CI and library consumers (e.g. `java-bridge`) are unaffected unless they opt in. Note: a consumer binary that *uses* the backend must call `winfsp::build::winfsp_link_delayload()` from its `build.rs` (epic task).
-3. `mount::umount()` shell-out is `cfg(unix)`-only; off-Unix it returns `io::ErrorKind::Unsupported`.
-4. CI (`build_and_tests_reusable.yaml`): `windows-latest` now runs `cargo test --release --lib -- --skip keyring` in addition to the existing build, locking the core as Windows-clean.
-5. Unit tests added for the gating (`UID`/`GID` platform consistency, `umount` failure paths).
+2. Optional `winfsp = "0.13"` dependency added under `[target.'cfg(target_os = "windows")'.dependencies]`, behind the new `windows-mount` cargo feature. It compiles without WinFsp installed (bundled import library) and delay-loads the driver DLL at runtime, so CI and library consumers (e.g. `java-bridge`) are unaffected unless they opt in. Building the feature needs `bindgen`'s libclang and the Windows SDK headers — both present on `windows-latest` runners (LLVM at `C:\Program Files\LLVM`).
+3. `build.rs` emits the WinFsp `/DELAYLOAD` link flags when building for Windows with `windows-mount` (mirrors `winfsp::build::winfsp_link_delayload()`; reimplemented without a build-dependency so it also works when cross-compiling).
+4. `mount::umount()` shell-out is `cfg(unix)`-only; off-Unix it returns `io::ErrorKind::Unsupported`.
+5. `src/main.rs` gates the `run` CLI on `any(target_os = "linux", all(windows, feature = "windows-mount"))`, so the PoC is demonstrable as `rencfs mount -m X: -d <data-dir>` on Windows.
+6. CI (`build_and_tests_reusable.yaml`): `windows-latest` now runs `cargo test --release --lib -- --skip keyring` plus `cargo check`/`clippy --features windows-mount` (with `LIBCLANG_PATH` pointing at the runner's LLVM), locking both the core and the WinFsp backend as Windows-clean.
+7. Unit tests added for the gating (`UID`/`GID` platform consistency, `umount` failure paths) and for the semantic-mapping layer (`src/mount/windows_semantics.rs`: FILETIME round-trips incl. pre-1970 dates, attribute mapping, path splitting, Windows filename validation, case-insensitive comparison) — these run on every platform.
 
-Deferred to the epic: making `fuse3` optional behind a `linux-mount` feature (Linux default unchanged to avoid regressions), and gating `src/main.rs` to a Windows `run` path.
+Deferred to the epic: making `fuse3` optional behind a `linux-mount` feature (Linux default unchanged to avoid regressions).
 
 ## 8. Testing strategy
 
-1. **Compile gate:** `cargo check --target x86_64-pc-windows-msvc` (core already compiles today; the epic adds the mount module behind it). `cargo check --features windows-mount` must pass on Windows CI.
+1. **Compile gate:** `cargo check --target x86_64-pc-windows-msvc` (with and without `--features windows-mount`) — verified green on this branch (cross-checked with the full dependency tree, including `ring` and `bindgen`-generated WinFSP bindings). CI additionally runs `cargo check`/`clippy --features windows-mount` on `windows-latest`.
 2. **Core unit tests on Windows:** `cargo test --release --lib` on `windows-latest` (added to CI in this issue).
-3. **Integration tests:** existing `tests/rencfs_linux_itest.rs` stays Linux-only and must remain green (proves the abstraction wasn't broken). The epic adds `tests/rencfs_windows_itest.rs` mirroring it (create/read/write/rename/delete/dir listing through the mount point), `#[cfg(target_os = "windows")]`, on a CI job that installs WinFsp via `choco install winfsp`.
-4. **Manual smoke matrix (epic acceptance):** mount to a drive letter and to a directory mount point; edit a text file from Notepad/Explorer; verify ciphertext round-trip in the data dir; clean unmount; reopen after reboot; case-insensitivity and long-path checks.
-5. **Cross-platform on-disk compatibility:** a vault created on Linux must open on Windows and vice versa (the on-disk format is already platform-neutral; this becomes an explicit epic test).
+3. **Semantic-mapping unit tests (all platforms):** the pure mapping layer (`src/mount/windows_semantics.rs`) is compiled under `cfg(test)` on every OS, so FILETIME conversion, attribute mapping, path/name rules, and case folding are covered by the regular `cargo test` runs on Linux/macOS/Windows.
+4. **Integration tests:** existing `tests/rencfs_linux_itest.rs` stays Linux-only and must remain green (proves the abstraction wasn't broken). The epic adds `tests/rencfs_windows_itest.rs` mirroring it (create/read/write/rename/delete/dir listing through the mount point), `#[cfg(target_os = "windows")]`, on a CI job that installs WinFsp via `choco install winfsp`.
+5. **Manual smoke matrix (epic acceptance):** `cargo build --features windows-mount` on a Windows machine with WinFsp installed, then `rencfs mount -m X: -d <data-dir>`; mount to a drive letter and to a directory mount point; edit a text file from Notepad/Explorer; verify ciphertext round-trip in the data dir; clean unmount; reopen after reboot; case-insensitivity and long-path checks.
+6. **Cross-platform on-disk compatibility:** a vault created on Linux must open on Windows and vice versa (the on-disk format is already platform-neutral; this becomes an explicit epic test).
 
 ## 9. Task breakdown (follow-up epic)
 
-1. `src/mount/windows.rs`: `MountPoint`/`MountHandleInner` impl backed by WinFsp `FileSystemHost` (callbacks per §6, error mapping per §5.2).
-2. Adapter semantic layer: attribute/SD synthesis, case-insensitive lookup policy, filename validation, delete-pending tracking (§5).
-3. `build.rs` delay-load wiring + `--features windows-mount` binary path; gate `src/main.rs` Windows `run` flow (mount to drive letter or directory).
-4. CI: `x86_64-pc-windows-msvc` compile gate with `windows-mount`; WinFsp-installed windows runner job for the new integration suite.
-5. `tests/rencfs_windows_itest.rs` + manual smoke matrix (§8.3–8.4).
-6. Distribution: document WinFsp prerequisite; evaluate bundling the signed WinFsp installer / winget packaging.
-7. Optional: `linux-mount`/`windows-mount` feature parity so headless consumers never build a mount backend.
+Done in this issue (spike/PoC):
+
+1. ✅ `src/mount/windows/`: `MountPoint`/`MountHandleInner` impl backed by WinFsp `FileSystemHost` (callbacks per §6, error mapping per §5.2, delete-pending per §5.5, case-insensitive lookup with normalized names per §5.3).
+2. ✅ Adapter semantic layer: `src/mount/windows_semantics.rs` — attribute mapping, FILETIME conversion, filename validation, case-insensitive comparison, unit-tested cross-platform.
+3. ✅ `build.rs` delay-load wiring + `--features windows-mount` binary path; `src/main.rs` Windows `run` flow (mount to drive letter or directory).
+4. ✅ Windows CI: library unit tests on `windows-latest`; core stays `x86_64-pc-windows-msvc`-clean.
+
+Remaining (full implementation):
+
+1. CI: a WinFsp-installed job (`choco install winfsp`) for integration tests (the `cargo check`/`clippy --features windows-mount` gate on `windows-latest` is already in place).
+2. `tests/rencfs_windows_itest.rs` + manual smoke matrix (§8.3–8.4): mount via WinFsp, round-trip encrypt/decrypt, concurrent I/O, case-insensitive lookups, long paths.
+3. Cross-platform on-disk-format compatibility test (vault created on Linux opens on Windows and vice versa).
+4. PoC hardening: path-resolution caching (the PoC resolves paths by walking from the root per operation), case-insensitive-create collision policy, free-space reporting from the data dir, performance pass on `read_directory`.
+5. Distribution: document the WinFsp prerequisite; evaluate bundling the signed WinFsp installer / winget packaging.
+6. Optional: `linux-mount`/`windows-mount` feature parity so headless consumers never build a mount backend.
 
 ## 10. Risk register
 

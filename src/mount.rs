@@ -17,11 +17,23 @@ use linux::MountHandleInnerImpl;
 #[cfg(target_os = "linux")]
 use linux::MountPointImpl;
 
-#[cfg(not(target_os = "linux"))]
+// pure POSIX → Windows mapping helpers, free of Windows-only dependencies so
+// they can be unit-tested on every platform
+#[cfg(any(all(windows, feature = "windows-mount"), test))]
+mod windows_semantics;
+
+#[cfg(all(windows, feature = "windows-mount"))]
+mod windows;
+#[cfg(all(windows, feature = "windows-mount"))]
+use windows::MountHandleInnerImpl;
+#[cfg(all(windows, feature = "windows-mount"))]
+use windows::MountPointImpl;
+
+#[cfg(not(any(target_os = "linux", all(windows, feature = "windows-mount"))))]
 mod dummy;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", all(windows, feature = "windows-mount"))))]
 use dummy::MountHandleInnerImpl;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", all(windows, feature = "windows-mount"))))]
 use dummy::MountPointImpl;
 
 #[async_trait]
@@ -67,7 +79,9 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 }
 /// Available arguments
 ///
-/// **`mountpoint`** where it wil mount the filesystem
+/// **`mountpoint`** where it wil mount the filesystem (on Windows with the
+/// `windows-mount` feature this can be a drive letter like `X:` or an empty
+/// directory; the WinFsp driver must be installed)
 /// **`data_dir`** the directory where the encrypted files will be stored  
 /// **`password_provider`** the password provider  
 /// **`cipher`** The encryption algorithm to use.
@@ -75,7 +89,7 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 ///
 /// **`allow_root`** allow root to access the file system (Unix only, ignored on Windows)
 /// **`allow_other`** allow other users to access the file system (Unix only, ignored on Windows)
-/// **`read_only`** Set FUSE filesystem read-only mount option, default is disabled.
+/// **`read_only`** mount the filesystem read-only, default is disabled.
 #[must_use]
 #[allow(clippy::fn_params_excessive_bools)]
 #[allow(clippy::too_long_first_doc_paragraph)]

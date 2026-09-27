@@ -62,6 +62,16 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: cargo test --release --lib -- --skip keyring
 
+      # the WinFsp PoC backend must keep compiling on Windows; winfsp-sys
+      # generates bindings with bindgen, so point it at the runner's LLVM
+      - name: check windows-mount feature (windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $env:LIBCLANG_PATH = "C:\Program Files\LLVM\bin"
+          cargo check --features windows-mount
+          cargo clippy --features windows-mount -- -A clippy::similar_names -A clippy::too_many_arguments -A clippy::significant_drop_tightening -A clippy::redundant_closure -A clippy::missing_errors_doc -A clippy::type_complexity
+
       - name: bench
         if: matrix.os != 'windows-latest'
         run: cargo bench --workspace --all-targets --all-features -- --skip keyring

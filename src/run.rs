@@ -132,7 +132,7 @@ fn get_cli_args() -> ArgMatches {
                         .required(true)
                         .value_name("MOUNT_POINT")
                         .requires("data-dir")
-                        .help("Act as a client, and mount FUSE at given path"),
+                        .help("Act as a client, and mount the decrypted filesystem at the given path (a directory on Unix; a drive letter like `X:` or an empty directory on Windows)"),
                 )
                 .arg(
                     Arg::new("data-dir")
@@ -150,7 +150,7 @@ fn get_cli_args() -> ArgMatches {
                         .action(ArgAction::SetTrue)
                         .requires("mount-point")
                         .requires("data-dir")
-                        .help("If we should try to umount the mountpoint before starting the FUSE server. This can be useful when the previous run crashed or was forced kll and the mountpoint is still mounted."),
+                        .help("If we should try to umount the mountpoint before starting the filesystem server. This can be useful when the previous run crashed or was forced kll and the mountpoint is still mounted. Unix only; a no-op on Windows."),
                 )
                 .arg(
                     Arg::new("allow-root")
@@ -177,7 +177,7 @@ fn get_cli_args() -> ArgMatches {
                         .action(ArgAction::SetTrue)
                         .requires("mount-point")
                         .requires("data-dir")
-                        .help("Set FUSE filesystem read-only mount option, default is disabled.")
+                        .help("Mount the filesystem read-only, default is disabled.")
                 )
         ).subcommand(
         Command::new("passwd")

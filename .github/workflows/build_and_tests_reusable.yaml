@@ -55,6 +55,13 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: cargo test --release --all --all-features -- --skip keyring
 
+      # on Windows we can't mount yet (no FUSE), but the platform-agnostic core
+      # (encryptedfs, crypto) must stay Windows-clean, so run the library unit
+      # tests there; see docs/windows_support_research.md
+      - name: unit tests (windows)
+        if: matrix.os == 'windows-latest'
+        run: cargo test --release --lib -- --skip keyring
+
       - name: bench
         if: matrix.os != 'windows-latest'
         run: cargo bench --workspace --all-targets --all-features -- --skip keyring

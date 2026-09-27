@@ -3,10 +3,12 @@ use crate::encryptedfs::{FsResult, PasswordProvider};
 use async_trait::async_trait;
 use futures_util::FutureExt;
 use std::future::Future;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
+#[cfg(unix)]
+use std::process;
 use std::task::{Context, Poll};
-use std::{io, process};
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -71,8 +73,8 @@ pub(crate) trait MountHandleInner: Future<Output = io::Result<()>> {
 /// **`cipher`** The encryption algorithm to use.
 /// Currently, it supports these ciphers [`Cipher`]
 ///
-/// **`allow_root`** allow root to access the file system  
-/// **`allow_other`** allow other users to access the file system  
+/// **`allow_root`** allow root to access the file system (Unix only, ignored on Windows)
+/// **`allow_other`** allow other users to access the file system (Unix only, ignored on Windows)
 /// **`read_only`** Set FUSE filesystem read-only mount option, default is disabled.
 #[must_use]
 #[allow(clippy::fn_params_excessive_bools)]
@@ -97,39 +99,80 @@ pub fn create_mount_point(
     )
 }
 
+/// Best-effort unmount of the filesystem mounted at `mountpoint`.
+///
+/// On Unix this shells out to `umount(8)`, trying a normal unmount, then
+/// force (`-f`), then lazy (`-l`).
+///
+/// On Windows there is no equivalent shell command: WinFsp volumes are
+/// unmounted through the mount handle (see [`MountHandle::umount`]), so this
+/// always returns [`io::ErrorKind::Unsupported`]. See
+/// `docs/windows_support_research.md` for the Windows unmount design.
 pub fn umount(mountpoint: &str) -> io::Result<()> {
-    // try normal umount
-    if process::Command::new("umount")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
+    #[cfg(unix)]
     {
-        return Ok(());
+        // try normal umount
+        if process::Command::new("umount")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            return Ok(());
+        }
+        // force umount
+        if process::Command::new("umount")
+            .arg("-f")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            return Ok(());
+        }
+        // lazy umount
+        if process::Command::new("umount")
+            .arg("-l")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            Ok(())
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("cannot umount {mountpoint}"),
+            ))
+        }
     }
-    // force umount
-    if process::Command::new("umount")
-        .arg("-f")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
+    #[cfg(not(unix))]
     {
-        return Ok(());
-    }
-    // lazy umount
-    if process::Command::new("umount")
-        .arg("-l")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
-    {
-        Ok(())
-    } else {
         Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("cannot umount {mountpoint}"),
+            io::ErrorKind::Unsupported,
+            format!(
+                "cannot umount {mountpoint}: no system umount command on this platform, \
+                 use MountHandle::umount instead"
+            ),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn umount_path_that_is_not_mounted_fails() {
+        // a nonexistent path can never be a mountpoint, so this must fail on
+        // every platform (Unix: `umount` exits non-zero, or is missing and the
+        // spawn fails; elsewhere: Unsupported)
+        let res = super::umount("/nonexistent/rencfs/mountpoint/that/is/not/mounted");
+        assert!(res.is_err());
+    }
+
+    #[cfg(not(unix))]
+    #[test]
+    fn umount_is_unsupported_off_unix() {
+        let err = super::umount("X:").unwrap_err();
+        assert_eq!(err.kind(), std::io::ErrorKind::Unsupported);
     }
 }

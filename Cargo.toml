@@ -15,9 +15,13 @@ categories = ["cryptography", "filesystem"]
 documentation = "https://docs.rs/rencfs"
 exclude = [".github/"]
 
+[features]
+# Enables the WinFsp-based mount backend on Windows (see docs/windows_support_research.md).
+# Only has an effect when compiling for Windows; on other targets it is a no-op.
+windows-mount = ["dep:winfsp"]
+
 [dependencies]
 clap = { version = "4.5.4", features = ["derive", "cargo"] }
-libc = "0.2.153"
 serde = { version = "1.0.197", features = ["derive"] }
 bincode = "1.3.3"
 thiserror = "2.0.6"
@@ -59,8 +63,18 @@ bon = "3.3.0"
 shush-rs = "0.1.10"
 criterion = { version = "0.5.1", features = ["html_reports"] }
 
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.153"
+
 [target.'cfg(target_os = "linux")'.dependencies]
 fuse3 = { version = "0.8.1", features = ["tokio-runtime", "unprivileged"] }
+
+# WinFsp user-mode filesystem bindings for the Windows mount backend.
+# Optional so headless/library consumers (e.g. java-bridge) don't pay for it;
+# enable with `--features windows-mount`. Builds without WinFsp installed
+# (bundled import library, delay-loaded at runtime).
+[target.'cfg(target_os = "windows")'.dependencies]
+winfsp = { version = "0.13.1", optional = true }
 
 [[bench]]
 name = "crypto_read"

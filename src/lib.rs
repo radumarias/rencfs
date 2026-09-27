@@ -300,18 +300,27 @@ pub mod mount;
 pub mod stream_util;
 pub(crate) mod test_common;
 
+/// The user id of the current process.
+///
+/// On Unix this is the real `uid` from `getuid(2)`. On Windows there is no
+/// POSIX uid concept, so this is always `0` (see
+/// `docs/windows_support_research.md` for how ownership is mapped there).
 #[allow(unreachable_code)]
 pub static UID: LazyLock<u32> = LazyLock::new(|| {
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(unix)]
     {
         return unsafe { libc::getuid() };
     }
     0
 });
 
+/// The group id of the current process.
+///
+/// On Unix this is the real `gid` from `getgid(2)`. On Windows there is no
+/// POSIX gid concept, so this is always `0`.
 #[allow(unreachable_code)]
 pub static GID: LazyLock<u32> = LazyLock::new(|| {
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(unix)]
     {
         return unsafe { libc::getgid() };
     }
@@ -326,4 +335,24 @@ pub const fn is_debug() -> bool {
         return true;
     }
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn uid_gid_match_platform_source() {
+        #[cfg(unix)]
+        {
+            assert_eq!(*UID, unsafe { libc::getuid() });
+            assert_eq!(*GID, unsafe { libc::getgid() });
+        }
+        // on non-Unix platforms there is no POSIX uid/gid, we always report 0
+        #[cfg(not(unix))]
+        {
+            assert_eq!(*UID, 0);
+            assert_eq!(*GID, 0);
+        }
+    }
 }

@@ -154,10 +154,7 @@ pub fn umount(mountpoint: &str) -> io::Result<()> {
         {
             Ok(())
         } else {
-            Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("cannot umount {mountpoint}"),
-            ))
+            Err(io::Error::other(format!("cannot umount {mountpoint}")))
         }
     }
     #[cfg(not(unix))]

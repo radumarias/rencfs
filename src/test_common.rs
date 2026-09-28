@@ -3,12 +3,10 @@ use std::io::{Cursor, Write};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::{Arc, LazyLock};
-use std::{env, fs, io};
+use std::{env, fs};
 
 use shush_rs::SecretString;
 use tempfile::NamedTempFile;
-use thread_local::ThreadLocal;
-use tokio::sync::Mutex;
 
 use crate::crypto::Cipher;
 use crate::encryptedfs::{
@@ -36,8 +34,9 @@ pub static TESTS_DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
         .join("rencfs-test-data")
 });
 
-#[allow(dead_code)]
-pub static SETUP_RESULT: ThreadLocal<Mutex<Option<SetupResult>>> = ThreadLocal::new();
+tokio::task_local! {
+    pub static CURRENT_FS: Arc<EncryptedFs>;
+}
 
 #[allow(dead_code)]
 pub const fn create_attr(kind: FileType) -> CreateFileAttr {
@@ -58,13 +57,6 @@ pub struct TestSetup {
     pub read_only: bool,
 }
 
-pub struct SetupResult {
-    #[allow(dead_code)]
-    pub fs: Option<Arc<EncryptedFs>>,
-    #[allow(dead_code)]
-    setup: TestSetup,
-}
-
 #[allow(dead_code)]
 pub struct PasswordProviderImpl {}
 impl PasswordProvider for PasswordProviderImpl {
@@ -72,12 +64,17 @@ impl PasswordProvider for PasswordProviderImpl {
         Some(SecretString::from_str("password").unwrap())
     }
 }
+
 #[allow(dead_code)]
-async fn setup(setup: TestSetup) -> SetupResult {
-    let path = TESTS_DATA_DIR.join(setup.key);
-    let read_only = setup.read_only;
+#[allow(clippy::future_not_send)]
+pub async fn run_test<T>(init: TestSetup, t: T)
+where
+    T: Future,
+{
+    let test_id = rand::random::<u64>();
+    let path = TESTS_DATA_DIR.join(format!("{}_{test_id}", init.key));
+    let read_only = init.read_only;
     let data_dir_str = path.to_str().unwrap();
-    let _ = fs::remove_dir_all(data_dir_str);
     let _ = fs::create_dir_all(data_dir_str);
 
     let fs = EncryptedFs::new(
@@ -89,36 +86,13 @@ async fn setup(setup: TestSetup) -> SetupResult {
     .await
     .unwrap();
 
-    SetupResult {
-        fs: Some(fs),
-        setup,
-    }
-}
+    CURRENT_FS
+        .scope(fs, async {
+            t.await;
+        })
+        .await;
 
-#[allow(dead_code)]
-async fn teardown() -> Result<(), io::Error> {
-    let s = SETUP_RESULT.get_or(|| Mutex::new(None));
-    let s = s.lock().await;
-    let path = TESTS_DATA_DIR.join(s.as_ref().unwrap().setup.key);
-    let data_dir_str = path.to_str().unwrap();
-    fs::remove_dir_all(data_dir_str)?;
-
-    Ok(())
-}
-
-#[allow(dead_code)]
-#[allow(clippy::future_not_send)]
-pub async fn run_test<T>(init: TestSetup, t: T)
-where
-    T: Future,
-{
-    {
-        let s = SETUP_RESULT.get_or(|| Mutex::new(None));
-        let mut s = s.lock().await;
-        *s = Some(setup(init).await);
-    }
-    t.await;
-    teardown().await.unwrap();
+    let _ = fs::remove_dir_all(data_dir_str);
 }
 
 #[allow(dead_code)]
@@ -214,8 +188,5 @@ pub fn block_on<F: Future>(future: F, worker_threads: usize) -> F::Output {
 
 #[allow(dead_code)]
 pub async fn get_fs() -> Arc<EncryptedFs> {
-    // todo: see if we can simplify how we keep in SETUP_RESULT
-    let fs = SETUP_RESULT.get_or(|| Mutex::new(None));
-    let mut fs = fs.lock().await;
-    fs.as_mut().unwrap().fs.as_ref().unwrap().clone()
+    CURRENT_FS.with(|fs| fs.clone())
 }

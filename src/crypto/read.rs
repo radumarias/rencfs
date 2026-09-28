@@ -71,6 +71,7 @@ macro_rules! decrypt_block {
     }};
 }
 
+#[allow(unused_imports)]
 pub(crate) use decrypt_block;
 
 #[allow(clippy::module_name_repetitions)]

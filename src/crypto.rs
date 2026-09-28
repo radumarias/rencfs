@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use shush_rs::{ExposeSecret, SecretString, SecretVec};
 use strum_macros::{Display, EnumIter, EnumString};
 use thiserror::Error;
-use tracing::{debug, error, instrument};
+use tracing::{debug, instrument};
 use write::CryptoInnerWriter;
 
 use crate::crypto::read::{CryptoRead, CryptoReadSeek, RingCryptoRead};
@@ -245,8 +245,10 @@ pub fn encrypt_file_name(
         "$." | "$.." => Ok(secret_string.clone()),
         "." | ".." => Ok(format!("${secret_string}")),
         _ => {
-            let secret = SecretString::from_str(&secret_string)
-                .map_err(|err| Error::GenericString(err.to_string()))?;
+            let secret = match SecretString::from_str(&secret_string) {
+                Ok(s) => s,
+                Err(err) => match err {},
+            };
             let mut encrypted = encrypt(&secret, cipher, key)?;
             encrypted = encrypted.replace('/', "|");
 

@@ -2302,18 +2302,13 @@ impl EncryptedFs {
             let mut attr: FileAttr = CreateFileAttr {
                 kind: FileType::Directory,
                 perm: 0o755,
-                uid: 0,
-                gid: 0,
+                uid: *crate::UID,
+                gid: *crate::GID,
                 rdev: 0,
                 flags: 0,
             }
             .into();
             attr.ino = ROOT_INODE;
-            #[cfg(unix)]
-            unsafe {
-                attr.uid = libc::getuid();
-                attr.gid = libc::getgid();
-            }
 
             self.write_inode_to_storage(&attr).await?;
 

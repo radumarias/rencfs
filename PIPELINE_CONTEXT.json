@@ -12,7 +12,7 @@
     "language": "Rust",
     "package_manager": "cargo",
     "test_command": "cargo test",
-    "commit_sha": "7d22b6f"
+    "commit_sha": "5125f8c"
   },
   "step_2": {
     "root_cause": "rencfs was designed and implemented strictly for Linux systems with direct coupling to FUSE (fuse3::Filesystem), creating several architectural barriers on Windows: (1) Absence of a Windows user-mode filesystem driver/adapter, falling back to a dummy stub on non-Linux OSes; (2) Unconditional compile-time and runtime dependencies on POSIX libc, specifically libc::getuid() and libc::getgid() in src/lib.rs and src/encryptedfs.rs; (3) Hardcoded shell-out to the Unix `umount(8)` command in src/mount.rs; (4) Hardcoded OS check in src/main.rs and src/run.rs terminating with 'not yet ready for this platform' on Windows; (5) Lack of a formal research evaluation, ADR, and POSIX-to-Windows filesystem semantic translation specification for Windows file attributes, FILETIME conversions, case-insensitivity, illegal path characters (<>:\"/\\|?*), and DOS reserved device names.",

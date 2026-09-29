@@ -19,21 +19,19 @@ This document outlines the research and proposed architecture for adding native 
 
 ## Licensing and Attribution Checkpoint
 
-rencfs is licensed `MIT OR Apache-2.0`. WinFsp is licensed GPLv3 with a commercial licensing option. This creates a licensing conflict:
+rencfs is licensed `MIT OR Apache-2.0`. WinFsp is licensed GPLv3 **with a special FLOSS linking exception**, verified against WinFsp's [`License.txt`](https://github.com/winfsp/winfsp/blob/master/License.txt):
 
-- **GPLv3 is copyleft**: linking against WinFsp would require rencfs to be GPLv3 as well.
-- **Commercial license**: WinFsp offers a commercial license that permits proprietary use. This would need to be purchased and maintained.
+- The exception explicitly permits FLOSS software to link with the WinFsp DLL (`winfsp-a64.dll`, `winfsp-x64.dll`, `winfsp-x86.dll`, `winfsp-msil.dll`) without becoming subject to GPLv3, provided that:
+  1. the software is distributed under a license satisfying the FSF Free Software Definition or the Open Source Definition — `MIT OR Apache-2.0` qualifies;
+  2. the user interface and any user-facing documentation include the notice `WinFsp - Windows File System Proxy, Copyright (C) Bill Zissimopoulos` and a link to the WinFsp repository;
+  3. the software is not linked or distributed with proprietary (non-FLOSS) software.
+- A commercial license is also available from the WinFsp author for proprietary use. It is **not** required for a FLOSS project such as rencfs.
 
-**Decision**: The licensing conflict means WinFsp cannot be used without either:
-1. Purchasing a commercial WinFsp license, or
-2. Relicensing rencfs to GPLv3, or
-3. Using a clean-room implementation that does not link against WinFsp.
-
-This is a blocker that must be resolved before implementation begins.
+**Decision**: WinFsp is usable by rencfs under the FLOSS exception. An implementation PR must carry the attribution notice (a small addition to the README/docs), and the project must not be distributed combined with proprietary software. No relicensing of rencfs and no license purchase is required.
 
 ## Proposed Architecture: `src/mount/windows.rs`
 
-If the licensing issue is resolved, the proposed architecture mirrors the existing `src/mount/linux.rs` pattern:
+With the licensing checkpoint resolved via the FLOSS exception, the proposed architecture mirrors the existing `src/mount/linux.rs` pattern:
 
 ```
 src/mount/
@@ -121,16 +119,16 @@ windows:
 
 A truthful first implementation PR must:
 
-1. **Resolve the licensing blocker** — either purchase a commercial WinFsp license or document an alternative approach.
+1. **Carry the WinFsp attribution notice** — include the FLOSS-exception copyright notice and repository link in the README and any user-facing documentation.
 2. **Implement `src/mount/windows.rs`** with at minimum: `init`, `destroy`, `lookup`, `getattr`, `read`, `write`.
 3. **Pass `cargo check` on Windows** without warnings.
 4. **Pass `cargo test` on Windows** for the operations implemented.
 5. **Include a manual smoke test** performed on a real Windows host with WinFsp installed.
-6. **Document the licensing decision** in the PR description.
+6. **Document reliance on the WinFsp FLOSS exception** in the PR description.
 
 ## Open Questions
 
-1. **Licensing**: Will the project purchase a commercial WinFsp license, or is there a clean-room alternative?
+1. **Licensing**: Confirm the maintainer accepts the WinFsp FLOSS exception obligations (attribution notice, no proprietary mixing). No purchase or relicensing is required.
 2. **Scope**: Should the first milestone support all operations, or a subset (read-only)?
 3. **Testing**: Is there access to a Windows host for manual smoke testing?
 4. **Timeline**: What is the expected timeline for the first implementation PR?
@@ -138,5 +136,6 @@ A truthful first implementation PR must:
 ## References
 
 - [WinFsp GitHub](https://github.com/winfsp/winfsp)
+- [WinFsp License.txt (GPLv3 + FLOSS linking exception)](https://github.com/winfsp/winfsp/blob/master/License.txt)
 - [winfsp-sys Rust bindings](https://crates.io/crates/winfsp-sys)
 - [rencfs Linux mount implementation](https://github.com/radumarias/rencfs/blob/main/src/mount/linux.rs)

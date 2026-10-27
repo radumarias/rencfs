@@ -70,6 +70,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 
 - [Functionality](docs/readme/Functionality.md)
 - [Stack](docs/readme/Stack.md)
+- [Windows support — implementation research note](docs/readme/Windows_support.md)
 
 # Documentation
 

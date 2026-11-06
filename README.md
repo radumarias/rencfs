@@ -74,6 +74,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 # Documentation
 
 - [Docs](docs/)
+- [Windows Support Research](docs/windows-support-research.md)
 
 [![rencfs](website/resources/layers.png)](website/resources/layers.png)
 

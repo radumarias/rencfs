@@ -1,12 +1,14 @@
-use crate::crypto::Cipher;
-use crate::encryptedfs::{FsResult, PasswordProvider};
-use async_trait::async_trait;
-use futures_util::FutureExt;
 use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::{io, process};
+
+use async_trait::async_trait;
+use futures_util::FutureExt;
+
+use crate::crypto::Cipher;
+use crate::encryptedfs::{FsResult, PasswordProvider};
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -15,11 +17,18 @@ use linux::MountHandleInnerImpl;
 #[cfg(target_os = "linux")]
 use linux::MountPointImpl;
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "windows")]
+mod windows;
+#[cfg(target_os = "windows")]
+use windows::MountHandleInnerImpl;
+#[cfg(target_os = "windows")]
+use windows::MountPointImpl;
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 mod dummy;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 use dummy::MountHandleInnerImpl;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
 use dummy::MountPointImpl;
 
 #[async_trait]
@@ -98,38 +107,58 @@ pub fn create_mount_point(
 }
 
 pub fn umount(mountpoint: &str) -> io::Result<()> {
-    // try normal umount
-    if process::Command::new("umount")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
+    #[cfg(target_os = "windows")]
     {
-        return Ok(());
-    }
-    // force umount
-    if process::Command::new("umount")
-        .arg("-f")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
-    {
-        return Ok(());
-    }
-    // lazy umount
-    if process::Command::new("umount")
-        .arg("-l")
-        .arg(mountpoint)
-        .output()?
-        .status
-        .success()
-    {
-        Ok(())
-    } else {
-        Err(io::Error::new(
+        if process::Command::new("mountvol")
+            .arg(mountpoint)
+            .arg("/D")
+            .output()?
+            .status
+            .success()
+        {
+            return Ok(());
+        }
+        return Err(io::Error::new(
             io::ErrorKind::Other,
-            format!("cannot umount {mountpoint}"),
-        ))
+            format!("cannot umount Windows mountpoint {mountpoint}"),
+        ));
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        // try normal umount
+        if process::Command::new("umount")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            return Ok(());
+        }
+        // force umount
+        if process::Command::new("umount")
+            .arg("-f")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            return Ok(());
+        }
+        // lazy umount
+        if process::Command::new("umount")
+            .arg("-l")
+            .arg(mountpoint)
+            .output()?
+            .status
+            .success()
+        {
+            Ok(())
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("cannot umount {mountpoint}"),
+            ))
+        }
     }
 }

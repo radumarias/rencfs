@@ -115,9 +115,13 @@ mod windows;
 mod dummy;
 ```
 
-Do not add a separate Windows CLI parser unless the command line is genuinely
-different. The Linux path already goes through `run::run()`, Clap, and
-`create_mount_point()`. Reusing that path avoids option drift.
+Reuse the Clap interface and `create_mount_point()` rather than adding a second
+parser. Selecting a backend in `src/mount.rs` is not enough: `src/main.rs` gates
+`mod run` and the `run::run()` call to Linux and takes an early return on
+Windows. Route Windows to the shared CLI only after its platform-specific
+dependencies are isolated. In particular, the cleanup paths in `src/run.rs`
+call the `src/mount.rs` `umount` helper, which shells out to the Unix command.
+Retain that fallback on Linux; route Windows cleanup through the WinFsp host.
 
 ## Runtime architecture
 
@@ -148,19 +152,32 @@ The first useful milestone should support regular files and directories only.
 That matches the current `FileType` enum and avoids pretending to support NTFS
 features rencfs does not model yet.
 
-- WinFsp `GetSecurityByName` / `GetFileInfo` -> `EncryptedFs::lookup()` and
-  `EncryptedFs::get_attr()`.
+- WinFsp `GetSecurityByName`: walk validated path components with
+  `EncryptedFs::find_by_name()` (parent inode and name), starting at the root.
+  Use the resolved attributes and the adapter's default security descriptor.
+- WinFsp `GetFileInfo`: use the inode from the open context with
+  `EncryptedFs::get_attr()`; do not look the path up again.
 - WinFsp `Open` -> `EncryptedFs::open()` with read/write flags derived from
   requested access.
 - WinFsp `Create` -> `EncryptedFs::create()` using `CreateFileAttr`.
 - WinFsp `Read` -> `EncryptedFs::read()`.
 - WinFsp `Write` -> `EncryptedFs::write()`.
-- WinFsp `Overwrite` / `SetFileSize` -> `EncryptedFs::set_attr()` with
-  `SetFileAttr::with_size(...)`.
+- WinFsp `SetFileSize`: for changes to logical EOF, use
+  `EncryptedFs::set_len()` rather than `EncryptedFs::set_attr()` with
+  `SetFileAttr::with_size(...)`. The metadata path keeps the larger size and
+  does not truncate file contents. Allocation-only requests need separate
+  handling; allocation size is not the requested EOF.
+- WinFsp `Overwrite`: truncate the existing file to zero through
+  `EncryptedFs::set_len()`; handle attributes and allocation separately.
 - WinFsp `ReadDirectory` -> `EncryptedFs::read_dir_plus()` or `read_dir()`.
 - WinFsp `Rename` -> `EncryptedFs::rename()`.
-- WinFsp `Cleanup` / `Close` -> `EncryptedFs::release()`.
-- WinFsp `Unlink` / `RemoveDirectory` -> `EncryptedFs::remove()`.
+- WinFsp `SetDelete` validates deletion intent without deleting the entry.
+  On `Cleanup` with `FspCleanupDelete`, dispatch to
+  `EncryptedFs::remove_file()` or `EncryptedFs::remove_dir()` using the parent
+  inode and name. Verify that deletion does not break I/O that WinFsp still
+  permits before `Close`.
+- WinFsp `Close`: release the core handle once with `EncryptedFs::release()`
+  when the open context owns one, not during `Cleanup`.
 
 Unsupported initially:
 

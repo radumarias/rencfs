@@ -10,3 +10,9 @@
 - [blake3](https://crates.io/crates/blake3) for hashing
 - password saved in OS keyring using [keyring](https://crates.io/crates/keyring)
 - [tracing](https://crates.io/crates/tracing) for logs
+
+## Platform mount backends
+
+- Linux uses [`fuse3`](https://crates.io/crates/fuse3) in `src/mount/linux.rs`.
+- Windows and other non-Linux targets currently compile through `src/mount/dummy.rs`, and `src/main.rs` exits early on Windows and macOS, so no real mount backend exists there yet.
+- The proposed native Windows backend is documented in [Windows support research](Windows.md). The recommended direction is a Windows-only WinFsp adapter around the existing `EncryptedFs` storage and crypto layer, verified method by method against `main`.

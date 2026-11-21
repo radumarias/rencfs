@@ -70,6 +70,7 @@ Some of these are still being worked on and marked with `[WIP]`.
 
 - [Functionality](docs/readme/Functionality.md)
 - [Stack](docs/readme/Stack.md)
+- [Windows support research](docs/readme/Windows.md)
 
 # Documentation
 
@@ -87,7 +88,12 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
 
 # Next steps
 
-- The plan is to implement it also on macOS and Windows
+- The plan is to implement it also on macOS and Windows.
+  [Windows research and limitations](docs/readme/Windows.md): native Windows
+  mounting is not implemented yet. The proposed mount preserves the store's
+  case-sensitive names; some Windows applications/installers assume
+  case-insensitive paths and may not work correctly. Linux filenames forbidden
+  by Windows also need handling; see the research note's naming policy.
 - **Systemd service** is being worked on [rencfs-daemon](https://github.com/radumarias/rencfs-daemon)
 - **GUI** is being worked on [rencfs-desktop](https://github.com/radumarias/rencfs-desktop)
   and [ciphershell-kotlin](https://github.com/radumarias/ciphershell-kotlin)

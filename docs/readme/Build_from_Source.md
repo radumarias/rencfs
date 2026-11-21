@@ -32,7 +32,8 @@ You can also:
 
 ## Locally
 
-For now, the `FUSE` (`fuse3` crate) only works on `Linux`, so you must be on Linux to start the project. 
+For now, the `FUSE` (`fuse3` crate) mount backend only works on `Linux`, so you must be on Linux to run the mounted filesystem.
+Native Windows mounting is not implemented yet; see [Windows support research](Windows.md) for the verified WinFsp implementation path, licensing checkpoints, corrected operation mapping, and smoke-test plan. 
 Instead, you can [Develop inside a Container](#developing-inside-a-container) by starting a local Linux container to which the IDE will connect. You can build, run, and debug the app there and use the terminal to test it.  
 On Windows, you can start it in [WSL](https://harsimranmaan.medium.com/install-and-setup-rust-development-environment-on-wsl2-dccb4bf63700).
 

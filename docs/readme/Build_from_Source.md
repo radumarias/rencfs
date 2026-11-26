@@ -32,9 +32,27 @@ You can also:
 
 ## Locally
 
-For now, the `FUSE` (`fuse3` crate) only works on `Linux`, so you must be on Linux to start the project. 
-Instead, you can [Develop inside a Container](#developing-inside-a-container) by starting a local Linux container to which the IDE will connect. You can build, run, and debug the app there and use the terminal to test it.  
-On Windows, you can start it in [WSL](https://harsimranmaan.medium.com/install-and-setup-rust-development-environment-on-wsl2-dccb4bf63700).
+Linux mounts use the `FUSE` backend. Windows mounts use `WinFsp` and require
+[WinFsp 2.x](https://winfsp.dev/rel/) plus the MSVC Rust target. macOS is not supported yet; on macOS you can
+[develop inside a container](#developing-inside-a-container).
+
+### Windows
+
+Install Rust with the MSVC toolchain, [WinFsp 2.x](https://winfsp.dev/rel/), and the Windows Rust target:
+
+```powershell
+rustup target add x86_64-pc-windows-msvc
+cargo build --release
+```
+
+Mount a drive letter or an existing empty directory:
+
+```powershell
+$env:RENCFS_PASSWORD = "your-password"
+target\release\rencfs.exe mount --mount-point R: --data-dir C:\rencfs-data
+```
+
+The WinFsp DLL is loaded from the installed WinFsp directory at runtime; no WinFsp DLL needs to be copied beside `rencfs.exe`.
 
 ### Getting the sources
 

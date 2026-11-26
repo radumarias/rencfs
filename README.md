@@ -16,8 +16,7 @@ least the primitives should offer a similar level of security.
 stable release.  
 > It's mostly ideal for experimental and learning projects.**
 
-An encrypted file system written in Rust mounted with FUSE on Linux. It can be used to create encrypted
-directories.
+An encrypted file system written in Rust, mounted with FUSE on Linux and WinFsp on Windows. It can be used to create encrypted directories.
 
 You can then safely back up the encrypted directory to an untrusted server without worrying about the data being
 exposed.
@@ -58,7 +57,7 @@ Some of these are still being worked on and marked with `[WIP]`.
   from being copied between or within files by an attacker;
 - `Fast seek` on both reads and writes;
 - `Writes in parallel`;
-- Exposed with `FUSE`;
+- Exposed with `FUSE` on Linux and `WinFsp` on Windows;
 - Fully `concurrent` for all operations;
 - `[WIP]` [Handle long file names](https://github.com/xoriors/rencfs/issues/47)
 - `[WIP]` [Abstraction layer for Rust File and fs API to use it as lib to switch to using encrypted files by just changing the use statements](https://github.com/xoriors/rencfs/issues/97)
@@ -87,7 +86,7 @@ Please look into [Flows](docs/readme/flows.md) for a detailed sequence flow desc
 
 # Next steps
 
-- The plan is to implement it also on macOS and Windows
+- The plan is to implement it also on macOS
 - **Systemd service** is being worked on [rencfs-daemon](https://github.com/radumarias/rencfs-daemon)
 - **GUI** is being worked on [rencfs-desktop](https://github.com/radumarias/rencfs-desktop)
   and [ciphershell-kotlin](https://github.com/radumarias/ciphershell-kotlin)

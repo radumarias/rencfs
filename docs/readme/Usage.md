@@ -74,8 +74,8 @@ For the library, you can follow the [documentation](https://docs.rs/rencfs/lates
 
 ### Dependencies
 
-To use the encrypted file system, you need to have FUSE installed on your system. You can install it by running the
-following command (or based on your distribution).
+Linux uses FUSE. Windows uses [WinFsp 2.x](https://winfsp.dev/rel/), which must be installed before mounting.
+Install FUSE on Linux with one of the following commands (or the equivalent for your distribution).
 
 Arch
 

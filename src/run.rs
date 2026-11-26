@@ -117,9 +117,13 @@ fn get_cli_args() -> ArgMatches {
                 .value_name("cipher")
                 .default_value("ChaCha20Poly1305")
                 .global(true)
-                .help(format!("Cipher used for encryption, possible values: {}",
-                              Cipher::iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ")),
-                )
+                .help(format!(
+                    "Cipher used for encryption, possible values: {}",
+                    Cipher::iter()
+                        .map(|x| x.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )),
         )
         .subcommand_required(true)
         .subcommand(
@@ -132,7 +136,7 @@ fn get_cli_args() -> ArgMatches {
                         .required(true)
                         .value_name("MOUNT_POINT")
                         .requires("data-dir")
-                        .help("Act as a client, and mount FUSE at given path"),
+                        .help("Mount the encrypted filesystem at the given path or drive letter"),
                 )
                 .arg(
                     Arg::new("data-dir")
@@ -150,7 +154,9 @@ fn get_cli_args() -> ArgMatches {
                         .action(ArgAction::SetTrue)
                         .requires("mount-point")
                         .requires("data-dir")
-                        .help("If we should try to umount the mountpoint before starting the FUSE server. This can be useful when the previous run crashed or was forced kll and the mountpoint is still mounted."),
+                        .help(
+                            "Try to unmount the mountpoint before starting the filesystem server.",
+                        ),
                 )
                 .arg(
                     Arg::new("allow-root")
@@ -177,20 +183,21 @@ fn get_cli_args() -> ArgMatches {
                         .action(ArgAction::SetTrue)
                         .requires("mount-point")
                         .requires("data-dir")
-                        .help("Set FUSE filesystem read-only mount option, default is disabled.")
-                )
-        ).subcommand(
-        Command::new("passwd")
-            .about("Change password for the master key used to encrypt the data")
-            .arg(
-                Arg::new("data-dir")
-                    .long("data-dir")
-                    .short('d')
-                    .required(true)
-                    .value_name("DATA_DIR")
-                    .help("Where to store the encrypted data"),
-            )
-    )
+                        .help("Mount the filesystem read-only; disabled by default."),
+                ),
+        )
+        .subcommand(
+            Command::new("passwd")
+                .about("Change password for the master key used to encrypt the data")
+                .arg(
+                    Arg::new("data-dir")
+                        .long("data-dir")
+                        .short('d')
+                        .required(true)
+                        .value_name("DATA_DIR")
+                        .help("Where to store the encrypted data"),
+                ),
+        )
         .get_matches()
 }
 
